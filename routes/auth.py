@@ -66,8 +66,10 @@ def login_aluno():
 
 def login_professor():
     if request.method == 'POST':
+        print("TENTANDO LOGIN PROFESSOR")
         matricula = request.form.get('matricula', '').strip()
         senha     = request.form.get('senha', '').strip()
+        print(f"MATRICULA: {matricula}")
 
         if not matricula or not senha:
             flash('Preencha todos os campos.', 'error')
