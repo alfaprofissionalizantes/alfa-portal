@@ -371,7 +371,7 @@ def salvar_comunicado():
         cur.close()
         conn.close()
 
-    return redirect(url_for('professor.comunicados'))
+    return redirect(url_for('professor.comunicados'))   
  
  
 @professor_bp.route('/salvar_turma', methods=['POST'])

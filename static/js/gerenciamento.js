@@ -67,6 +67,8 @@ function abrirModalEditar(alunoId) {
     });
 }
 
+
+
 // ===== EDITAR PROFESSOR =====
 function abrirModalEditarProfessor(profId) {
   fetch(`/professor/buscar_professor/${profId}`)
