@@ -56,9 +56,7 @@ def pagina_nao_encontrada(e):
     return render_template('404.html'), 404
 
 @app.errorhandler(500)
-def erro_interno(e):
-    import traceback
-    print("ERRO 500:", traceback.format_exc())
+def erro_interno(e):   
     return render_template('500.html'), 500
 
 @app.errorhandler(429)

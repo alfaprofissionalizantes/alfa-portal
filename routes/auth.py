@@ -65,12 +65,10 @@ def login_aluno():
 @auth_bp.route('/login/professor', methods=['GET', 'POST'])
 
 def login_professor():
-    if request.method == 'POST':
-        print("TENTANDO LOGIN PROFESSOR")
+    if request.method == 'POST':        
         matricula = request.form.get('matricula', '').strip()
         senha     = request.form.get('senha', '').strip()
-        print(f"MATRICULA: {matricula}")
-
+        
         if not matricula or not senha:
             flash('Preencha todos os campos.', 'error')
             return redirect(url_for('auth.login_professor'))
