@@ -367,9 +367,20 @@ def salvar_comunicado():
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (professor_id, titulo, filename, tipo, turma_id, aluno_id))
 
+
+    observacao = flask_request.form.get('observacao', '').strip()
+
+    if tipo == 'observacao':
+        aluno_id_obs = flask_request.form.get('aluno_id') or None
+        cur.execute("""
+            INSERT INTO portal_comunicados
+            (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """, (professor_id, observacao, None, 'aluno', None, aluno_id_obs))
         conn.commit()
         cur.close()
         conn.close()
+    
 
     return redirect(url_for('professor.comunicados'))   
  

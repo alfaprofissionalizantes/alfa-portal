@@ -89,6 +89,7 @@
           <label class="radio-opcao"><input type="radio" name="tipo" value="turma" checked onchange="trocarTipo('turma')"/> Para turma</label>
           <label class="radio-opcao"><input type="radio" name="tipo" value="aluno" onchange="trocarTipo('aluno')"/> Para aluno específico</label>
           <label class="radio-opcao"><input type="radio" name="tipo" value="todos" onchange="trocarTipo('todos')"/> Para todos os alunos</label>
+          <label class="radio-opcao"><input type="radio" name="tipo" value="observacao" onchange="trocarTipo('observacao')"/> Observação</label>
         </div>
       </div>
 
@@ -120,9 +121,13 @@
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
             <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
           </svg>
-          <span id="upload-label">Selecionar arquivo</span>
-          <input type="file" name="arquivo" accept=".pdf,.docx" style="display:none" onchange="atualizarLabel(this)" required/>
+          <span id="upload-label">Selecionar arquivo</span>          
         </label>
+      </div>
+
+      <div class="campo-grupo oculto" id="campo-observacao">
+        <label class="campo-label">Observação <small style="color:#94a3b8">(será enviada como mensagem ao aluno)</small></label>
+        <textarea class="campo-input" name="observacao" rows="4" placeholder="Digite a observação aqui..."></textarea>
       </div>
 
     </div>
@@ -152,18 +157,25 @@ function fecharModal() {
 }
 
 function trocarTipo(tipo) {
-  const campoAluno = document.getElementById('campo-aluno-com');
-  const campoTurma = document.getElementById('select-turma-com').parentElement;
-  
+  const campoAluno   = document.getElementById('campo-aluno-com');
+  const campoTurma   = document.getElementById('select-turma-com').parentElement;
+  const campoObs     = document.getElementById('campo-observacao');
+
+  campoObs.classList.add('oculto');
+
   if (tipo === 'aluno') {
     campoAluno.classList.remove('oculto');
     campoTurma.classList.remove('oculto');
   } else if (tipo === 'turma') {
     campoAluno.classList.add('oculto');
     campoTurma.classList.remove('oculto');
-  } else {
+  } else if (tipo === 'todos') {
     campoAluno.classList.add('oculto');
     campoTurma.classList.add('oculto');
+  } else if (tipo === 'observacao') {
+    campoAluno.classList.remove('oculto');
+    campoTurma.classList.add('oculto');
+    campoObs.classList.remove('oculto');
   }
 }
 
