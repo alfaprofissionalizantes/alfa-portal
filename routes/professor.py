@@ -529,6 +529,8 @@ def salvar_matricula():
     taxa_matricula  = f.get('taxa_matricula', '')
     dia_pagamento = f.get('dia_pagamento', '')
     valor_desconto  = f.get('valor_desconto', '')
+    dias_aula    = f.get('dias_aula', '')
+    horario_aula = f.get('horario_aula', '')
     if not numero_contrato:
         cur.execute("SELECT MAX(numero_contrato) as max_num FROM portal_matriculas_contratos")
         resultado = cur.fetchone()
@@ -595,6 +597,8 @@ def salvar_matricula():
         'taxa_matricula':          taxa_matricula,
         'dia_pagamento':           dia_pagamento,
         'valor_desconto':          valor_desconto,
+        'dias_aula':               dias_aula,
+        'horario_aula':            horario_aula,
     }
  
     try:
