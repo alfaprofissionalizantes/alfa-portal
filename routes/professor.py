@@ -384,6 +384,8 @@ def salvar_comunicado():
 
     return redirect(url_for('professor.comunicados'))   
  
+
+ 
  
 @professor_bp.route('/salvar_turma', methods=['POST'])
 @login_required
