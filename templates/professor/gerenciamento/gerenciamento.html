@@ -171,7 +171,9 @@
     <div class="lista-ger">
       {% if alunos %}
         {% for aluno in alunos %}
-        <div class="card-ger" data-dias="{{ aluno.dias_semana if aluno.dias_semana else '' }}">
+        <div class="card-ger" data-dias="{{ aluno.dias_semana if aluno.dias_semana else '' }}"
+             data-responsavel="{{ aluno.nome_responsavel or '' }}"
+             data-telefone="{{ aluno.telefone_responsavel or '' }}">
           <div class="card-ger-esquerda">
             {% if aluno.foto %}
             <img src="{{ aluno.foto }}" class="aluno-avatar-foto"/>

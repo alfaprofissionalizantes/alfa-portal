@@ -220,6 +220,7 @@ def gerenciamento():
  
     cur.execute("""
         SELECT a.id, a.nome, a.matricula, a.foto, a.periodo,
+            a.nome_responsavel, a.telefone_responsavel,
             GROUP_CONCAT(DISTINCT c.nome SEPARATOR ' , ') as curso,
             GROUP_CONCAT(DISTINCT t.dias_semana SEPARATOR ',') as dias_semana,
             CASE WHEN (
@@ -234,7 +235,8 @@ def gerenciamento():
         LEFT JOIN portal_turmas t ON t.id = at2.turma_id
         LEFT JOIN portal_cursos c ON c.id = t.curso_id
         WHERE a.ativo = 1 OR a.ativo IS NULL
-        GROUP BY a.id, a.nome, a.matricula, a.foto, a.periodo
+        GROUP BY a.id, a.nome, a.matricula, a.foto, a.periodo,
+                a.nome_responsavel, a.telefone_responsavel
     """)
     alunos = cur.fetchall()
     cur.close()

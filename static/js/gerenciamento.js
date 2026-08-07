@@ -142,10 +142,12 @@ function filtrarAlunos() {
   const dia   = document.getElementById('filtro-dia').value.toLowerCase();
 
   document.querySelectorAll('#painel-alunos .card-ger').forEach(card => {
-    const titulo = card.querySelector('.card-ger-titulo').textContent.toLowerCase();
-    const sub    = card.querySelector('.card-ger-sub').textContent.toLowerCase();
+    const titulo      = card.querySelector('.card-ger-titulo').textContent.toLowerCase();
+    const sub         = card.querySelector('.card-ger-sub').textContent.toLowerCase();
+    const responsavel = (card.dataset.responsavel || '').toLowerCase();
+    const telefone    = (card.dataset.telefone || '').toLowerCase();
 
-    const matchNome  = !nome  || titulo.includes(nome) || sub.includes(nome);
+    const matchNome  = !nome  || titulo.includes(nome) || sub.includes(nome) || responsavel.includes(nome) || telefone.includes(nome);
     const matchCurso = !curso || sub.includes(curso);
     const matchDia   = !dia   || card.dataset.dias?.toLowerCase().includes(dia);
 
