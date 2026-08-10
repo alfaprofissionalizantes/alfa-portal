@@ -197,3 +197,34 @@ function formatarData(data) {
 function nomeDiaSemana(num) {
   return ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][num];
 }
+
+function filtrarDia(dia, btn) {
+  document.querySelectorAll('.dia-filtro-btn').forEach(b => b.classList.remove('ativo'));
+  btn.classList.add('ativo');
+
+  const select = document.getElementById('select-turma-falta');
+  const opcoes = select.querySelectorAll('option');
+
+  opcoes.forEach(op => {
+    if (!op.value) return; // mantém o placeholder
+    if (!dia || (op.dataset.dias && op.dataset.dias.includes(dia))) {
+      op.style.display = '';
+    } else {
+      op.style.display = 'none';
+    }
+  });
+
+  select.value = '';
+}
+
+// Destacar dia atual automaticamente
+document.addEventListener('DOMContentLoaded', function() {
+  const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const hoje = dias[new Date().getDay()];
+  const botoes = document.querySelectorAll('.dia-filtro-btn');
+  botoes.forEach(btn => {
+    if (btn.textContent.trim() && hoje.startsWith(btn.textContent.trim().slice(0,3))) {
+      filtrarDia(hoje, btn);
+    }
+  });
+});

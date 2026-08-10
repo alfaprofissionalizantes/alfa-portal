@@ -740,3 +740,33 @@
 }
 
 .btn-filtro-buscar:hover { background: #142d72; }
+
+.dias-filtro {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.dia-filtro-btn {
+  padding: 6px 14px;
+  border-radius: 20px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.dia-filtro-btn:hover {
+  background: #f0f4ff;
+  border-color: #1a3a8f;
+  color: #1a3a8f;
+}
+
+.dia-filtro-btn.ativo {
+  background: #1a3a8f;
+  color: white;
+  border-color: #1a3a8f;
+}
