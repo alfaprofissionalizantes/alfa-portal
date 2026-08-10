@@ -161,24 +161,6 @@ def faltas():
     return render_template('professor/faltas/faltas.html', turmas=turmas)
 
 
-@professor_bp.route('/alunos_turma/<int:turma_id>')
-@login_required
-def alunos_turma(turma_id):
-    conn = create_connection()
-    cur  = get_cursor(conn)
-    cur.execute("""
-        SELECT a.id, a.nome, a.matricula
-        FROM portal_aluno_turma at2
-        JOIN portal_alunos a ON a.id = at2.aluno_id
-        WHERE at2.turma_id = %s AND (a.ativo = 1 OR a.ativo IS NULL)
-        ORDER BY a.nome
-    """, (turma_id,))
-    alunos = cur.fetchall()
-    cur.close()
-    conn.close()
-    return jsonify([dict(a) for a in alunos])
-
-
 @professor_bp.route('/comunicados')
 @login_required
 def comunicados():
