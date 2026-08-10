@@ -796,3 +796,100 @@
   background: #1a3a8f;
   color: white;
 }
+
+
+
+.dia-cal {
+  padding: 10px 16px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #1a1a2e;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+  margin: 4px;
+}
+
+.dia-cal:hover { background: #f0f4ff; border-color: #1a3a8f; }
+
+.dia-cal.feito {
+  background: #dcfce7;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+.dia-cal.hoje {
+  background: #dbeafe;
+  border-color: #1a3a8f;
+  color: #1a3a8f;
+}
+
+.card-chamada {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  background: white;
+}
+
+.chamada-aluno-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chamada-aluno-nome {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #1a1a2e;
+}
+
+.chamada-faltas {
+  font-size: 0.78rem;
+  color: #dc2626;
+}
+
+.btn-status {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-status.presente {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.btn-status.falta {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.aluno-avatar-foto {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.aluno-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1a3a8f;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1rem;
+}

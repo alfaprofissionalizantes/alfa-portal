@@ -56,22 +56,38 @@ function renderizarCalendario(diasComChamada) {
   container.appendChild(nav);
 
   const diasNoMes = new Date(anoAtual, mesAtual, 0).getDate();
+  
+    for (let dia = 1; dia <= diasNoMes; dia++) {
+      const data = new Date(anoAtual, mesAtual - 1, dia);
+      const diaSemana = DIAS_SEMANA_PT[data.getDay()];
 
-  for (let dia = 1; dia <= diasNoMes; dia++) {
-    const data = new Date(anoAtual, mesAtual - 1, dia);
-    const diaSemana = DIAS_SEMANA_PT[data.getDay()];
+      if (!turmaInfo.dias.includes(diaSemana)) continue;
 
-    if (!turmaInfo.dias.includes(diaSemana)) continue;
+      const dataStr = `${anoAtual}-${String(mesAtual).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+      const isHoje = data.toDateString() === hoje.toDateString();
+      const temChamada = diasComChamada.includes(dataStr);
+      const isFuturo = data > hoje;
 
-    const dataStr = `${anoAtual}-${String(mesAtual).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-    const isHoje = data.toDateString() === hoje.toDateString();
-    const temChamada = diasComChamada.includes(dataStr);
+      const btn = document.createElement('button');
+      btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
+      btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
+      if (isFuturo) {
+        btn.disabled = true;
+        btn.style.opacity = '0.4';
+        btn.style.cursor = 'not-allowed';
+      } else {
+        btn.onclick = () => abrirChamada(dataStr, `${String(dia).padStart(2,'0')}/${String(mesAtual).padStart(2,'0')}/${anoAtual}`);
+      }
+      container.appendChild(btn);
+    }
 
-    const btn = document.createElement('button');
-    btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
-    btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
-    btn.onclick = () => abrirChamada(dataStr, `${String(dia).padStart(2,'0')}/${String(mesAtual).padStart(2,'0')}/${anoAtual}`);
-    container.appendChild(btn);
+    if (container.children.length === 1) {
+      const vazio = document.createElement('p');
+      vazio.style.color = '#94a3b8';
+      vazio.style.fontSize = '0.9rem';
+      vazio.textContent = 'Nenhum dia de aula neste mês.';
+      container.appendChild(vazio);
+    }
   }
 
   if (container.children.length === 1) {
@@ -84,9 +100,18 @@ function renderizarCalendario(diasComChamada) {
 }
 
 function mudarMes(direcao) {
-  mesAtual += direcao;
-  if (mesAtual > 12) { mesAtual = 1; anoAtual++; }
-  if (mesAtual < 1)  { mesAtual = 12; anoAtual--; }
+  const hoje = new Date();
+  const novoMes = mesAtual + direcao;
+  const novoAno = novoMes > 12 ? anoAtual + 1 : novoMes < 1 ? anoAtual - 1 : anoAtual;
+  const mesFinal = novoMes > 12 ? 1 : novoMes < 1 ? 12 : novoMes;
+
+  // Bloquear mês futuro
+  if (novoAno > hoje.getFullYear() || (novoAno === hoje.getFullYear() && mesFinal > hoje.getMonth() + 1)) {
+    return;
+  }
+
+  mesAtual = mesFinal;
+  anoAtual = novoAno;
   carregarCalendario();
 }
 
