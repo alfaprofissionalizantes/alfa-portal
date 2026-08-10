@@ -11,33 +11,46 @@
 
 {% block conteudo %}
 
+
 <div class="faltas-prof-wrapper">
-
-  <!-- Card de seleção de turma -->
-  <div class="campo-grupo">
-    <label class="campo-label">Filtrar por dia</label>
-    <div class="dias-filtro">
-      <button class="dia-filtro-btn ativo" onclick="filtrarDia('', this)">Todos</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Segunda', this)">Seg</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Terça', this)">Ter</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Quarta', this)">Qua</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Quinta', this)">Qui</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Sexta', this)">Sex</button>
-      <button class="dia-filtro-btn" onclick="filtrarDia('Sábado', this)">Sáb</button>
+  
+  <div class="faltas-prof-card" id="card-selecao">
+    <div class="notas-prof-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+      </svg>
+      <div>
+        <h2 class="notas-prof-titulo">Chamadas</h2>
+        <p class="notas-prof-subtitulo">Selecione a turma para ver o calendário de chamadas</p>
+      </div>
     </div>
-  </div>
 
-  <div class="campo-grupo">
-    <label class="campo-label">Turma</label>
-    <select class="campo-select" id="select-turma-falta">
-      <option value="">Selecione a turma</option>
-      {% for turma in turmas %}
-      <option value="{{ turma.id }}" data-dias="{{ turma.dias_semana }}">
-        {{ turma.curso }} — {{ turma.nome }}
-      </option>
-      {% endfor %}
-    </select>
-  </div>
+    <div class="notas-prof-secao-label">Selecionar turma</div>
+
+    <div class="campo-grupo">
+      <label class="campo-label">Filtrar por dia</label>
+      <div class="dias-filtro">
+        <button class="dia-filtro-btn ativo" onclick="filtrarDia('', this)">Todos</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Segunda', this)">Seg</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Terça', this)">Ter</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Quarta', this)">Qua</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Quinta', this)">Qui</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Sexta', this)">Sex</button>
+        <button class="dia-filtro-btn" onclick="filtrarDia('Sábado', this)">Sáb</button>
+      </div>
+    </div>
+
+    <div class="campo-grupo">
+      <label class="campo-label">Turma</label>
+      <select class="campo-select" id="select-turma-falta">
+        <option value="">Selecione a turma</option>
+        {% for turma in turmas %}
+        <option value="{{ turma.id }}" data-dias="{{ turma.dias_semana }}">
+          {{ turma.curso }} — {{ turma.nome }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
 
     <button class="btn-salvar-nota-prof" onclick="abrirCalendario()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
