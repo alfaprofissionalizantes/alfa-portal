@@ -31,4 +31,25 @@ document.addEventListener('DOMContentLoaded', function() {
       filtrarDiaNota(hoje, btn);
     }
   });
+
+  document.getElementById('select-turma-nota').addEventListener('change', function() {
+    const turmaId = this.value;
+    if (!turmaId) return;
+
+    fetch(`/professor/alunos_turma/${turmaId}`)
+      .then(r => r.json())
+      .then(alunos => {
+        const lista = document.getElementById('lista-alunos-nota');
+        lista.innerHTML = '';
+        alunos.forEach(a => {
+          lista.innerHTML += `
+            <div class="nota-aluno-item" id="aluno-${a.id}">
+              <span>${a.nome}</span>
+              <input type="number" class="campo-nota" min="0" max="10" step="0.1"
+                placeholder="Nota" id="nota-${a.id}"/>
+            </div>`;
+        });
+        document.getElementById('painel-lancamento').classList.remove('oculto');
+      });
+  });
 });

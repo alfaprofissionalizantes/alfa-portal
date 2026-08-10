@@ -124,11 +124,12 @@ def notas():
     cur  = get_cursor(conn)
 
     cur.execute("""
-        SELECT DISTINCT t.id, t.nome, t.dias_semana, t.horario, c.nome as curso
+        SELECT DISTINCT t.id, t.nome, t.dias_semana, c.nome as curso
         FROM portal_turmas t
         JOIN portal_cursos c ON c.id = t.curso_id
         JOIN portal_turma_professores tp ON tp.turma_id = t.id
         WHERE tp.professor_id = %s
+        ORDER BY t.nome
     """, (professor_id,))
     turmas = cur.fetchall()
     cur.close()
