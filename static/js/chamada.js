@@ -1,230 +1,209 @@
 // chamada.js — Alfa Profissionalizantes
 
-let turmaSelecionadaId = null;
-let dataSelecionada    = null;
-let statusAlunos       = {};
+let turmaSelecionada = null;
+let turmaInfo = {};
+let mesAtual = new Date().getMonth() + 1;
+let anoAtual = new Date().getFullYear();
 
-const DIAS_SEMANA = {
-  'Segunda': 1, 'Terça': 2, 'Quarta': 3,
-  'Quinta': 4, 'Sexta': 5, 'Sábado': 6, 'Domingo': 0
-};
-
-const MESES_PT = [
-  'Janeiro','Fevereiro','Março','Abril','Maio','Junho',
-  'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'
-];
-
-// ===== ABRIR CALENDÁRIO =====
 function abrirCalendario() {
   const select = document.getElementById('select-turma-falta');
-  turmaSelecionadaId = select.value;
-  const turmaLabel   = select.options[select.selectedIndex].text;
-  const diasStr      = select.options[select.selectedIndex].dataset.dias;
+  const turmaId = select.value;
+  if (!turmaId) { alert('Selecione uma turma!'); return; }
 
-  if (!turmaSelecionadaId) { alert('Selecione uma turma!'); return; }
+  turmaSelecionada = turmaId;
+  const opt = select.options[select.selectedIndex];
+  turmaInfo = {
+    nome: opt.text,
+    dias: opt.dataset.dias ? opt.dataset.dias.split(',').map(d => d.trim()) : []
+  };
 
-  const diasTurma = diasStr.split(',').map(d => d.trim());
-  const hoje      = new Date();
-  const ano       = hoje.getFullYear();
-  const mes       = hoje.getMonth(); // 0-indexado
-
-  document.getElementById('cal-titulo').textContent    = turmaLabel;
-  document.getElementById('cal-subtitulo').textContent = `${MESES_PT[mes]} ${ano}`;
-
-  // Buscar chamadas já feitas para essa turma no mês
-  fetch(`/professor/chamadas_mes/${turmaSelecionadaId}/${ano}/${mes + 1}`)
-    .then(r => r.json())
-    .then(chamadas => {
-      const datasFeitas = chamadas.map(c => c.data_aula);
-      gerarCalendario(diasTurma, ano, mes, datasFeitas, hoje);
-    });
+  mesAtual = new Date().getMonth() + 1;
+  anoAtual = new Date().getFullYear();
 
   document.getElementById('card-selecao').classList.add('oculto');
   document.getElementById('card-calendario').classList.remove('oculto');
+  carregarCalendario();
 }
 
-// ===== GERAR CALENDÁRIO =====
-function gerarCalendario(diasTurma, ano, mes, datasFeitas, hoje) {
+function carregarCalendario() {
+  const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  document.getElementById('cal-titulo').textContent = `Calendário — ${turmaInfo.nome}`;
+  document.getElementById('cal-subtitulo').textContent = `${MESES[mesAtual-1]} ${anoAtual}`;
+
+  fetch(`/professor/chamadas_mes/${turmaSelecionada}/${anoAtual}/${mesAtual}`)
+    .then(r => r.json())
+    .then(chamadas => {
+      const diasComChamada = chamadas.map(c => c.data_aula);
+      renderizarCalendario(diasComChamada);
+    });
+}
+
+function renderizarCalendario(diasComChamada) {
+  const DIAS_SEMANA_PT = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
+  const hoje = new Date();
   const container = document.getElementById('calendario-dias');
   container.innerHTML = '';
 
-  const diasNumericos = diasTurma.map(d => DIAS_SEMANA[d]);
-  const totalDias     = new Date(ano, mes + 1, 0).getDate();
-  const hojeStr       = formatarData(hoje);
+  // Botões de navegação
+  const nav = document.createElement('div');
+  nav.className = 'cal-nav';
+  nav.innerHTML = `
+    <button class="btn-cal-nav" onclick="mudarMes(-1)">← Anterior</button>
+    <button class="btn-cal-nav" onclick="mudarMes(1)">Próximo →</button>
+  `;
+  container.appendChild(nav);
 
-  for (let d = 1; d <= totalDias; d++) {
-    const data    = new Date(ano, mes, d);
-    const diaSem  = data.getDay();
-    if (!diasNumericos.includes(diaSem)) continue;
+  const diasNoMes = new Date(anoAtual, mesAtual, 0).getDate();
 
-    const dataStr = formatarData(data);
-    const feita   = datasFeitas.includes(dataStr);
-    const ehHoje  = dataStr === hojeStr;
-    const futuro  = data > hoje;
+  for (let dia = 1; dia <= diasNoMes; dia++) {
+    const data = new Date(anoAtual, mesAtual - 1, dia);
+    const diaSemana = DIAS_SEMANA_PT[data.getDay()];
+
+    if (!turmaInfo.dias.includes(diaSemana)) continue;
+
+    const dataStr = `${anoAtual}-${String(mesAtual).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const isHoje = data.toDateString() === hoje.toDateString();
+    const temChamada = diasComChamada.includes(dataStr);
 
     const btn = document.createElement('button');
-    btn.className = 'dia-chamada';
-    btn.innerHTML = `
-      <span class="dia-numero">${d}</span>
-      <span class="dia-semana">${nomeDiaSemana(diaSem)}</span>
-      <span class="dia-status">${feita ? '✅' : ehHoje ? '📋' : futuro ? '' : '⚠️'}</span>
-    `;
-
-    if (feita)   btn.classList.add('feita');
-    if (ehHoje)  btn.classList.add('hoje');
-    if (futuro)  btn.classList.add('futuro');
-    if (!feita && !futuro) btn.classList.add('pendente');
-
-    if (!futuro) {
-      btn.onclick = () => abrirChamada(dataStr, d, feita);
-    }
-
+    btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
+    btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
+    btn.onclick = () => abrirChamada(dataStr, `${String(dia).padStart(2,'0')}/${String(mesAtual).padStart(2,'0')}/${anoAtual}`);
     container.appendChild(btn);
+  }
+
+  if (container.children.length === 1) {
+    const vazio = document.createElement('p');
+    vazio.style.color = '#94a3b8';
+    vazio.style.fontSize = '0.9rem';
+    vazio.textContent = 'Nenhum dia de aula neste mês.';
+    container.appendChild(vazio);
   }
 }
 
-// ===== ABRIR CHAMADA DO DIA =====
-function abrirChamada(dataStr, dia, jaFeita) {
-  dataSelecionada = dataStr;
+function mudarMes(direcao) {
+  mesAtual += direcao;
+  if (mesAtual > 12) { mesAtual = 1; anoAtual++; }
+  if (mesAtual < 1)  { mesAtual = 12; anoAtual--; }
+  carregarCalendario();
+}
 
-  const [ano, mes, d] = dataStr.split('-');
-  document.getElementById('chamada-data-label').textContent =
-    `${d}/${mes}/${ano}${jaFeita ? ' — Editar chamada' : ' — Nova chamada'}`;
+function abrirChamada(data, dataFormatada) {
+  document.getElementById('chamada-data-label').textContent = `Data: ${dataFormatada} — ${turmaInfo.nome}`;
+  document.getElementById('card-calendario').classList.add('oculto');
+  document.getElementById('card-chamada').classList.remove('oculto');
 
-  fetch(`/professor/alunos_chamada/${turmaSelecionadaId}/${dataStr}`)
+  fetch(`/professor/alunos_chamada/${turmaSelecionada}/${data}`)
     .then(r => r.json())
     .then(alunos => {
       const lista = document.getElementById('lista-alunos');
       lista.innerHTML = '';
-      statusAlunos    = {};
+      lista.dataset.data = data;
 
       alunos.forEach(a => {
-        statusAlunos[a.id] = a.status || 'P';
-        const isPresente   = statusAlunos[a.id] === 'P';
+        const card = document.createElement('div');
+        card.className = 'card-chamada';
+        card.id = `card-${a.id}`;
+        card.dataset.status = a.status;
 
-        lista.innerHTML += `
-          <div class="card-chamada" id="card-${a.id}">
-            <div class="chamada-aluno-info">
-              ${a.foto ? `<img src="${a.foto}" class="aluno-avatar-foto"/>` : `<div class="aluno-avatar">${a.nome[0]}</div>`}
-                    <div>
-                <p class="aluno-nome">${a.nome}</p>
-                <p class="aluno-faltas-mes">${a.faltas_mes} falta${a.faltas_mes !== 1 ? 's' : ''} no mês</p>
-              </div>
+        card.innerHTML = `
+          <div class="chamada-aluno-info">
+            ${a.foto ? `<img src="${a.foto}" class="aluno-avatar-foto"/>` : `<div class="aluno-avatar">${a.nome[0]}</div>`}
+            <div>
+              <p class="chamada-aluno-nome">${a.nome}</p>
+              ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
             </div>
-            <button class="btn-status ${isPresente ? 'presente' : 'falta'}"
-                    id="btn-${a.id}" onclick="toggleStatus(${a.id})">
-              <span class="status-icone">${isPresente ? '✅' : '❌'}</span>
-              <span class="status-texto">${isPresente ? 'Presente' : 'Falta'}</span>
-            </button>
-          </div>`;
+          </div>
+          <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
+            ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
+          </button>
+        `;
+        lista.appendChild(card);
       });
-
-      document.getElementById('card-calendario').classList.add('oculto');
-      document.getElementById('card-chamada').classList.remove('oculto');
     });
 }
 
-// ===== TOGGLE STATUS =====
-function toggleStatus(id) {
-  const btn  = document.getElementById('btn-' + id);
-  const card = document.getElementById('card-' + id);
-
-  if (statusAlunos[id] === 'P') {
-    statusAlunos[id] = 'F';
-    btn.className = 'btn-status falta';
-    btn.querySelector('.status-icone').textContent = '❌';
-    btn.querySelector('.status-texto').textContent = 'Falta';
-    card.classList.add('card-falta-ativo');
-  } else {
-    statusAlunos[id] = 'P';
-    btn.className = 'btn-status presente';
-    btn.querySelector('.status-icone').textContent = '✅';
-    btn.querySelector('.status-texto').textContent = 'Presente';
-    card.classList.remove('card-falta-ativo');
-  }
+function toggleStatus(alunoId) {
+  const card = document.getElementById(`card-${alunoId}`);
+  const btn  = card.querySelector('.btn-status');
+  const novoStatus = card.dataset.status === 'P' ? 'F' : 'P';
+  card.dataset.status = novoStatus;
+  btn.className = `btn-status ${novoStatus === 'F' ? 'falta' : 'presente'}`;
+  btn.textContent = novoStatus === 'F' ? '❌ Falta' : '✅ Presente';
 }
 
-// ===== SALVAR CHAMADA =====
 function salvarChamada() {
-  const msg = document.getElementById('msg-chamada');
+  const lista = document.getElementById('lista-alunos');
+  const data  = lista.dataset.data;
+  const cards = lista.querySelectorAll('.card-chamada');
+  const status = {};
+  cards.forEach(c => {
+    const id = c.id.replace('card-', '');
+    status[id] = c.dataset.status;
+  });
 
   fetch('/professor/salvar_chamada', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      turma_id: turmaSelecionadaId,
-      data:     dataSelecionada,
-      status:   statusAlunos
-    })
+    body: JSON.stringify({ turma_id: turmaSelecionada, data, status })
   })
   .then(r => r.json())
-  .then(data => {
+  .then(d => {
+    const msg = document.getElementById('msg-chamada');
     msg.style.display = 'block';
-    if (data.ok) {
+    if (d.ok) {
       msg.style.background = '#dcfce7';
-      msg.style.color      = '#16a34a';
-      msg.textContent      = '✅ Chamada salva com sucesso!';
+      msg.style.color = '#16a34a';
+      msg.textContent = 'Chamada salva!';
       setTimeout(() => voltarCalendario(), 1500);
     } else {
       msg.style.background = '#fee2e2';
-      msg.style.color      = '#dc2626';
-      msg.textContent      = 'Erro ao salvar chamada.';
+      msg.style.color = '#dc2626';
+      msg.textContent = 'Erro ao salvar.';
     }
   });
-}
-
-// ===== NAVEGAÇÃO =====
-function voltarSelecao() {
-  document.getElementById('card-calendario').classList.add('oculto');
-  document.getElementById('card-selecao').classList.remove('oculto');
 }
 
 function voltarCalendario() {
   document.getElementById('card-chamada').classList.add('oculto');
   document.getElementById('card-calendario').classList.remove('oculto');
-  // Recarregar calendário para atualizar status
-  abrirCalendario();
+  carregarCalendario();
 }
 
-// ===== UTILITÁRIOS =====
-function formatarData(data) {
-  const ano = data.getFullYear();
-  const mes = String(data.getMonth() + 1).padStart(2, '0');
-  const dia = String(data.getDate()).padStart(2, '0');
-  return `${ano}-${mes}-${dia}`;
+function voltarSelecao() {
+  document.getElementById('card-calendario').classList.add('oculto');
+  document.getElementById('card-selecao').classList.remove('oculto');
 }
 
-function nomeDiaSemana(num) {
-  return ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'][num];
-}
-
+// Filtro por dia
 function filtrarDia(dia, btn) {
   document.querySelectorAll('.dia-filtro-btn').forEach(b => b.classList.remove('ativo'));
   btn.classList.add('ativo');
-
   const select = document.getElementById('select-turma-falta');
-  const opcoes = select.querySelectorAll('option');
-
-  opcoes.forEach(op => {
-    if (!op.value) return; // mantém o placeholder
-    if (!dia || (op.dataset.dias && op.dataset.dias.includes(dia))) {
-      op.style.display = '';
-    } else {
-      op.style.display = 'none';
-    }
+  select.querySelectorAll('option').forEach(op => {
+    if (!op.value) return;
+    op.style.display = (!dia || (op.dataset.dias && op.dataset.dias.includes(dia))) ? '' : 'none';
   });
-
   select.value = '';
 }
 
-// Destacar dia atual automaticamente
 document.addEventListener('DOMContentLoaded', function() {
-  const dias = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
-  const hoje = dias[new Date().getDay()];
-  const botoes = document.querySelectorAll('.dia-filtro-btn');
-  botoes.forEach(btn => {
-    if (btn.textContent.trim() && hoje.startsWith(btn.textContent.trim().slice(0,3))) {
-      filtrarDia(hoje, btn);
-    }
-  });
+  const mapaAbrev = {
+    0: '', 1: 'Segunda', 2: 'Terça', 3: 'Quarta',
+    4: 'Quinta', 5: 'Sexta', 6: 'Sábado'
+  };
+  const hoje = mapaAbrev[new Date().getDay()];
+  if (hoje) {
+    document.querySelectorAll('.dia-filtro-btn').forEach(btn => {
+      const mapaNome = {
+        'Seg': 'Segunda', 'Ter': 'Terça', 'Qua': 'Quarta',
+        'Qui': 'Quinta', 'Sex': 'Sexta', 'Sáb': 'Sábado'
+      };
+      if (mapaNome[btn.textContent.trim()] === hoje) {
+        filtrarDia(hoje, btn);
+      }
+    });
+  }
 });
