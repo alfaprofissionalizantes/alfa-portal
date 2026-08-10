@@ -114,4 +114,15 @@
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/chamada.js') }}"></script>
+<script>
+const params = new URLSearchParams(window.location.search);
+const turmaParam = params.get('turma');
+if (turmaParam) {
+  document.addEventListener('DOMContentLoaded', function() {
+    const select = document.getElementById('select-turma-falta');
+    select.value = turmaParam;
+    if (select.value) abrirCalendario();
+  });
+}
+</script>
 {% endblock %}

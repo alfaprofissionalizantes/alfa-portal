@@ -75,13 +75,13 @@
     {% if turmas_hoje %}
     <div class="lista-turmas-hoje">
       {% for turma in turmas_hoje %}
-      <div class="card-turma-hoje">
+      <a href="/professor/faltas?turma={{ turma.id }}" class="card-turma-hoje" style="text-decoration:none; display:flex;">
         <div class="turma-cor azul"></div>
         <div class="turma-info">
           <p class="turma-nome">{{ turma.curso }}</p>
           <p class="turma-horario">{{ turma.dias_semana }} — {{ turma.horario }}</p>
         </div>
-      </div>
+      </a>
       {% endfor %}
     </div>
     {% else %}
