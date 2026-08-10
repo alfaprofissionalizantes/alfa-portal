@@ -7,6 +7,7 @@
 
 {% block estilo %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/faltas.css') }}">
 {% endblock %}
 
 {% block conteudo %}
@@ -14,24 +15,27 @@
 <div class="notas-prof-wrapper">
   <div class="notas-prof-card">
 
-    <div class="notas-prof-header">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z"/>
-      </svg>
-      <div>
-        <h2 class="notas-prof-titulo">Lançar Nota</h2>
-        <p class="notas-prof-subtitulo">Selecione o aluno e preencha os dados da atividade</p>
+    <div class="campo-grupo">
+      <label class="campo-label">Filtrar por dia</label>
+      <div class="dias-filtro">
+        <button class="dia-filtro-btn ativo" onclick="filtrarDiaNota('', this)">Todos</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Segunda', this)">Seg</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Terça', this)">Ter</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Quarta', this)">Qua</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Quinta', this)">Qui</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Sexta', this)">Sex</button>
+        <button class="dia-filtro-btn" onclick="filtrarDiaNota('Sábado', this)">Sáb</button>
       </div>
     </div>
 
-    <div class="notas-prof-secao-label">Selecionar aluno</div>
-
     <div class="campo-grupo">
       <label class="campo-label">Turma</label>
-      <select class="campo-select" id="select-turma" onchange="carregarAlunos()">
+      <select class="campo-select" id="select-turma-nota">
         <option value="">Selecione a turma</option>
         {% for turma in turmas %}
-        <option value="{{ turma.id }}">{{ turma.curso }} — {{ turma.nome }}</option>
+        <option value="{{ turma.id }}" data-dias="{{ turma.dias_semana }}">
+          {{ turma.curso }} — {{ turma.nome }}
+        </option>
         {% endfor %}
       </select>
     </div>
