@@ -43,6 +43,7 @@ function carregarCalendario() {
 function renderizarCalendario(diasComChamada) {
   const DIAS_SEMANA_PT = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const hoje = new Date();
+  hoje.setHours(0, 0, 0, 0);
   const container = document.getElementById('calendario-dias');
   container.innerHTML = '';
 
@@ -56,41 +57,34 @@ function renderizarCalendario(diasComChamada) {
   container.appendChild(nav);
 
   const diasNoMes = new Date(anoAtual, mesAtual, 0).getDate();
-  
-    for (let dia = 1; dia <= diasNoMes; dia++) {
-      const data = new Date(anoAtual, mesAtual - 1, dia);
-      const diaSemana = DIAS_SEMANA_PT[data.getDay()];
 
-      if (!turmaInfo.dias.includes(diaSemana)) continue;
+  for (let dia = 1; dia <= diasNoMes; dia++) {
+    const data = new Date(anoAtual, mesAtual - 1, dia);
+    data.setHours(0, 0, 0, 0);
+    const diaSemana = DIAS_SEMANA_PT[data.getDay()];
 
-      const dataStr = `${anoAtual}-${String(mesAtual).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
-      const isHoje = data.toDateString() === hoje.toDateString();
-      const temChamada = diasComChamada.includes(dataStr);
-      const isFuturo = data > hoje;
+    if (!turmaInfo.dias.includes(diaSemana)) continue;
 
-      const btn = document.createElement('button');
-      btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
-      btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
-      if (isFuturo) {
-        btn.disabled = true;
-        btn.style.opacity = '0.4';
-        btn.style.cursor = 'not-allowed';
-      } else {
-        btn.onclick = () => abrirChamada(dataStr, `${String(dia).padStart(2,'0')}/${String(mesAtual).padStart(2,'0')}/${anoAtual}`);
-      }
-      container.appendChild(btn);
+    const dataStr = `${anoAtual}-${String(mesAtual).padStart(2,'0')}-${String(dia).padStart(2,'0')}`;
+    const isHoje = data.getTime() === hoje.getTime();
+    const isFuturo = data > hoje;
+    const temChamada = diasComChamada.includes(dataStr);
+
+    const btn = document.createElement('button');
+    btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
+    btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
+
+    if (isFuturo) {
+      btn.disabled = true;
+      btn.style.opacity = '0.4';
+      btn.style.cursor = 'not-allowed';
+    } else {
+      btn.onclick = () => abrirChamada(dataStr, `${String(dia).padStart(2,'0')}/${String(mesAtual).padStart(2,'0')}/${anoAtual}`);
     }
-
-    if (container.children.length === 1) {
-      const vazio = document.createElement('p');
-      vazio.style.color = '#94a3b8';
-      vazio.style.fontSize = '0.9rem';
-      vazio.textContent = 'Nenhum dia de aula neste mês.';
-      container.appendChild(vazio);
-    }
+    container.appendChild(btn);
   }
 
-  if (container.children.length === 1) {
+  if (container.querySelectorAll('.dia-cal').length === 0) {
     const vazio = document.createElement('p');
     vazio.style.color = '#94a3b8';
     vazio.style.fontSize = '0.9rem';
@@ -101,22 +95,25 @@ function renderizarCalendario(diasComChamada) {
 
 function mudarMes(direcao) {
   const hoje = new Date();
-  const novoMes = mesAtual + direcao;
-  const novoAno = novoMes > 12 ? anoAtual + 1 : novoMes < 1 ? anoAtual - 1 : anoAtual;
-  const mesFinal = novoMes > 12 ? 1 : novoMes < 1 ? 12 : novoMes;
+  let novoMes = mesAtual + direcao;
+  let novoAno = anoAtual;
+
+  if (novoMes > 12) { novoMes = 1; novoAno++; }
+  if (novoMes < 1)  { novoMes = 12; novoAno--; }
 
   // Bloquear mês futuro
-  if (novoAno > hoje.getFullYear() || (novoAno === hoje.getFullYear() && mesFinal > hoje.getMonth() + 1)) {
+  if (novoAno > hoje.getFullYear() || 
+     (novoAno === hoje.getFullYear() && novoMes > hoje.getMonth() + 1)) {
     return;
   }
 
-  mesAtual = mesFinal;
+  mesAtual = novoMes;
   anoAtual = novoAno;
   carregarCalendario();
 }
 
 function abrirChamada(data, dataFormatada) {
-  document.getElementById('chamada-data-label').textContent = `Data: ${dataFormatada} — ${turmaInfo.nome}`;
+  document.getElementById('chamada-data-label').textContent = `${dataFormatada} — ${turmaInfo.nome}`;
   document.getElementById('card-calendario').classList.add('oculto');
   document.getElementById('card-chamada').classList.remove('oculto');
 
