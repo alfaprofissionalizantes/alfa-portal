@@ -40,30 +40,4 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   }
-
-  const selectNota = document.getElementById('select-turma-nota');
-  if (selectNota) {
-    selectNota.addEventListener('change', function() {
-      const turmaId = this.value;
-      if (!turmaId) return;
-
-      fetch(`/professor/alunos_turma/${turmaId}`)
-        .then(r => r.json())
-        .then(alunos => {
-          const lista = document.getElementById('lista-alunos-nota');
-          if (!lista) return;
-          lista.innerHTML = '';
-          alunos.forEach(a => {
-            lista.innerHTML += `
-              <div class="nota-aluno-item" id="aluno-${a.id}">
-                <span>${a.nome}</span>
-                <input type="number" class="campo-nota" min="0" max="10" step="0.1"
-                  placeholder="Nota" id="nota-${a.id}"/>
-              </div>`;
-          });
-          const painel = document.getElementById('painel-lancamento');
-          if (painel) painel.classList.remove('oculto');
-        });
-    });
-  }
 });

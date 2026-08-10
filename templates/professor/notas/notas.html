@@ -30,7 +30,7 @@
 
     <div class="campo-grupo">
       <label class="campo-label">Turma</label>
-      <select class="campo-select" id="select-turma-nota">
+      <select class="campo-select" id="select-turma-nota" onchange="carregarAlunos()">
         <option value="">Selecione a turma</option>
         {% for turma in turmas %}
         <option value="{{ turma.id }}" data-dias="{{ turma.dias_semana }}">
@@ -88,7 +88,7 @@
 {% block script %}
 <script>
 function carregarAlunos() {
-  const turmaId = document.getElementById('select-turma').value;
+  const turmaId = document.getElementById('select-turma-nota').value;
   const selectAluno = document.getElementById('select-aluno');
 
   if (!turmaId) {
@@ -109,7 +109,7 @@ function carregarAlunos() {
 }
 
 function salvarNota() {
-  const turma_id  = document.getElementById('select-turma').value;
+  const turma_id  = document.getElementById('select-turma-nota').value;
   const aluno_id  = document.getElementById('select-aluno').value;
   const atividade = document.getElementById('input-atividade').value;
   const mes       = document.getElementById('input-mes').value;
