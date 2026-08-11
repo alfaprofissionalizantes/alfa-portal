@@ -40,7 +40,7 @@
         <label class="campo-label">Mês</label>
         <select class="campo-select" id="select-mes-rel">
           {% for num, nome in nomes_meses.items() %}
-          <option value="{{ num }}" {% if num == now_mes %}selected{% endif %}>{{ nome }}</option>
+          <option value="{{ num }}">{{ nome }}</option>
           {% endfor %}
         </select>
       </div>
