@@ -6,6 +6,7 @@
 {% block pagina_titulo %}Relatórios{% endblock %}
 
 {% block estilo %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/relatorios.css') }}">
 {% endblock %}
 
@@ -64,6 +65,7 @@
   </div>
 
   <div class="relatorio-card oculto" id="card-resultado">
+
     <div class="relatorio-resultado-header">
       <div>
         <h3 id="rel-titulo">Relatório</h3>
@@ -91,6 +93,7 @@
         <tbody id="rel-tbody"></tbody>
       </table>
     </div>
+
   </div>
 
 </div>
@@ -100,9 +103,9 @@
 {% block script %}
 <script>
 function gerarRelatorio() {
-  const turmaId = document.getElementById('select-turma-rel').value;
-  const mes     = document.getElementById('select-mes-rel').value;
-  const ano     = document.getElementById('select-ano-rel').value;
+  const turmaId    = document.getElementById('select-turma-rel').value;
+  const mes        = document.getElementById('select-mes-rel').value;
+  const ano        = document.getElementById('select-ano-rel').value;
   const turmaTexto = document.getElementById('select-turma-rel').options[document.getElementById('select-turma-rel').selectedIndex].text;
   const mesTexto   = document.getElementById('select-mes-rel').options[document.getElementById('select-mes-rel').selectedIndex].text;
 
@@ -121,7 +124,7 @@ function gerarRelatorio() {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
       } else {
         data.alunos.forEach(a => {
-          const cor = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
+          const cor   = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
           const icone = a.frequencia >= 75 ? '✅' : a.frequencia >= 50 ? '⚠️' : '❌';
           tbody.innerHTML += `
             <tr>
@@ -138,7 +141,4 @@ function gerarRelatorio() {
     });
 }
 </script>
-{% block estilo %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/relatorios.css') }}">
 {% endblock %}
