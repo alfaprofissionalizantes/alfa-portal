@@ -1188,7 +1188,8 @@ def relatorios():
 
     return render_template('professor/relatorios/relatorios.html',
         turmas=turmas,
-        nomes_meses=NOMES_MESES
+        nomes_meses=NOMES_MESES,
+        now_mes=date.today().month
     )
 
 @professor_bp.route('/relatorio_turma/<int:turma_id>/<int:ano>/<int:mes>')
