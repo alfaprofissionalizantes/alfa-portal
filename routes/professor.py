@@ -902,7 +902,7 @@ def alunos_chamada(turma_id, data):
     return jsonify(alunos)
 
 
-# Adicione essas rotas no routes/professor.py
+
 
 @professor_bp.route('/curso/<int:curso_id>/turmas')
 @admin_required
@@ -913,11 +913,17 @@ def curso_turmas(curso_id):
     curso = cur.fetchone()
     cur.execute("""
         SELECT t.id, t.nome, t.dias_semana, t.horario, t.periodo,
-               p.nome as professor,
-               (SELECT COUNT(*) FROM portal_aluno_turma WHERE turma_id = t.id) as total_alunos
+            GROUP_CONCAT(p.nome SEPARATOR ', ') as professor,
+            (SELECT COUNT(*) FROM portal_aluno_turma WHERE turma_id = t.id) as total_alunos
         FROM portal_turmas t
-        JOIN portal_professores p ON p.id = t.professor_id
+        LEFT JOIN portal_turma_professores tp ON tp.turma_id = t.id
+        LEFT JOIN portal_professores p ON p.id = tp.professor_id
         WHERE t.curso_id = %s
+        GROUP BY t.id, t.nome, t.dias_semana, t.horario, t.periodo
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
     """, (curso_id,))
     turmas = cur.fetchall()
     cur.close()
