@@ -228,3 +228,7 @@ def notificacoes():
         'faltas': [dict(f) for f in faltas],
         'comunicados': [dict(c) for c in comunicados]
     })
+
+
+
+

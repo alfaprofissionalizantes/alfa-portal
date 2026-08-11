@@ -1,0 +1,100 @@
+/* ===== RELATÓRIOS ===== */
+
+.relatorios-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.relatorio-card {
+  background: white;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  border: 1px solid #e8eef8;
+}
+
+.relatorio-linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.relatorio-resultado-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.relatorio-resultado-header h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.relatorio-legenda {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.relatorio-tabela-wrapper {
+  overflow-x: auto;
+}
+
+.relatorio-tabela {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.relatorio-tabela th {
+  background: #f8faff;
+  color: #64748b;
+  font-weight: 600;
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.relatorio-tabela td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1a1a2e;
+}
+
+.relatorio-tabela tr:hover td {
+  background: #f8faff;
+}
+
+.badge-freq {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge-freq.verde {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badge-freq.amarelo {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badge-freq.vermelho {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+@media (max-width: 600px) {
+  .relatorio-linha { grid-template-columns: 1fr; }
+}

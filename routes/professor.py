@@ -1155,3 +1155,78 @@ def minhas_turmas():
     cur.close()
     conn.close()
     return render_template('professor/minhas_turmas.html', turmas=turmas)
+
+
+@professor_bp.route('/relatorios')
+@login_required
+def relatorios():
+    professor_id = session['id']
+    cargo = session.get('cargo', '').lower()
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    if cargo == 'admin':
+        cur.execute("""
+            SELECT DISTINCT t.id, t.nome, t.dias_semana, t.horario, c.nome as curso
+            FROM portal_turmas t
+            JOIN portal_cursos c ON c.id = t.curso_id
+            ORDER BY c.nome, t.nome
+        """)
+    else:
+        cur.execute("""
+            SELECT DISTINCT t.id, t.nome, t.dias_semana, t.horario, c.nome as curso
+            FROM portal_turmas t
+            JOIN portal_cursos c ON c.id = t.curso_id
+            JOIN portal_turma_professores tp ON tp.turma_id = t.id
+            WHERE tp.professor_id = %s
+            ORDER BY c.nome, t.nome
+        """, (professor_id,))
+
+    turmas = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return render_template('professor/relatorios/relatorios.html',
+        turmas=turmas,
+        nomes_meses=NOMES_MESES
+    )
+
+@professor_bp.route('/relatorio_turma/<int:turma_id>/<int:ano>/<int:mes>')
+@login_required
+def relatorio_turma(turma_id, ano, mes):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    cur.execute("""
+        SELECT a.id, a.nome,
+            COUNT(CASE WHEN c.status = 'P' THEN 1 END) as presencas,
+            COUNT(CASE WHEN c.status = 'F' THEN 1 END) as faltas,
+            COUNT(*) as total_aulas
+        FROM portal_aluno_turma at2
+        JOIN portal_alunos a ON a.id = at2.aluno_id
+        LEFT JOIN portal_chamadas c ON c.aluno_id = a.id 
+            AND c.turma_id = %s
+            AND MONTH(c.data_aula) = %s
+            AND YEAR(c.data_aula) = %s
+        WHERE at2.turma_id = %s AND (a.ativo = 1 OR a.ativo IS NULL)
+        GROUP BY a.id, a.nome
+        ORDER BY a.nome
+    """, (turma_id, mes, ano, turma_id))
+    alunos = cur.fetchall()
+
+    cur.execute("SELECT nome, dias_semana FROM portal_turmas WHERE id = %s", (turma_id,))
+    turma = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    for aluno in alunos:
+        if aluno['total_aulas'] > 0:
+            aluno['frequencia'] = round((aluno['presencas'] / aluno['total_aulas']) * 100)
+        else:
+            aluno['frequencia'] = 0
+
+    return jsonify({
+        'alunos': [dict(a) for a in alunos],
+        'turma': dict(turma) if turma else {}
+    })
