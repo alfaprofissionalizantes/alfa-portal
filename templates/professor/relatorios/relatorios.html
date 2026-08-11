@@ -138,4 +138,7 @@ function gerarRelatorio() {
     });
 }
 </script>
+{% block estilo %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/relatorios.css') }}">
 {% endblock %}
