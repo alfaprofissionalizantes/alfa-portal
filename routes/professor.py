@@ -1203,16 +1203,14 @@ def relatorio_turma(turma_id, ano, mes):
             COUNT(CASE WHEN c.status = 'P' THEN 1 END) as presencas,
             COUNT(CASE WHEN c.status = 'F' THEN 1 END) as faltas,
             COUNT(*) as total_aulas
-        FROM portal_aluno_turma at2
-        JOIN portal_alunos a ON a.id = at2.aluno_id
-        LEFT JOIN portal_chamadas c ON c.aluno_id = a.id 
-            AND c.turma_id = %s
+        FROM portal_chamadas c
+        JOIN portal_alunos a ON a.id = c.aluno_id
+        WHERE c.turma_id = %s
             AND MONTH(c.data_aula) = %s
             AND YEAR(c.data_aula) = %s
-        WHERE at2.turma_id = %s AND (a.ativo = 1 OR a.ativo IS NULL)
         GROUP BY a.id, a.nome
         ORDER BY a.nome
-    """, (turma_id, mes, ano, turma_id))
+    """, (turma_id, mes, ano))
     alunos = cur.fetchall()
 
     cur.execute("SELECT nome, dias_semana FROM portal_turmas WHERE id = %s", (turma_id,))
