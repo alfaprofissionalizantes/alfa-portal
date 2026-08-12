@@ -1276,5 +1276,10 @@ def buscar_matricula(aluno_id):
     cur.close()
     conn.close()
     if matricula:
-        return jsonify(dict(matricula))
+        m = dict(matricula)
+        # Converter datas para string
+        for campo in ['data_matricula', 'data_primeiro_pagamento', 'criado_em']:
+            if m.get(campo):
+                m[campo] = str(m[campo])
+        return jsonify(m)
     return jsonify({})
