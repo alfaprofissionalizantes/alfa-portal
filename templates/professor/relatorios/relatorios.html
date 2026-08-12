@@ -11,98 +11,213 @@
 
 {% block conteudo %}
 
-
-
 <div class="relatorios-wrapper">
 
-  <div class="relatorio-card">
+  <!-- ABAS -->
+  <div class="abas-relatorio">
+    <button class="aba-rel ativa" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
+    <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
+  </div>
 
-    <div class="notas-prof-header">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-      </svg>
-      <div>
-        <h2 class="notas-prof-titulo">Relatório de Frequência</h2>
-        <p class="notas-prof-subtitulo">Selecione a turma e o mês para gerar o relatório</p>
+  <!-- ===== ABA FREQUÊNCIA ===== -->
+  <div id="painel-frequencia">
+
+    <div class="relatorio-card">
+      <div class="notas-prof-header">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        <div>
+          <h2 class="notas-prof-titulo">Relatório de Frequência</h2>
+          <p class="notas-prof-subtitulo">Selecione a turma e o mês para gerar o relatório</p>
+        </div>
       </div>
-    </div>
 
-    <div class="campo-grupo">
-      <label class="campo-label">Turma</label>
-      <select class="campo-select" id="select-turma-rel">
-        <option value="">Selecione a turma</option>
-        {% for turma in turmas %}
-        <option value="{{ turma.id }}">{{ turma.curso }} — {{ turma.nome }}</option>
-        {% endfor %}
-      </select>
-    </div>
-
-    <div class="relatorio-linha">
       <div class="campo-grupo">
-        <label class="campo-label">Mês</label>
-        <select class="campo-select" id="select-mes-rel">
-          {% for num, nome in nomes_meses.items() %}
-          <option value="{{ num }}">{{ nome }}</option>
+        <label class="campo-label">Turma</label>
+        <select class="campo-select" id="select-turma-rel">
+          <option value="">Selecione a turma</option>
+          {% for turma in turmas %}
+          <option value="{{ turma.id }}">{{ turma.curso }} — {{ turma.nome }}</option>
           {% endfor %}
         </select>
       </div>
-      <div class="campo-grupo">
-        <label class="campo-label">Ano</label>
-        <select class="campo-select" id="select-ano-rel">
-          <option value="2025">2025</option>
-          <option value="2026" selected>2026</option>
-          <option value="2027">2027</option>
-        </select>
+
+      <div class="relatorio-linha">
+        <div class="campo-grupo">
+          <label class="campo-label">Mês</label>
+          <select class="campo-select" id="select-mes-rel">
+            {% for num, nome in nomes_meses.items() %}
+            <option value="{{ num }}">{{ nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="campo-grupo">
+          <label class="campo-label">Ano</label>
+          <select class="campo-select" id="select-ano-rel">
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
       </div>
+
+      <button class="btn-salvar-nota-prof" onclick="gerarRelatorio()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
+        </svg>
+        Gerar Relatório
+      </button>
     </div>
 
-    <button class="btn-salvar-nota-prof" onclick="gerarRelatorio()">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
-        <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 14H7v-2h5v2zm5-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-      </svg>
-      Gerar Relatório
-    </button>
+    <div class="relatorio-card oculto" id="card-resultado">
+      <div class="relatorio-resultado-header">
+        <div>
+          <h3 id="rel-titulo">Relatório</h3>
+          <p id="rel-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
+        </div>
+      </div>
+      <div class="relatorio-legenda">
+        <span class="badge-freq verde">✅ ≥ 75%</span>
+        <span class="badge-freq amarelo">⚠️ 50–74%</span>
+        <span class="badge-freq vermelho">❌ &lt; 50%</span>
+      </div>
+      <div class="relatorio-tabela-wrapper">
+        <table class="relatorio-tabela">
+          <thead>
+            <tr>
+              <th>Aluno</th>
+              <th>Presenças</th>
+              <th>Faltas</th>
+              <th>Total Aulas</th>
+              <th>Frequência</th>
+            </tr>
+          </thead>
+          <tbody id="rel-tbody"></tbody>
+        </table>
+      </div>
+    </div>
 
   </div>
 
-  <div class="relatorio-card oculto" id="card-resultado">
+  <!-- ===== ABA NOTAS ===== -->
+  <div id="painel-notas" class="oculto">
 
-    <div class="relatorio-resultado-header">
-      <div>
-        <h3 class="relatorio-titulo-turma" id="rel-titulo">Relatório</h3>
-        <p class="relatorio-subtitulo-turma" id="rel-subtitulo"></p>
+    <div class="relatorio-card">
+      <div class="notas-prof-header">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+        <div>
+          <h2 class="notas-prof-titulo">Relatório de Notas</h2>
+          <p class="notas-prof-subtitulo">Visualize e edite as notas lançadas</p>
+        </div>
       </div>
+
+      <div class="campo-grupo">
+        <label class="campo-label">Turma</label>
+        <select class="campo-select" id="select-turma-notas-rel">
+          <option value="">Selecione a turma</option>
+          {% for turma in turmas %}
+          <option value="{{ turma.id }}">{{ turma.curso }} — {{ turma.nome }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <div class="relatorio-linha">
+        <div class="campo-grupo">
+          <label class="campo-label">Mês</label>
+          <select class="campo-select" id="select-mes-notas-rel">
+            {% for num, nome in nomes_meses.items() %}
+            <option value="{{ num }}">{{ nome }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="campo-grupo">
+          <label class="campo-label">Ano</label>
+          <select class="campo-select" id="select-ano-notas-rel">
+            <option value="2025">2025</option>
+            <option value="2026" selected>2026</option>
+            <option value="2027">2027</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-salvar-nota-prof" onclick="gerarRelatorioNotas()">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+        Ver Notas
+      </button>
     </div>
 
-    <div class="relatorio-legenda">
-      <span class="badge-freq verde">✅ ≥ 75%</span>
-      <span class="badge-freq amarelo">⚠️ 50–74%</span>
-      <span class="badge-freq vermelho">❌ &lt; 50%</span>
-    </div>
-
-    <div class="relatorio-tabela-wrapper">
-      <table class="relatorio-tabela">
-        <thead>
-          <tr>
-            <th>Aluno</th>
-            <th>Presenças</th>
-            <th>Faltas</th>
-            <th>Total Aulas</th>
-            <th>Frequência</th>
-          </tr>
-        </thead>
-        <tbody id="rel-tbody"></tbody>
-      </table>
+    <div class="relatorio-card oculto" id="card-resultado-notas">
+      <div class="relatorio-resultado-header">
+        <div>
+          <h3 id="rel-notas-titulo">Notas</h3>
+          <p id="rel-notas-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
+        </div>
+      </div>
+      <div class="relatorio-tabela-wrapper">
+        <table class="relatorio-tabela">
+          <thead>
+            <tr>
+              <th>Aluno</th>
+              <th>Atividade</th>
+              <th>Nota</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="rel-notas-tbody"></tbody>
+        </table>
+      </div>
     </div>
 
   </div>
 
 </div>
 
+<!-- MODAL EDITAR NOTA -->
+<div class="modal-overlay oculto" id="overlay-modal-nota" onclick="fecharModalNota()"></div>
+<div class="modal oculto" id="modal-editar-nota">
+  <div class="modal-header">
+    <h3>Editar Nota</h3>
+    <button class="modal-fechar" onclick="fecharModalNota()">✕</button>
+  </div>
+  <div class="modal-corpo">
+    <input type="hidden" id="edit-nota-id"/>
+    <div class="campo-grupo">
+      <label class="campo-label">Aluno</label>
+      <input type="text" class="campo-input" id="edit-nota-aluno" disabled/>
+    </div>
+    <div class="campo-grupo">
+      <label class="campo-label">Atividade</label>
+      <input type="text" class="campo-input" id="edit-nota-atividade"/>
+    </div>
+    <div class="campo-grupo">
+      <label class="campo-label">Nota</label>
+      <input type="number" class="campo-input" id="edit-nota-valor" min="0" max="10" step="0.1"/>
+    </div>
+  </div>
+  <div class="modal-rodape">
+    <button class="btn-cancelar" onclick="fecharModalNota()">Cancelar</button>
+    <button class="btn-enviar" onclick="salvarEdicaoNota()">Salvar</button>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
 <script>
+function trocarAbaRel(aba, btn) {
+  document.querySelectorAll('.aba-rel').forEach(b => b.classList.remove('ativa'));
+  btn.classList.add('ativa');
+  document.getElementById('painel-frequencia').classList.add('oculto');
+  document.getElementById('painel-notas').classList.add('oculto');
+  document.getElementById('painel-' + aba).classList.remove('oculto');
+}
+
+// ===== FREQUÊNCIA =====
 function gerarRelatorio() {
   const turmaId    = document.getElementById('select-turma-rel').value;
   const mes        = document.getElementById('select-mes-rel').value;
@@ -117,10 +232,8 @@ function gerarRelatorio() {
     .then(data => {
       document.getElementById('rel-titulo').textContent = turmaTexto;
       document.getElementById('rel-subtitulo').textContent = `${mesTexto} ${ano}`;
-
       const tbody = document.getElementById('rel-tbody');
       tbody.innerHTML = '';
-
       if (data.alunos.length === 0) {
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
       } else {
@@ -137,9 +250,81 @@ function gerarRelatorio() {
             </tr>`;
         });
       }
-
       document.getElementById('card-resultado').classList.remove('oculto');
     });
+}
+
+// ===== NOTAS =====
+function gerarRelatorioNotas() {
+  const turmaId    = document.getElementById('select-turma-notas-rel').value;
+  const mes        = document.getElementById('select-mes-notas-rel').value;
+  const ano        = document.getElementById('select-ano-notas-rel').value;
+  const turmaTexto = document.getElementById('select-turma-notas-rel').options[document.getElementById('select-turma-notas-rel').selectedIndex].text;
+  const mesTexto   = document.getElementById('select-mes-notas-rel').options[document.getElementById('select-mes-notas-rel').selectedIndex].text;
+
+  if (!turmaId) { alert('Selecione uma turma!'); return; }
+
+  fetch(`/professor/relatorio_notas/${turmaId}/${ano}/${mes}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('rel-notas-titulo').textContent = turmaTexto;
+      document.getElementById('rel-notas-subtitulo').textContent = `${mesTexto} ${ano}`;
+      const tbody = document.getElementById('rel-notas-tbody');
+      tbody.innerHTML = '';
+      if (data.notas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Nenhuma nota lançada.</td></tr>';
+      } else {
+        data.notas.forEach(n => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${n.nome_aluno}</td>
+              <td>${n.nome_atividade}</td>
+              <td><strong>${n.valor}</strong></td>
+              <td>
+                <button class="btn-acao editar" onclick="abrirModalNota(${n.id}, '${n.nome_aluno}', '${n.nome_atividade}', ${n.valor})">
+                  Editar
+                </button>
+              </td>
+            </tr>`;
+        });
+      }
+      document.getElementById('card-resultado-notas').classList.remove('oculto');
+    });
+}
+
+function abrirModalNota(id, aluno, atividade, valor) {
+  document.getElementById('edit-nota-id').value       = id;
+  document.getElementById('edit-nota-aluno').value    = aluno;
+  document.getElementById('edit-nota-atividade').value = atividade;
+  document.getElementById('edit-nota-valor').value    = valor;
+  document.getElementById('overlay-modal-nota').classList.remove('oculto');
+  document.getElementById('modal-editar-nota').classList.remove('oculto');
+}
+
+function fecharModalNota() {
+  document.getElementById('overlay-modal-nota').classList.add('oculto');
+  document.getElementById('modal-editar-nota').classList.add('oculto');
+}
+
+function salvarEdicaoNota() {
+  const id        = document.getElementById('edit-nota-id').value;
+  const atividade = document.getElementById('edit-nota-atividade').value;
+  const valor     = document.getElementById('edit-nota-valor').value;
+
+  fetch('/professor/editar_nota', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ id, atividade, valor })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      fecharModalNota();
+      gerarRelatorioNotas();
+    } else {
+      alert('Erro ao salvar nota.');
+    }
+  });
 }
 </script>
 {% endblock %}

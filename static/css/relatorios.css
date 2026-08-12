@@ -221,3 +221,31 @@
   .relatorio-card { padding: 20px; border-radius: 14px; }
   .relatorio-resultado-header { padding: 14px 16px; }
 }
+
+
+/* ABAS */
+.abas-relatorio {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.aba-rel {
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.aba-rel:hover { background: #f0f4ff; color: #1a3a8f; }
+
+.aba-rel.ativa {
+  background: #1a3a8f;
+  color: white;
+  border-color: #1a3a8f;
+}

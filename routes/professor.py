@@ -1229,3 +1229,35 @@ def relatorio_turma(turma_id, ano, mes):
         'alunos': [dict(a) for a in alunos],
         'turma': dict(turma) if turma else {}
     })
+
+
+@professor_bp.route('/relatorio_notas/<int:turma_id>/<int:ano>/<int:mes>')
+@login_required
+def relatorio_notas(turma_id, ano, mes):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT n.id, a.nome as nome_aluno, n.nome_atividade, n.valor
+        FROM portal_notas n
+        JOIN portal_alunos a ON a.id = n.aluno_id
+        WHERE n.turma_id = %s AND n.mes = %s AND n.ano = %s
+        ORDER BY a.nome, n.nome_atividade
+    """, (turma_id, mes, ano))
+    notas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify({'notas': [dict(n) for n in notas]})
+
+@professor_bp.route('/editar_nota', methods=['POST'])
+@login_required
+def editar_nota():
+    data = flask_request.get_json()
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        UPDATE portal_notas SET nome_atividade = %s, valor = %s WHERE id = %s
+    """, (data['atividade'], data['valor'], data['id']))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
