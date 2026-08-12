@@ -1261,3 +1261,20 @@ def editar_nota():
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+@professor_bp.route('/buscar_matricula/<int:aluno_id>')
+@login_required
+def buscar_matricula(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT * FROM portal_matriculas_contratos
+        WHERE aluno_id = %s
+        ORDER BY criado_em DESC LIMIT 1
+    """, (aluno_id,))
+    matricula = cur.fetchone()
+    cur.close()
+    conn.close()
+    if matricula:
+        return jsonify(dict(matricula))
+    return jsonify({})
