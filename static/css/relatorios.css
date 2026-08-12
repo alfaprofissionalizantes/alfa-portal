@@ -28,12 +28,56 @@
 }
 
 /* Card de resultado é mais largo por causa da tabela */
-#card-resultado {
+#card-resultado,
+#card-resultado-notas {
   max-width: 900px;
 }
 
-.relatorio-card.oculto {
-  display: none;
+.oculto {
+  display: none !important;
+}
+
+/* ===== Abas (Frequência / Notas) ===== */
+.abas-relatorio {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.aba-rel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: 0.2s;
+}
+
+.aba-rel:hover {
+  background: #f0f4ff;
+  color: #1a3a8f;
+}
+
+.aba-rel.ativa {
+  background: #1a3a8f;
+  color: #ffffff;
+  border-color: #1a3a8f;
+}
+
+#painel-frequencia,
+#painel-notas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  width: 100%;
 }
 
 .relatorio-linha {
@@ -222,30 +266,178 @@
   .relatorio-resultado-header { padding: 14px 16px; }
 }
 
-
-/* ABAS */
-.abas-relatorio {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.aba-rel {
-  padding: 10px 24px;
-  border-radius: 10px;
+/* ===== Botão de ação na tabela (Editar nota) ===== */
+.btn-acao {
+  padding: 6px 14px;
+  border-radius: 8px;
   border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
-  font-size: 0.9rem;
+  background: #ffffff;
+  color: #1a3a8f;
+  font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
+  font-family: 'Segoe UI', system-ui, sans-serif;
   transition: 0.2s;
 }
 
-.aba-rel:hover { background: #f0f4ff; color: #1a3a8f; }
-
-.aba-rel.ativa {
+.btn-acao.editar:hover {
   background: #1a3a8f;
-  color: white;
+  color: #ffffff;
   border-color: #1a3a8f;
+}
+
+/* ============================================================
+   MODAL — Editar Nota
+   Estava sem CSS nenhum: por isso renderizava como HTML cru
+   empurrado pro final da página em vez de um popup.
+   ============================================================ */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.5);
+  z-index: 1000;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #ffffff;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(15, 23, 42, 0.25);
+  width: 100%;
+  max-width: 420px;
+  z-index: 1001;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e8eef8;
+}
+
+.modal-header h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.modal-fechar {
+  border: none;
+  background: transparent;
+  font-size: 1.1rem;
+  color: #94a3b8;
+  cursor: pointer;
+  line-height: 1;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+
+.modal-fechar:hover {
+  background: #f1f5f9;
+  color: #1a1a2e;
+}
+
+.modal-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.modal-corpo .campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.modal-corpo .campo-label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.campo-input {
+  padding: 11px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  color: #1a1a2e;
+  background: #f8faff;
+  outline: none;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.campo-input:focus {
+  border-color: #1a3a8f;
+  background: #ffffff;
+}
+
+.campo-input:disabled {
+  background: #f1f5f9;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+.modal-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 24px;
+  border-top: 1px solid #e8eef8;
+  background: #f8faff;
+}
+
+.btn-cancelar {
+  padding: 10px 18px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: 0.2s;
+}
+
+.btn-cancelar:hover {
+  background: #f0f4ff;
+  color: #1a3a8f;
+}
+
+.btn-enviar {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: none;
+  background: #1a3a8f;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  transition: background 0.2s, transform 0.15s;
+  box-shadow: 0 4px 14px rgba(26, 58, 143, 0.25);
+}
+
+.btn-enviar:hover {
+  background: #1f47b0;
+  transform: translateY(-1px);
+}
+
+@media (max-width: 600px) {
+  .modal { max-width: calc(100% - 32px); }
+  .modal-corpo, .modal-header, .modal-rodape { padding-left: 18px; padding-right: 18px; }
 }
