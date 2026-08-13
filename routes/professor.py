@@ -911,8 +911,6 @@ def alunos_chamada(turma_id, data):
     return jsonify(alunos)
 
 
-
-
 @professor_bp.route('/curso/<int:curso_id>/turmas')
 @admin_required
 def curso_turmas(curso_id):
