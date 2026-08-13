@@ -34,7 +34,22 @@ function fecharModal(id) {
 function abrirModalMatricula(alunoId, nomeAluno) {
   document.getElementById('input-aluno-id-matricula').value = alunoId;
   document.getElementById('nome-aluno-matricula').textContent = nomeAluno;
-  abrirModal('modal-matricula');
+
+  fetch(`/professor/buscar_matricula/${alunoId}`)
+    .then(r => r.json())
+    .then(m => {
+      if (m && m.numero_contrato) {
+        document.querySelector('[name="numero_contrato"]').value = (m.numero_contrato + 1) || '';
+        document.querySelector('[name="data_matricula"]').value  = m.data_matricula || '';
+        document.querySelector('[name="data_primeiro_pagamento"]').value = m.data_primeiro_pagamento || '';
+        document.querySelector('[name="curso_contrato"]').value  = m.curso_contrato || '';
+        document.querySelector('[name="modulo"]').value          = m.modulo || '';
+        document.querySelector('[name="preco_total"]').value     = m.preco_total || '';
+        document.querySelector('[name="qtd_parcelas"]').value    = m.qtd_parcelas || '';
+        document.querySelector('[name="valor_parcela"]').value   = m.valor_parcela || '';
+      }
+      abrirModal('modal-matricula');
+    });
 }
 
 // ===== EDITAR ALUNO =====
