@@ -135,6 +135,10 @@ function abrirChamada(data, dataFormatada) {
             ${a.foto ? `<img src="${a.foto}" class="aluno-avatar-foto"/>` : `<div class="aluno-avatar">${a.nome[0]}</div>`}
             <div>
               <p class="chamada-aluno-nome">${a.nome}</p>
+              <p class="chamada-aluno-info-extra">
+                ${a.telefone_responsavel ? a.telefone_responsavel : ''}
+                ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
+              </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
             </div>
           </div>

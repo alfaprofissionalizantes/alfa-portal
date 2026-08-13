@@ -882,7 +882,11 @@ def alunos_chamada(turma_id, data):
     conn = create_connection()
     cur  = get_cursor(conn)
     cur.execute("""
-        SELECT a.id, a.nome, a.foto,
+        SELECT a.id, a.nome, a.foto, a.telefone_responsavel,
+            (SELECT DATE_FORMAT(data_matricula, '%d/%m/%Y') 
+            FROM portal_matriculas_contratos 
+            WHERE aluno_id = a.id 
+            ORDER BY criado_em DESC LIMIT 1) as data_matricula,
             COALESCE(
                 (SELECT status FROM portal_chamadas
                 WHERE aluno_id = a.id AND turma_id = %s AND data_aula = %s),
@@ -897,11 +901,14 @@ def alunos_chamada(turma_id, data):
         ORDER BY a.nome
     """, (turma_id, data, turma_id, data, turma_id))
     alunos = cur.fetchall()
+    for aluno in alunos:
+        try:
+            aluno['telefone_responsavel'] = descriptografar(aluno['telefone_responsavel'] or '')
+        except:
+            aluno['telefone_responsavel'] = ''
     cur.close()
     conn.close()
     return jsonify(alunos)
-
-
 
 
 @professor_bp.route('/curso/<int:curso_id>/turmas')
