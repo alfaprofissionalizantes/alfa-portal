@@ -1279,6 +1279,24 @@ def editar_nota():
     conn.close()
     return jsonify({'ok': True})
 
+
+
+@professor_bp.route('/historico_notas/<int:aluno_id>/<int:turma_id>')
+@login_required
+def historico_notas(aluno_id, turma_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT nome_atividade, valor, mes, ano
+        FROM portal_notas
+        WHERE aluno_id = %s AND turma_id = %s
+        ORDER BY ano DESC, mes DESC
+    """, (aluno_id, turma_id))
+    notas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([dict(n) for n in notas])
+
 @professor_bp.route('/buscar_matricula/<int:aluno_id>')
 @login_required
 def buscar_matricula(aluno_id):
@@ -1294,7 +1312,6 @@ def buscar_matricula(aluno_id):
     conn.close()
     if matricula:
         m = dict(matricula)
-        # Converter datas para string
         for campo in ['data_matricula', 'data_primeiro_pagamento', 'criado_em']:
             if m.get(campo):
                 m[campo] = str(m[campo])
