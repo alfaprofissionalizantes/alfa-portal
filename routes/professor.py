@@ -209,13 +209,17 @@ def gerenciamento():
  
     cur.execute("""
         SELECT t.id, t.nome, t.dias_semana, t.horario, t.periodo,
-               c.nome as curso,
-               GROUP_CONCAT(p.nome SEPARATOR ', ') as professor
+            c.nome as curso,
+            GROUP_CONCAT(p.nome SEPARATOR ', ') as professor
         FROM portal_turmas t
         JOIN portal_cursos c ON c.id = t.curso_id
         LEFT JOIN portal_turma_professores tp ON tp.turma_id = t.id
         LEFT JOIN portal_professores p ON p.id = tp.professor_id
         GROUP BY t.id, t.nome, t.dias_semana, t.horario, t.periodo, c.nome
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
     """)
     turmas = cur.fetchall()
  
