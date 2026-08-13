@@ -1170,7 +1170,10 @@ def relatorios():
             SELECT DISTINCT t.id, t.nome, t.dias_semana, t.horario, c.nome as curso
             FROM portal_turmas t
             JOIN portal_cursos c ON c.id = t.curso_id
-            ORDER BY c.nome, t.nome
+            ORDER BY
+                FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                    'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+                t.horario
         """)
     else:
         cur.execute("""
@@ -1179,7 +1182,10 @@ def relatorios():
             JOIN portal_cursos c ON c.id = t.curso_id
             JOIN portal_turma_professores tp ON tp.turma_id = t.id
             WHERE tp.professor_id = %s
-            ORDER BY c.nome, t.nome
+            ORDER BY
+                FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                    'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+                t.horario
         """, (professor_id,))
 
     turmas = cur.fetchall()
