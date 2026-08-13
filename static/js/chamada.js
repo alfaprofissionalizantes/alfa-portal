@@ -140,11 +140,17 @@ function abrirChamada(data, dataFormatada) {
                 ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
               </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
+              <div class="historico-notas oculto" id="historico-${a.id}">
+                <p style="font-size:0.78rem; color:#64748b; margin-top:6px;">Carregando...</p>
+              </div>
             </div>
           </div>
-          <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
-            ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
-          </button>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <button class="btn-historico" onclick="toggleHistorico(${a.id}, ${turmaSelecionada})">📝</button>
+            <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
+              ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
+            </button>
+          </div>
         `;
         lista.appendChild(card);
       });
@@ -233,3 +239,33 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+
+function toggleHistorico(alunoId, turmaId) {
+  const div = document.getElementById(`historico-${alunoId}`);
+  if (!div.classList.contains('oculto')) {
+    div.classList.add('oculto');
+    return;
+  }
+
+  div.classList.remove('oculto');
+  div.innerHTML = '<p style="font-size:0.78rem; color:#64748b;">Carregando...</p>';
+
+  fetch(`/professor/historico_notas/${alunoId}/${turmaId}`)
+    .then(r => r.json())
+    .then(notas => {
+      if (notas.length === 0) {
+        div.innerHTML = '<p style="font-size:0.78rem; color:#94a3b8;">Nenhuma nota lançada.</p>';
+        return;
+      }
+      const MESES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                     'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+      div.innerHTML = notas.map(n => `
+        <div class="nota-historico-item">
+          <span>${n.nome_atividade}</span>
+          <span style="color:#64748b; font-size:0.75rem;">${MESES[n.mes]} ${n.ano}</span>
+          <strong>${n.valor}</strong>
+        </div>
+      `).join('');
+    });
+}

@@ -900,3 +900,42 @@
   color: #64748b;
   margin-top: 2px;
 }
+
+
+.btn-historico {
+  background: #f0f4ff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: 0.2s;
+}
+
+.btn-historico:hover {
+  background: #dbeafe;
+  border-color: #1a3a8f;
+}
+
+.historico-notas {
+  margin-top: 6px;
+  padding: 8px;
+  background: #f8faff;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+}
+
+.nota-historico-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  padding: 4px 0;
+  border-bottom: 1px solid #f1f5f9;
+  color: #1a1a2e;
+}
+
+.nota-historico-item:last-child {
+  border-bottom: none;
+}

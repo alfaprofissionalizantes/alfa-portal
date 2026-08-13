@@ -1278,3 +1278,19 @@ def editar_nota():
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+@professor_bp.route('/historico_notas/<int:aluno_id>/<int:turma_id>')
+@login_required
+def historico_notas(aluno_id, turma_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT nome_atividade, valor, mes, ano
+        FROM portal_notas
+        WHERE aluno_id = %s AND turma_id = %s
+        ORDER BY ano DESC, mes DESC
+    """, (aluno_id, turma_id))
+    notas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([dict(n) for n in notas])
