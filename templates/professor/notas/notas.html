@@ -133,5 +133,23 @@ function salvarNota() {
     setTimeout(() => msg.style.display = 'none', 3000);
   });
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const params = new URLSearchParams(window.location.search);
+  const turmaParam = params.get('turma');
+  const alunoParam = params.get('aluno');
+
+  if (turmaParam) {
+    const selectTurma = document.getElementById('select-turma-nota');
+    selectTurma.value = turmaParam;
+    carregarAlunos();
+
+    if (alunoParam) {
+      setTimeout(() => {
+        document.getElementById('select-aluno').value = alunoParam;
+      }, 800);
+    }
+  }
+});
 </script>
 {% endblock %}
