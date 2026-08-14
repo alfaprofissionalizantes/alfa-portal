@@ -47,7 +47,6 @@ function renderizarCalendario(diasComChamada) {
   const container = document.getElementById('calendario-dias');
   container.innerHTML = '';
 
-  // Botões de navegação
   const nav = document.createElement('div');
   nav.className = 'cal-nav';
   nav.innerHTML = `
@@ -101,8 +100,7 @@ function mudarMes(direcao) {
   if (novoMes > 12) { novoMes = 1; novoAno++; }
   if (novoMes < 1)  { novoMes = 12; novoAno--; }
 
-  // Bloquear mês futuro
-  if (novoAno > hoje.getFullYear() || 
+  if (novoAno > hoje.getFullYear() ||
      (novoAno === hoje.getFullYear() && novoMes > hoje.getMonth() + 1)) {
     return;
   }
@@ -140,13 +138,10 @@ function abrirChamada(data, dataFormatada) {
                 ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
               </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
-              <div class="historico-notas oculto" id="historico-${a.id}">
-                <p style="font-size:0.78rem; color:#64748b; margin-top:6px;">Carregando...</p>
-              </div>
+              <div class="historico-notas oculto" id="historico-${a.id}"></div>
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-          
             <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
@@ -210,7 +205,6 @@ function voltarSelecao() {
   document.getElementById('card-selecao').classList.remove('oculto');
 }
 
-// Filtro por dia
 function filtrarDia(dia, btn) {
   document.querySelectorAll('.dia-filtro-btn').forEach(b => b.classList.remove('ativo'));
   btn.classList.add('ativo');
@@ -241,17 +235,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 });
 
-
 function toggleHistorico(alunoId, turmaId) {
   const div = document.getElementById(`historico-${alunoId}`);
   if (!div.classList.contains('oculto')) {
     div.classList.add('oculto');
     return;
   }
-
   div.classList.remove('oculto');
   div.innerHTML = '<p style="font-size:0.78rem; color:#64748b;">Carregando...</p>';
-
   fetch(`/professor/historico_notas/${alunoId}/${turmaId}`)
     .then(r => r.json())
     .then(notas => {
@@ -269,12 +260,8 @@ function toggleHistorico(alunoId, turmaId) {
         </div>
       `).join('');
     });
-<<<<<<< HEAD
 }
-
 
 function abrirLancarNota(alunoId, turmaId) {
   window.location.href = `/professor/notas?turma=${turmaId}&aluno=${alunoId}`;
-=======
->>>>>>> 3e5cccc0e058bee39fb8c22478a2bf91045a1236
 }
