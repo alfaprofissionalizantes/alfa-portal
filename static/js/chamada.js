@@ -140,10 +140,13 @@ function abrirChamada(data, dataFormatada) {
                 ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
               </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
-              <div class="historico-notas oculto" id="historico-${a.id}"></div>
+              <div class="historico-notas oculto" id="historico-${a.id}">
+                <p style="font-size:0.78rem; color:#64748b; margin-top:6px;">Carregando...</p>
+              </div>
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
+          
             <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
@@ -266,9 +269,12 @@ function toggleHistorico(alunoId, turmaId) {
         </div>
       `).join('');
     });
+<<<<<<< HEAD
 }
 
 
 function abrirLancarNota(alunoId, turmaId) {
   window.location.href = `/professor/notas?turma=${turmaId}&aluno=${alunoId}`;
+=======
+>>>>>>> 3e5cccc0e058bee39fb8c22478a2bf91045a1236
 }
