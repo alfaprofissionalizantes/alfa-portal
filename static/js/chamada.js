@@ -146,7 +146,8 @@ function abrirChamada(data, dataFormatada) {
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button class="btn-historico" onclick="toggleHistorico(${a.id}, ${turmaSelecionada})">📝</button>
+          
+            <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
             </button>
@@ -268,4 +269,12 @@ function toggleHistorico(alunoId, turmaId) {
         </div>
       `).join('');
     });
+<<<<<<< HEAD
+}
+
+
+function abrirLancarNota(alunoId, turmaId) {
+  window.location.href = `/professor/notas?turma=${turmaId}&aluno=${alunoId}`;
+=======
+>>>>>>> 3e5cccc0e058bee39fb8c22478a2bf91045a1236
 }
