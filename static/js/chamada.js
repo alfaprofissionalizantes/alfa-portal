@@ -144,7 +144,7 @@ function abrirChamada(data, dataFormatada) {
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button class="btn-historico" onclick="abrirLancarNota(${a.id}, '${a.nome}', ${turmaSelecionada})" title="Lançar nota">📝</button>
+            <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
             </button>
@@ -269,21 +269,6 @@ function toggleHistorico(alunoId, turmaId) {
 }
 
 
-function abrirLancarNota(alunoId, nomeAluno, turmaId) {
-  const atividade = prompt(`Lançar nota para ${nomeAluno}\n\nNome da atividade:`);
-  if (!atividade) return;
-  const nota = prompt(`Nota (0 a 10):`);
-  if (!nota) return;
-  const mes = new Date().getMonth() + 1;
-
-  fetch('/professor/salvar_nota', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ turma_id: turmaId, aluno_id: alunoId, atividade, mes, nota })
-  })
-  .then(r => r.json())
-  .then(data => {
-    if (data.ok) alert(`Nota lançada com sucesso para ${nomeAluno}!`);
-    else alert('Erro ao lançar nota.');
-  });
+function abrirLancarNota(alunoId, turmaId) {
+  window.location.href = `/professor/notas?turma=${turmaId}&aluno=${alunoId}`;
 }
