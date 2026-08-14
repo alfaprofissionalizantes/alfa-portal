@@ -140,13 +140,11 @@ function abrirChamada(data, dataFormatada) {
                 ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
               </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
-              <div class="historico-notas oculto" id="historico-${a.id}">
-                <p style="font-size:0.78rem; color:#64748b; margin-top:6px;">Carregando...</p>
-              </div>
+              <div class="historico-notas oculto" id="historico-${a.id}"></div>
             </div>
           </div>
           <div style="display:flex; gap:8px; align-items:center;">
-            <button class="btn-historico" onclick="toggleHistorico(${a.id}, ${turmaSelecionada})">📝</button>
+            <button class="btn-historico" onclick="abrirLancarNota(${a.id}, '${a.nome}', ${turmaSelecionada})" title="Lançar nota">📝</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
             </button>
@@ -268,4 +266,24 @@ function toggleHistorico(alunoId, turmaId) {
         </div>
       `).join('');
     });
+}
+
+
+function abrirLancarNota(alunoId, nomeAluno, turmaId) {
+  const atividade = prompt(`Lançar nota para ${nomeAluno}\n\nNome da atividade:`);
+  if (!atividade) return;
+  const nota = prompt(`Nota (0 a 10):`);
+  if (!nota) return;
+  const mes = new Date().getMonth() + 1;
+
+  fetch('/professor/salvar_nota', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turma_id: turmaId, aluno_id: alunoId, atividade, mes, nota })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) alert(`Nota lançada com sucesso para ${nomeAluno}!`);
+    else alert('Erro ao lançar nota.');
+  });
 }
