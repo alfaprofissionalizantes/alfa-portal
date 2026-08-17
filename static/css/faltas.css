@@ -1171,3 +1171,30 @@ body.modal-aberto {
     width: 100%;
   }
 }
+
+/* Esconder — faltava definir globalmente */
+.oculto {
+  display: none !important;
+}
+
+/* Redeclara o botão, caso a regra original tenha sido invalidada */
+.btn-add-aluno-chamada {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  border: 1px solid #1a3a8f;
+  background: #f0f4ff;
+  color: #1a3a8f;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: 0.2s;
+}
+
+.btn-add-aluno-chamada:hover {
+  background: #1a3a8f;
+  color: #fff;
+}
