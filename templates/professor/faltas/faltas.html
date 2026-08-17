@@ -113,20 +113,26 @@
 </div>
 
   <!-- MODAL ADICIONAR ALUNO -->
-  <div class="modal-overlay oculto" id="overlay-modal-add-aluno" onclick="fecharModalAddAluno()"></div>
-  <div class="modal oculto" id="modal-add-aluno">
-    <div class="modal-header">
-      <h3>Adicionar Aluno à Turma</h3>
-      <button class="modal-fechar" onclick="fecharModalAddAluno()">✕</button>
-    </div>
-    <div class="modal-corpo">
-      <div class="turmas-check" id="lista-adicionar-alunos" style="max-height:300px; overflow-y:auto;"></div>
-    </div>
-    <div class="modal-rodape">
-      <button class="btn-cancelar" onclick="fecharModalAddAluno()">Cancelar</button>
-      <button class="btn-enviar" onclick="confirmarAdicionarAlunos()">Adicionar</button>
-    </div>
+<div class="modal-overlay oculto" id="overlay-modal-add-aluno" onclick="fecharModalAddAluno()"></div>
+<div class="modal oculto" id="modal-add-aluno">
+  <div class="modal-header">
+    <h3>Adicionar Aluno à Turma</h3>
+    <button class="modal-fechar" onclick="fecharModalAddAluno()">✕</button>
   </div>
+  <div class="modal-corpo">
+    <input type="text" class="modal-busca" id="busca-aluno"
+           placeholder="Buscar por nome ou matrícula..."
+           oninput="filtrarAlunosModal()" autocomplete="off">
+    <div class="turmas-check" id="lista-adicionar-alunos"></div>
+    <p class="modal-vazio oculto" id="modal-sem-resultado">Nenhum aluno encontrado.</p>
+  </div>
+    <div class="turmas-check" id="lista-adicionar-alunos" style="max-height:300px; overflow-y:auto;"></div>
+  </div>
+  <div class="modal-rodape">
+    <button class="btn-cancelar" onclick="fecharModalAddAluno()">Cancelar</button>
+    <button class="btn-enviar" onclick="confirmarAdicionarAlunos()">Adicionar</button>
+  </div>
+</div>
 
 {% endblock %}
 

@@ -290,19 +290,42 @@ function abrirAdicionarAluno() {
       }
       document.getElementById('lista-adicionar-alunos').innerHTML = alunos.map(a => `
         <label class="turma-check-item">
-          <input type="checkbox" value="${a.id}" class="check-add-aluno"/>
-          ${a.nome} — Mat. ${a.matricula}
+          <input type="checkbox" value="${a.id}" class="check-add-aluno">
+          <span>${a.nome} — Mat. ${a.matricula}</span>
         </label>
       `).join('');
+
+      document.getElementById('busca-aluno').value = '';
+      document.getElementById('modal-sem-resultado').classList.add('oculto');
       document.getElementById('overlay-modal-add-aluno').classList.remove('oculto');
       document.getElementById('modal-add-aluno').classList.remove('oculto');
+      document.body.classList.add('modal-aberto');
+      document.getElementById('busca-aluno').focus();
     });
 }
 
 function fecharModalAddAluno() {
   document.getElementById('overlay-modal-add-aluno').classList.add('oculto');
   document.getElementById('modal-add-aluno').classList.add('oculto');
+  document.body.classList.remove('modal-aberto');
 }
+
+
+function filtrarAlunosModal() {
+  const termo = document.getElementById('busca-aluno').value.toLowerCase();
+  let visiveis = 0;
+  document.querySelectorAll('#lista-adicionar-alunos .turma-check-item').forEach(item => {
+    const achou = item.textContent.toLowerCase().includes(termo);
+    item.style.display = achou ? '' : 'none';
+    if (achou) visiveis++;
+  });
+  document.getElementById('modal-sem-resultado').classList.toggle('oculto', visiveis > 0);
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') fecharModalAddAluno();
+});
+
 
 function confirmarAdicionarAlunos() {
   const selecionados = [...document.querySelectorAll('.check-add-aluno:checked')].map(c => c.value);
