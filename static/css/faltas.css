@@ -1172,8 +1172,11 @@ body.modal-aberto {
   }
 }
 
-/* Esconder — faltava definir globalmente */
-.oculto {
+/* Esconde só o que precisa mesmo ficar oculto */
+.modal.oculto,
+.modal-overlay.oculto,
+.modal-vazio.oculto,
+.historico-notas.oculto {
   display: none !important;
 }
 
