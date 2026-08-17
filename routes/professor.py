@@ -1317,3 +1317,19 @@ def buscar_matricula(aluno_id):
                 m[campo] = str(m[campo])
         return jsonify(m)
     return jsonify({})
+
+
+@professor_bp.route('/editar_telefone/<int:aluno_id>', methods=['POST'])
+@login_required
+def editar_telefone(aluno_id):
+    data = flask_request.get_json()
+    telefone = data.get('telefone', '')
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        UPDATE portal_alunos SET telefone_responsavel = %s WHERE id = %s
+    """, (criptografar(telefone), aluno_id))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})

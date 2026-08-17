@@ -134,7 +134,8 @@ function abrirChamada(data, dataFormatada) {
             <div>
               <p class="chamada-aluno-nome">${a.nome}</p>
               <p class="chamada-aluno-info-extra">
-                ${a.telefone_responsavel ? a.telefone_responsavel : ''}
+                ${a.telefone_responsavel ? a.telefone_responsavel : '—'}
+                <button class="btn-editar-tel" onclick="editarTelefone(${a.id}, '${a.telefone_responsavel || ''}')">✏️</button>
                 ${a.data_matricula ? ` — Mat: ${a.data_matricula}` : ''}
               </p>
               ${a.faltas_mes > 0 ? `<p class="chamada-faltas">${a.faltas_mes} falta(s) no mês</p>` : ''}
@@ -341,6 +342,25 @@ function confirmarAdicionarAlunos() {
     if (data.ok) {
       fecharModalAddAluno();
       alert('Aluno(s) adicionado(s) com sucesso!');
+    }
+  });
+}
+
+function editarTelefone(alunoId, telAtual) {
+  const novoTel = prompt('Editar telefone do responsável:', telAtual);
+  if (novoTel === null) return;
+
+  fetch(`/professor/editar_telefone/${alunoId}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ telefone: novoTel })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      alert('Telefone atualizado!');
+      const lista = document.getElementById('lista-alunos');
+      abrirChamada(lista.dataset.data, document.getElementById('chamada-data-label').textContent.split(' — ')[0]);
     }
   });
 }

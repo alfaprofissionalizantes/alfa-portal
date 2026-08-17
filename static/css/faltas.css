@@ -1201,3 +1201,16 @@ body.modal-aberto {
   background: #1a3a8f;
   color: #fff;
 }
+
+
+.btn-editar-tel {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  padding: 0 4px;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.btn-editar-tel:hover { opacity: 1; }
