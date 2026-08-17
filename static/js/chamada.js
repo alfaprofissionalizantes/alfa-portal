@@ -141,8 +141,9 @@ function abrirChamada(data, dataFormatada) {
               <div class="historico-notas oculto" id="historico-${a.id}"></div>
             </div>
           </div>
-          <div style="display:flex; gap:8px; align-items:center;">
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
+            <button class="btn-historico" style="background:#fee2e2; border-color:#fca5a5;" onclick="confirmarRemoverAluno(${a.id}, '${a.nome}', ${turmaSelecionada})" title="Remover da turma">🗑️</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
             </button>
@@ -264,4 +265,59 @@ function toggleHistorico(alunoId, turmaId) {
 
 function abrirLancarNota(alunoId, turmaId) {
   window.location.href = `/professor/notas?turma=${turmaId}&aluno=${alunoId}`;
+}
+
+function confirmarRemoverAluno(alunoId, nomeAluno, turmaId) {
+  if (confirm(`Deseja remover "${nomeAluno}" desta turma?\n\nEsta ação não apaga o histórico de chamadas e notas.`)) {
+    fetch(`/professor/remover_aluno_turma/${turmaId}/${alunoId}`, { method: 'POST' })
+      .then(r => r.json())
+      .then(data => {
+        if (data.ok) {
+          document.getElementById(`card-${alunoId}`).remove();
+          alert(`${nomeAluno} removido da turma!`);
+        }
+      });
+  }
+}
+
+function abrirAdicionarAluno() {
+  fetch(`/professor/alunos_sem_turma/${turmaSelecionada}`)
+    .then(r => r.json())
+    .then(alunos => {
+      if (alunos.length === 0) {
+        alert('Nenhum aluno disponível para adicionar.');
+        return;
+      }
+      document.getElementById('lista-adicionar-alunos').innerHTML = alunos.map(a => `
+        <label class="turma-check-item">
+          <input type="checkbox" value="${a.id}" class="check-add-aluno"/>
+          ${a.nome} — Mat. ${a.matricula}
+        </label>
+      `).join('');
+      document.getElementById('overlay-modal-add-aluno').classList.remove('oculto');
+      document.getElementById('modal-add-aluno').classList.remove('oculto');
+    });
+}
+
+function fecharModalAddAluno() {
+  document.getElementById('overlay-modal-add-aluno').classList.add('oculto');
+  document.getElementById('modal-add-aluno').classList.add('oculto');
+}
+
+function confirmarAdicionarAlunos() {
+  const selecionados = [...document.querySelectorAll('.check-add-aluno:checked')].map(c => c.value);
+  if (selecionados.length === 0) { alert('Selecione ao menos um aluno!'); return; }
+
+  fetch(`/professor/vincular_alunos/${turmaSelecionada}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ aluno_ids: selecionados })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      fecharModalAddAluno();
+      alert('Aluno(s) adicionado(s) com sucesso!');
+    }
+  });
 }

@@ -939,3 +939,21 @@
 .nota-historico-item:last-child {
   border-bottom: none;
 }
+
+.btn-add-aluno-chamada {
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: 1px solid #1a3a8f;
+  background: #f0f4ff;
+  color: #1a3a8f;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-bottom: 12px;
+  transition: 0.2s;
+}
+
+.btn-add-aluno-chamada:hover {
+  background: #1a3a8f;
+  color: white;
+}
