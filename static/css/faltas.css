@@ -940,20 +940,234 @@
   border-bottom: none;
 }
 
-.btn-add-aluno-chamada {
-  padding: 8px 16px;
-  border-radius: 8px;
-  border: 1px solid #1a3a8f;
-  background: #f0f4ff;
-  color: #1a3a8f;
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  margin-bottom: 12px;
-  transition: 0.2s;
+/* ============================================
+   MODAL — ADICIONAR ALUNO À TURMA
+   ============================================ */
+
+/* Garante o esconder, mesmo se .oculto não estiver
+   definido neste arquivo */
+.modal.oculto,
+.modal-overlay.oculto {
+  display: none;
 }
 
-.btn-add-aluno-chamada:hover {
+/* Fundo escuro que cobre a tela inteira */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  z-index: 1000;
+  animation: modal-fade 0.18s ease-out;
+}
+
+/* A janela em si, centralizada */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(560px, 92vw);
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 20px 50px rgba(15, 23, 42, 0.25);
+  z-index: 1001;
+  overflow: hidden;
+  animation: modal-surge 0.2s ease-out;
+}
+
+@keyframes modal-fade {
+  from { opacity: 0; }
+}
+
+@keyframes modal-surge {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.97);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal,
+  .modal-overlay { animation: none; }
+}
+
+/* ---- Cabeçalho ---- */
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 18px 22px;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a3a8f;
+}
+
+.modal-fechar {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 8px;
+  background: transparent;
+  color: #64748b;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.modal-fechar:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+/* ---- Corpo rolável ---- */
+.modal-corpo {
+  padding: 18px 22px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Campo de busca */
+.modal-busca {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  border: 1px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: 0.15s;
+}
+
+.modal-busca:focus {
+  border-color: #1a3a8f;
+  box-shadow: 0 0 0 3px rgba(26, 58, 143, 0.12);
+}
+
+/* ---- Lista de alunos ---- */
+.turmas-check {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.turma-check-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  color: #334155;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+
+.turma-check-item:hover {
+  background: #f0f4ff;
+}
+
+.turma-check-item input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #1a3a8f;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.modal-vazio {
+  padding: 24px 0;
+  text-align: center;
+  color: #94a3b8;
+  font-size: 0.88rem;
+}
+
+/* ---- Rodapé ---- */
+.modal-rodape {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 16px 22px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+  flex-shrink: 0;
+}
+
+.btn-cancelar,
+.btn-enviar {
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: 0.15s;
+}
+
+.btn-cancelar {
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #64748b;
+}
+
+.btn-cancelar:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.btn-enviar {
+  border: 1px solid #1a3a8f;
   background: #1a3a8f;
-  color: white;
+  color: #fff;
+}
+
+.btn-enviar:hover {
+  background: #15306f;
+}
+
+.btn-cancelar:focus-visible,
+.btn-enviar:focus-visible,
+.modal-fechar:focus-visible {
+  outline: 2px solid #1a3a8f;
+  outline-offset: 2px;
+}
+
+/* Trava o scroll da página enquanto o modal está aberto */
+body.modal-aberto {
+  overflow: hidden;
+}
+
+/* ---- Celular ---- */
+@media (max-width: 600px) {
+  .modal {
+    width: 94vw;
+    max-height: 88vh;
+  }
+
+  .modal-header,
+  .modal-corpo,
+  .modal-rodape {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modal-rodape {
+    flex-direction: column-reverse;
+  }
+
+  .btn-cancelar,
+  .btn-enviar {
+    width: 100%;
+  }
 }
