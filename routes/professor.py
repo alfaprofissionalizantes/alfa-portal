@@ -901,9 +901,11 @@ def alunos_chamada(turma_id, data):
             AND status = 'F' AND MONTH(data_aula) = MONTH(%s)) as faltas_mes
         FROM portal_aluno_turma at2
         JOIN portal_alunos a ON a.id = at2.aluno_id
-        WHERE at2.turma_id = %s AND (a.ativo = 1 OR a.ativo IS NULL)
+        WHERE at2.turma_id = %s 
+        AND (a.ativo = 1 OR a.ativo IS NULL)
+        AND (at2.data_entrada IS NULL OR at2.data_entrada <= %s)
         ORDER BY a.nome
-    """, (turma_id, data, turma_id, data, turma_id))
+    """, (turma_id, data, turma_id, data, turma_id, data))
     alunos = cur.fetchall()
     for aluno in alunos:
         try:
@@ -1112,19 +1114,19 @@ def alunos_sem_turma(turma_id):
     cur.close()
     conn.close()
     return jsonify(alunos)
-
 @professor_bp.route('/vincular_alunos/<int:turma_id>', methods=['POST'])
 @admin_required
 def vincular_alunos(turma_id):
     data = flask_request.get_json()
     aluno_ids = data.get('aluno_ids', [])
+    hoje = date.today()
     conn = create_connection()
     cur  = get_cursor(conn)
     for aluno_id in aluno_ids:
         cur.execute("""
-            INSERT IGNORE INTO portal_aluno_turma (aluno_id, turma_id)
-            VALUES (%s, %s)
-        """, (aluno_id, turma_id))
+            INSERT IGNORE INTO portal_aluno_turma (aluno_id, turma_id, data_entrada)
+            VALUES (%s, %s, %s)
+        """, (aluno_id, turma_id, hoje))
     conn.commit()
     cur.close()
     conn.close()
