@@ -1336,43 +1336,64 @@ def editar_telefone(aluno_id):
     conn.close()
     return jsonify({'ok': True})
 
+
 @professor_bp.route('/backup')
 @admin_required
 def backup():
-    import subprocess
-    import io
     from flask import Response
+    from datetime import datetime
 
-    db_host     = os.getenv('DB_HOST')
-    db_user     = os.getenv('DB_USER')
-    db_password = os.getenv('DB_PASSWORD')
-    db_name     = os.getenv('DB_NAME')
-    db_port     = os.getenv('DB_PORT', '3306')
+    conn = create_connection()
+    cur  = get_cursor(conn)
 
-    try:
-        resultado = subprocess.run(
-            ['mysqldump',
-             f'--host={db_host}',
-             f'--port={db_port}',
-             f'--user={db_user}',
-             f'--password={db_password}',
-             db_name],
-            capture_output=True,
-            text=True,
-            timeout=60
-        )
+    output = []
+    output.append(f"-- Backup Alfa Profissionalizantes")
+    output.append(f"-- Data: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}")
+    output.append(f"-- Banco: {os.getenv('DB_NAME')}\n")
 
-        if resultado.returncode != 0:
-            return f"Erro ao gerar backup: {resultado.stderr}", 500
+    # Buscar todas as tabelas
+    cur.execute("SHOW TABLES")
+    tabelas = [list(t.values())[0] for t in cur.fetchall()]
 
-        from datetime import datetime
-        nome_arquivo = f"backup_alfa_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+    for tabela in tabelas:
+        output.append(f"\n-- Tabela: {tabela}")
+        output.append(f"DROP TABLE IF EXISTS `{tabela}`;")
 
-        return Response(
-            resultado.stdout,
-            mimetype='application/octet-stream',
-            headers={'Content-Disposition': f'attachment; filename={nome_arquivo}'}
-        )
+        # Estrutura da tabela
+        cur.execute(f"SHOW CREATE TABLE `{tabela}`")
+        create = cur.fetchone()
+        create_sql = list(create.values())[1]
+        output.append(f"{create_sql};\n")
 
-    except Exception as e:
-        return f"Erro: {str(e)}", 500
+        # Dados da tabela
+        cur.execute(f"SELECT * FROM `{tabela}`")
+        rows = cur.fetchall()
+
+        if rows:
+            colunas = ', '.join([f"`{c}`" for c in rows[0].keys()])
+            output.append(f"INSERT INTO `{tabela}` ({colunas}) VALUES")
+            valores = []
+            for row in rows:
+                vals = []
+                for v in row.values():
+                    if v is None:
+                        vals.append('NULL')
+                    elif isinstance(v, (int, float)):
+                        vals.append(str(v))
+                    else:
+                        v_str = str(v).replace('\\', '\\\\').replace("'", "\\'")
+                        vals.append(f"'{v_str}'")
+                valores.append(f"  ({', '.join(vals)})")
+            output.append(',\n'.join(valores) + ';')
+
+    cur.close()
+    conn.close()
+
+    sql_content = '\n'.join(output)
+    nome_arquivo = f"backup_alfa_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+
+    return Response(
+        sql_content,
+        mimetype='application/octet-stream',
+        headers={'Content-Disposition': f'attachment; filename={nome_arquivo}'}
+    )
