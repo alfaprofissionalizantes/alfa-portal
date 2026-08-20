@@ -130,7 +130,10 @@
   <div class="painel-aba oculto" id="painel-alunos">
     <div class="secao-topo">
       <h3 class="secao-titulo">Alunos cadastrados <span style="font-size:0.8rem; font-weight:500; color:#64748b; background:#f1f5f9; border-radius:20px; padding:2px 10px;">{{ alunos|length }}</span></h3>
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a href="{{ url_for('professor.backup') }}" class="btn-visualizar-desativados" style="text-decoration:none;">
+          💾 Backup do Banco
+        </a>
         <button class="btn-visualizar-desativados" onclick="window.location.href='/professor/alunos_desativados'">
           👁 Visualizar desativados
         </button>

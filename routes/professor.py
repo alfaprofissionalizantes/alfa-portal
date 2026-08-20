@@ -1335,3 +1335,44 @@ def editar_telefone(aluno_id):
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+@professor_bp.route('/backup')
+@admin_required
+def backup():
+    import subprocess
+    import io
+    from flask import Response
+
+    db_host     = os.getenv('DB_HOST')
+    db_user     = os.getenv('DB_USER')
+    db_password = os.getenv('DB_PASSWORD')
+    db_name     = os.getenv('DB_NAME')
+    db_port     = os.getenv('DB_PORT', '3306')
+
+    try:
+        resultado = subprocess.run(
+            ['mysqldump',
+             f'--host={db_host}',
+             f'--port={db_port}',
+             f'--user={db_user}',
+             f'--password={db_password}',
+             db_name],
+            capture_output=True,
+            text=True,
+            timeout=60
+        )
+
+        if resultado.returncode != 0:
+            return f"Erro ao gerar backup: {resultado.stderr}", 500
+
+        from datetime import datetime
+        nome_arquivo = f"backup_alfa_{datetime.now().strftime('%Y%m%d_%H%M%S')}.sql"
+
+        return Response(
+            resultado.stdout,
+            mimetype='application/octet-stream',
+            headers={'Content-Disposition': f'attachment; filename={nome_arquivo}'}
+        )
+
+    except Exception as e:
+        return f"Erro: {str(e)}", 500
