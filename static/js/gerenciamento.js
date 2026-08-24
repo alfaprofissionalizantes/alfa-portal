@@ -210,3 +210,53 @@ function limparFiltrosTurmas() {
     card.style.display = '';
   });
 }
+
+
+
+let alunoIdTurmas = null;
+
+function abrirModalTurmasAluno(alunoId, nomeAluno) {
+  alunoIdTurmas = alunoId;
+  document.getElementById('nome-aluno-turmas').textContent = nomeAluno;
+
+  fetch(`/professor/turmas_disponiveis/${alunoId}`)
+    .then(r => r.json())
+    .then(data => {
+      const lista = document.getElementById('lista-turmas-aluno');
+      if (data.length === 0) {
+        lista.innerHTML = '<p style="color:#94a3b8; font-size:0.85rem;">Nenhuma turma disponível.</p>';
+      } else {
+        lista.innerHTML = data.map(t => `
+          <label class="turma-check-item">
+            <input type="checkbox" value="${t.id}" class="check-turma-aluno"/>
+            ${t.curso} — ${t.nome} — ${t.dias_semana} ${t.horario}
+          </label>
+        `).join('');
+      }
+      document.getElementById('overlay-modal-turmas-aluno').classList.remove('oculto');
+      document.getElementById('modal-turmas-aluno').classList.remove('oculto');
+    });
+}
+
+function fecharModalTurmasAluno() {
+  document.getElementById('overlay-modal-turmas-aluno').classList.add('oculto');
+  document.getElementById('modal-turmas-aluno').classList.add('oculto');
+}
+
+function salvarTurmasAluno() {
+  const selecionadas = [...document.querySelectorAll('.check-turma-aluno:checked')].map(c => c.value);
+  if (selecionadas.length === 0) { alert('Selecione ao menos uma turma!'); return; }
+
+  fetch(`/professor/vincular_aluno_turmas/${alunoIdTurmas}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turma_ids: selecionadas })
+  })
+  .then(r => r.json())
+  .then(data => {
+    if (data.ok) {
+      fecharModalTurmasAluno();
+      alert('Turmas adicionadas com sucesso!');
+    }
+  });
+}
