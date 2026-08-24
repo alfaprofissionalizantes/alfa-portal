@@ -196,6 +196,7 @@
           <div class="card-ger-acoes">
             <button class="btn-acao editar" onclick="abrirModalEditar({{ aluno.id }})">Editar</button>
             <button class="btn-acao matricula" onclick="abrirModalMatricula({{ aluno.id }}, '{{ aluno.nome }}')">Matrícula</button>
+            <button class="btn-acao" style="background:#f0f4ff; color:#1a3a8f; border:1px solid #c7d7f5;" onclick="abrirModalTurmasAluno({{ aluno.id }}, '{{ aluno.nome }}')">+ Turmas</button>
             <button class="btn-acao desativar" onclick="confirmarDesativar({{ aluno.id }}, '{{ aluno.nome }}')">Desativar</button>
           </div>
         </div>
@@ -207,6 +208,26 @@
   </div>
 
 </div>
+
+
+
+<!-- MODAL ADICIONAR ALUNO EM TURMAS -->
+<div class="modal-overlay oculto" id="overlay-modal-turmas-aluno" onclick="fecharModalTurmasAluno()"></div>
+<div class="modal oculto" id="modal-turmas-aluno">
+  <div class="modal-header">
+    <h3>Adicionar <span id="nome-aluno-turmas"></span> em Turmas</h3>
+    <button class="modal-fechar" onclick="fecharModalTurmasAluno()">✕</button>
+  </div>
+  <div class="modal-corpo">
+    <div class="turmas-check" id="lista-turmas-aluno" style="max-height:400px; overflow-y:auto;"></div>
+  </div>
+  <div class="modal-rodape">
+    <button class="btn-cancelar" onclick="fecharModalTurmasAluno()">Cancelar</button>
+    <button class="btn-enviar" onclick="salvarTurmasAluno()">Adicionar</button>
+  </div>
+</div>
+
+
 
 
 <!-- ===== MODAL NOVA TURMA ===== -->
