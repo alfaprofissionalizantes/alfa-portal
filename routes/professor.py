@@ -1398,3 +1398,45 @@ def backup():
         mimetype='application/octet-stream',
         headers={'Content-Disposition': f'attachment; filename={nome_arquivo}'}
     )
+
+
+
+@professor_bp.route('/turmas_disponiveis/<int:aluno_id>')
+@admin_required
+def turmas_disponiveis(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT t.id, t.nome, t.dias_semana, t.horario, c.nome as curso
+        FROM portal_turmas t
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE t.id NOT IN (
+            SELECT turma_id FROM portal_aluno_turma WHERE aluno_id = %s
+        )
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
+    """, (aluno_id,))
+    turmas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([dict(t) for t in turmas])
+
+@professor_bp.route('/vincular_aluno_turmas/<int:aluno_id>', methods=['POST'])
+@admin_required
+def vincular_aluno_turmas(aluno_id):
+    data = flask_request.get_json()
+    turma_ids = data.get('turma_ids', [])
+    hoje = date.today()
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    for turma_id in turma_ids:
+        cur.execute("""
+            INSERT IGNORE INTO portal_aluno_turma (aluno_id, turma_id, data_entrada)
+            VALUES (%s, %s, %s)
+        """, (aluno_id, turma_id, hoje))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
