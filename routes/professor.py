@@ -245,6 +245,7 @@ def gerenciamento():
         WHERE a.ativo = 1 OR a.ativo IS NULL
         GROUP BY a.id, a.nome, a.matricula, a.foto, a.periodo,
                 a.nome_responsavel, a.telefone_responsavel
+        ORDER BY a.id DESC
     """)
     alunos = cur.fetchall()
     cur.close()
