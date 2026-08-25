@@ -48,12 +48,6 @@
   display: none !important;
 }
 
-/* ===== Abas (Frequência / Notas) ===== */
-.abas-relatorio {
-  display: flex;
-  gap: 8px;
-  margin-bottom: 8px;
-}
 
 .aba-rel {
   display: flex;
@@ -82,14 +76,6 @@
   border-color: #1a3a8f;
 }
 
-#painel-frequencia,
-#painel-notas {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-}
 
 .relatorio-linha {
   display: grid;
@@ -453,12 +439,12 @@
   .modal-corpo, .modal-header, .modal-rodape { padding-left: 18px; padding-right: 18px; }
 }
 
-
 #painel-frequencia,
 #painel-notas,
 #painel-aluno {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: 24px;
   width: 100%;
 }
