@@ -17,6 +17,7 @@
   <div class="abas-relatorio">
     <button class="aba-rel ativa" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
     <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
+    <button class="aba-rel" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
@@ -205,6 +206,51 @@
   </div>
 </div>
 
+
+<!-- ===== ABA ALUNO ===== -->
+<div id="painel-aluno" class="oculto">
+  <div class="relatorio-card">
+    <div class="notas-prof-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+      </svg>
+      <div>
+        <h2 class="notas-prof-titulo">Notas por Aluno</h2>
+        <p class="notas-prof-subtitulo">Pesquise um aluno para ver todas as suas notas</p>
+      </div>
+    </div>
+
+    <div class="campo-grupo">
+      <label class="campo-label">Buscar aluno</label>
+      <input type="text" class="campo-input" id="busca-aluno-rel" placeholder="Nome ou matrícula..." oninput="buscarAlunoRel()"/>
+      <div id="resultado-busca-aluno" style="margin-top:8px; max-height:200px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; display:none;"></div>
+    </div>
+  </div>
+
+  <div class="relatorio-card oculto" id="card-resultado-aluno">
+    <div class="relatorio-resultado-header">
+      <div>
+        <h3 id="rel-aluno-titulo">Notas</h3>
+        <p id="rel-aluno-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
+      </div>
+    </div>
+    <div class="relatorio-tabela-wrapper">
+      <table class="relatorio-tabela">
+        <thead>
+          <tr>
+            <th>Atividade</th>
+            <th>Nota</th>
+            <th>Turma</th>
+            <th>Curso</th>
+            <th>Mês/Ano</th>
+          </tr>
+        </thead>
+        <tbody id="rel-aluno-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
@@ -326,5 +372,72 @@ function salvarEdicaoNota() {
     }
   });
 }
+
+
+
+let buscaTimeout = null;
+
+function buscarAlunoRel() {
+  const termo = document.getElementById('busca-aluno-rel').value;
+  const resultado = document.getElementById('resultado-busca-aluno');
+
+  if (termo.length < 2) { resultado.style.display = 'none'; return; }
+
+  clearTimeout(buscaTimeout);
+  buscaTimeout = setTimeout(() => {
+    fetch(`/professor/buscar_alunos_relatorio?q=${encodeURIComponent(termo)}`)
+      .then(r => r.json())
+      .then(alunos => {
+        if (alunos.length === 0) {
+          resultado.innerHTML = '<p style="padding:12px; color:#94a3b8; font-size:0.85rem;">Nenhum aluno encontrado.</p>';
+        } else {
+          resultado.innerHTML = alunos.map(a => `
+            <div onclick="selecionarAluno(${a.id}, '${a.nome}', '${a.matricula}')"
+                 style="padding:10px 14px; cursor:pointer; font-size:0.88rem; border-bottom:1px solid #f1f5f9; hover:background:#f8faff;"
+                 onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='white'">
+              ${a.nome} — Mat. ${a.matricula}
+            </div>
+          `).join('');
+        }
+        resultado.style.display = 'block';
+      });
+  }, 300);
+}
+
+function selecionarAluno(alunoId, nome, matricula) {
+  document.getElementById('busca-aluno-rel').value = `${nome} — Mat. ${matricula}`;
+  document.getElementById('resultado-busca-aluno').style.display = 'none';
+
+  const MESES = ['','Janeiro','Fevereiro','Março','Abril','Maio','Junho',
+                 'Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+
+  fetch(`/professor/relatorio_notas_aluno/${alunoId}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('rel-aluno-titulo').textContent = nome;
+      document.getElementById('rel-aluno-subtitulo').textContent = `Mat. ${matricula} — ${data.notas.length} nota(s)`;
+
+      const tbody = document.getElementById('rel-aluno-tbody');
+      tbody.innerHTML = '';
+
+      if (data.notas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhuma nota lançada.</td></tr>';
+      } else {
+        data.notas.forEach(n => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${n.nome_atividade}</td>
+              <td><strong>${n.valor}</strong></td>
+              <td>${n.turma}</td>
+              <td>${n.curso}</td>
+              <td>${MESES[n.mes]} ${n.ano}</td>
+            </tr>`;
+        });
+      }
+
+      document.getElementById('card-resultado-aluno').classList.remove('oculto');
+    });
+}
+
 </script>
 {% endblock %}
