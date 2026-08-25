@@ -1440,3 +1440,40 @@ def vincular_aluno_turmas(aluno_id):
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+
+@professor_bp.route('/buscar_alunos_relatorio')
+@login_required
+def buscar_alunos_relatorio():
+    termo = flask_request.args.get('q', '').strip()
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT id, nome, matricula FROM portal_alunos
+        WHERE (ativo = 1 OR ativo IS NULL)
+        AND (nome LIKE %s OR matricula LIKE %s)
+        ORDER BY nome LIMIT 20
+    """, (f'%{termo}%', f'%{termo}%'))
+    alunos = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify([dict(a) for a in alunos])
+
+@professor_bp.route('/relatorio_notas_aluno/<int:aluno_id>')
+@login_required
+def relatorio_notas_aluno(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT n.id, n.nome_atividade, n.valor, n.mes, n.ano,
+               t.nome as turma, c.nome as curso
+        FROM portal_notas n
+        JOIN portal_turmas t ON t.id = n.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE n.aluno_id = %s
+        ORDER BY n.ano DESC, n.mes DESC
+    """, (aluno_id,))
+    notas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify({'notas': [dict(n) for n in notas]})
