@@ -7,10 +7,21 @@
 .relatorios-wrapper {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  margin: 0 auto;
+  gap: 24px;
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
   padding: 32px 24px;
+  box-sizing: border-box;
+}
+
+.abas-relatorio {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
 }
 
 /* ===== Card base ===== */
@@ -440,4 +451,14 @@
 @media (max-width: 600px) {
   .modal { max-width: calc(100% - 32px); }
   .modal-corpo, .modal-header, .modal-rodape { padding-left: 18px; padding-right: 18px; }
+}
+
+
+#painel-frequencia,
+#painel-notas,
+#painel-aluno {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
 }
