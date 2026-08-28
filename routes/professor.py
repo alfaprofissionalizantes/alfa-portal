@@ -553,6 +553,7 @@ def salvar_matricula():
     taxa_matricula  = f.get('taxa_matricula', '')
     dia_pagamento = f.get('dia_pagamento', '')
     valor_desconto  = f.get('valor_desconto', '')
+    valor_reajustado = f.get('valor_reajustado', '')
     dias_aula    = f.get('dias_aula', '')
     horario_aula = f.get('horario_aula', '')
     if not numero_contrato:
@@ -621,6 +622,7 @@ def salvar_matricula():
         'taxa_matricula':          taxa_matricula,
         'dia_pagamento':           dia_pagamento,
         'valor_desconto':          valor_desconto,
+        'valor_reajustado':        valor_reajustado,
         'dias_aula':               dias_aula,
         'horario_aula':            horario_aula,
     }
