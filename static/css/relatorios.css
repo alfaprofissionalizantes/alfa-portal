@@ -1,5 +1,5 @@
 /* ============================================================
-   relatorios.css — Relatório de Frequência
+   relatorios.css — Relatórios
    Alfa Profissionalizantes
    (alinhado ao padrão visual de faltas.css)
    ============================================================ */
@@ -24,6 +24,30 @@
   margin-bottom: 8px;
 }
 
+/* ===== Painéis das abas =====
+   Os 4 painéis se comportam igual: coluna, cards centralizados. */
+#painel-frequencia,
+#painel-notas,
+#painel-aluno,
+#painel-turmas {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+/* painel-aluno e painel-turmas estão FORA da .relatorios-wrapper no HTML,
+   então precisam replicar a largura e a centralização dela. */
+#painel-aluno,
+#painel-turmas {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 24px 32px;
+  box-sizing: border-box;
+}
+
 /* ===== Card base ===== */
 .relatorio-card {
   background: #ffffff;
@@ -38,9 +62,11 @@
   gap: 16px;
 }
 
-/* Card de resultado é mais largo por causa da tabela */
+/* Cards de resultado são mais largos por causa da tabela */
 #card-resultado,
-#card-resultado-notas {
+#card-resultado-notas,
+#card-resultado-aluno,
+#card-resultado-turmas {
   max-width: 900px;
 }
 
@@ -48,7 +74,7 @@
   display: none !important;
 }
 
-
+/* ===== Abas ===== */
 .aba-rel {
   display: flex;
   align-items: center;
@@ -76,14 +102,13 @@
   border-color: #1a3a8f;
 }
 
-
 .relatorio-linha {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
 }
 
-/* ===== Campos (Turma / Mês / Ano) — escopados corretamente ===== */
+/* ===== Campos (Turma / Mês / Ano) ===== */
 .relatorio-card .campo-grupo {
   display: flex;
   flex-direction: column;
@@ -168,7 +193,7 @@
   transform: translateY(-1px);
 }
 
-/* ===== Header do resultado (estilo "chamada-header") ===== */
+/* ===== Header do resultado ===== */
 .relatorio-resultado-header {
   display: flex;
   align-items: center;
@@ -212,15 +237,16 @@
   border: 1px solid transparent;
 }
 
-.badge-freq.verde     { background: #dcfce7; color: #16a34a; border-color: #86efac; }
-.badge-freq.amarelo   { background: #fef9c3; color: #ca8a04; border-color: #fde047; }
-.badge-freq.vermelho  { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+.badge-freq.verde    { background: #dcfce7; color: #16a34a; border-color: #86efac; }
+.badge-freq.amarelo  { background: #fef9c3; color: #ca8a04; border-color: #fde047; }
+.badge-freq.vermelho { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
 
 /* ===== Tabela ===== */
 .relatorio-tabela-wrapper {
   overflow-x: auto;
   border-radius: 12px;
   border: 1px solid #e8eef8;
+  width: 100%;
 }
 
 .relatorio-tabela {
@@ -255,14 +281,6 @@
   background: #f8faff;
 }
 
-/* ===== Responsivo ===== */
-@media (max-width: 600px) {
-  .relatorio-linha { grid-template-columns: 1fr; }
-  .relatorios-wrapper { padding: 16px; gap: 16px; }
-  .relatorio-card { padding: 20px; border-radius: 14px; }
-  .relatorio-resultado-header { padding: 14px 16px; }
-}
-
 /* ===== Botão de ação na tabela (Editar nota) ===== */
 .btn-acao {
   padding: 6px 14px;
@@ -285,10 +303,7 @@
 
 /* ============================================================
    MODAL — Editar Nota
-   Estava sem CSS nenhum: por isso renderizava como HTML cru
-   empurrado pro final da página em vez de um popup.
    ============================================================ */
-
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -434,30 +449,13 @@
   transform: translateY(-1px);
 }
 
+/* ===== Responsivo ===== */
 @media (max-width: 600px) {
+  .relatorio-linha { grid-template-columns: 1fr; }
+  .relatorios-wrapper { padding: 16px; gap: 16px; }
+  #painel-aluno, #painel-turmas { padding: 0 16px 16px; }
+  .relatorio-card { padding: 20px; border-radius: 14px; }
+  .relatorio-resultado-header { padding: 14px 16px; }
   .modal { max-width: calc(100% - 32px); }
   .modal-corpo, .modal-header, .modal-rodape { padding-left: 18px; padding-right: 18px; }
-}
-
-#painel-frequencia,
-#painel-notas,
-#painel-aluno {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  width: 100%;
-}
-
-
-/* Painéis que ficaram fora do .relatorios-wrapper —
-   replicam a centralização do wrapper */
-#painel-aluno,
-#painel-turmas {
-  width: 100%;
-  max-width: 900px;
-  margin-left: auto;
-  margin-right: auto;
-  padding: 0 24px 32px;
-  box-sizing: border-box;
 }
