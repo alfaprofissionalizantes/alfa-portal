@@ -181,11 +181,11 @@
             {% if aluno.foto %}
             <img src="{{ aluno.foto }}" class="aluno-avatar-foto"/>
             {% else %}
-            <div class="aluno-avatar">{{ aluno.nome[0] }}</div>
+            <div class="aluno-avatar">{{ aluno.nome[0] | upper }}</div>
             {% endif %}
             <div class="card-ger-info">
               <p class="card-ger-titulo">
-                {{ aluno.nome }}
+                {{ aluno.nome | upper }}
                 {% if aluno.dados_incompletos %}
                 <span style="color:#f59e0b; font-size:0.75rem; font-weight:700;" title="Dados incompletos">⚠ pendente</span>
                 {% endif %}
