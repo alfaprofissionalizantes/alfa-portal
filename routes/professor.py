@@ -1479,3 +1479,30 @@ def relatorio_notas_aluno(aluno_id):
     cur.close()
     conn.close()
     return jsonify({'notas': [dict(n) for n in notas]})
+
+
+@professor_bp.route('/turmas_do_aluno/<int:aluno_id>')
+@login_required
+def turmas_do_aluno(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT t.nome as turma, c.nome as curso, t.dias_semana, t.horario, t.periodo,
+               DATE_FORMAT(at2.data_entrada, '%d/%m/%Y') as data_entrada,
+               GROUP_CONCAT(DISTINCT p.nome SEPARATOR ', ') as professores
+        FROM portal_aluno_turma at2
+        JOIN portal_turmas t ON t.id = at2.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        LEFT JOIN portal_turma_professores tp ON tp.turma_id = t.id
+        LEFT JOIN portal_professores p ON p.id = tp.professor_id
+        WHERE at2.aluno_id = %s
+        GROUP BY t.id, t.nome, c.nome, t.dias_semana, t.horario, t.periodo, at2.data_entrada
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
+    """, (aluno_id,))
+    turmas = cur.fetchall()
+    cur.close()
+    conn.close()
+    return jsonify({'turmas': [dict(t) for t in turmas]})
