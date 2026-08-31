@@ -255,51 +255,32 @@
 
 {% block script %}
 <script>
+
 function trocarAbaRel(aba, btn) {
   document.querySelectorAll('.aba-rel').forEach(b => b.classList.remove('ativa'));
   btn.classList.add('ativa');
+
   document.getElementById('painel-frequencia').classList.add('oculto');
   document.getElementById('painel-notas').classList.add('oculto');
+  document.getElementById('painel-aluno').classList.add('oculto');
   document.getElementById('painel-' + aba).classList.remove('oculto');
+
+  // limpa os resultados anteriores ao trocar de aba
+  ['card-resultado', 'card-resultado-notas', 'card-resultado-aluno'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('oculto');
+  });
+
+  ['rel-tbody', 'rel-notas-tbody', 'rel-aluno-tbody'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.innerHTML = '';
+  });
+
+  const busca = document.getElementById('busca-aluno-rel');
+  if (busca) busca.value = '';
+  const resultadoBusca = document.getElementById('resultado-busca-aluno');
+  if (resultadoBusca) resultadoBusca.style.display = 'none';
 }
-
-// ===== FREQUÊNCIA =====
-function gerarRelatorio() {
-  const turmaId    = document.getElementById('select-turma-rel').value;
-  const mes        = document.getElementById('select-mes-rel').value;
-  const ano        = document.getElementById('select-ano-rel').value;
-  const turmaTexto = document.getElementById('select-turma-rel').options[document.getElementById('select-turma-rel').selectedIndex].text;
-  const mesTexto   = document.getElementById('select-mes-rel').options[document.getElementById('select-mes-rel').selectedIndex].text;
-
-  if (!turmaId) { alert('Selecione uma turma!'); return; }
-
-  fetch(`/professor/relatorio_turma/${turmaId}/${ano}/${mes}`)
-    .then(r => r.json())
-    .then(data => {
-      document.getElementById('rel-titulo').textContent = turmaTexto;
-      document.getElementById('rel-subtitulo').textContent = `${mesTexto} ${ano}`;
-      const tbody = document.getElementById('rel-tbody');
-      tbody.innerHTML = '';
-      if (data.alunos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
-      } else {
-        data.alunos.forEach(a => {
-          const cor   = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
-          const icone = a.frequencia >= 75 ? '✅' : a.frequencia >= 50 ? '⚠️' : '❌';
-          tbody.innerHTML += `
-            <tr>
-              <td>${a.nome}</td>
-              <td>${a.presencas}</td>
-              <td>${a.faltas}</td>
-              <td>${a.total_aulas}</td>
-              <td><span class="badge-freq ${cor}">${icone} ${a.frequencia}%</span></td>
-            </tr>`;
-        });
-      }
-      document.getElementById('card-resultado').classList.remove('oculto');
-    });
-}
-
 // ===== NOTAS =====
 function gerarRelatorioNotas() {
   const turmaId    = document.getElementById('select-turma-notas-rel').value;
