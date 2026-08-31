@@ -448,3 +448,16 @@
   gap: 24px;
   width: 100%;
 }
+
+
+/* Painéis que ficaram fora do .relatorios-wrapper —
+   replicam a centralização do wrapper */
+#painel-aluno,
+#painel-turmas {
+  width: 100%;
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 0 24px 32px;
+  box-sizing: border-box;
+}

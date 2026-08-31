@@ -18,6 +18,7 @@
     <button class="aba-rel ativa" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
     <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
     <button class="aba-rel" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
+    <button class="aba-rel" onclick="trocarAbaRel('turmas', this)">🏫 Turmas do Aluno</button>
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
@@ -251,6 +252,50 @@
   </div>
 </div>
 
+<!-- ===== ABA TURMAS DO ALUNO ===== -->
+<div id="painel-turmas" class="oculto">
+  <div class="relatorio-card">
+    <div class="notas-prof-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+      </svg>
+      <div>
+        <h2 class="notas-prof-titulo">Turmas do Aluno</h2>
+        <p class="notas-prof-subtitulo">Pesquise um aluno para ver em quais turmas ele está</p>
+      </div>
+    </div>
+
+    <div class="campo-grupo">
+      <label class="campo-label">Buscar aluno</label>
+      <input type="text" class="campo-input" id="busca-aluno-turmas" placeholder="Nome ou matrícula..." oninput="buscarAlunoTurmas()"/>
+      <div id="resultado-busca-turmas" style="margin-top:8px; max-height:200px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; display:none;"></div>
+    </div>
+  </div>
+
+  <div class="relatorio-card oculto" id="card-resultado-turmas">
+    <div class="relatorio-resultado-header">
+      <div>
+        <h3 id="rel-turmas-titulo">Turmas</h3>
+        <p id="rel-turmas-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
+      </div>
+    </div>
+    <div class="relatorio-tabela-wrapper">
+      <table class="relatorio-tabela">
+        <thead>
+          <tr>
+            <th>Curso</th>
+            <th>Turma</th>
+            <th>Dias / Horário</th>
+            <th>Professor(es)</th>
+            <th>Entrada</th>
+          </tr>
+        </thead>
+        <tbody id="rel-turmas-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
@@ -263,23 +308,31 @@ function trocarAbaRel(aba, btn) {
   document.getElementById('painel-frequencia').classList.add('oculto');
   document.getElementById('painel-notas').classList.add('oculto');
   document.getElementById('painel-aluno').classList.add('oculto');
+  document.getElementById('painel-turmas').classList.add('oculto');
   document.getElementById('painel-' + aba).classList.remove('oculto');
 
-  // limpa os resultados anteriores ao trocar de aba
-  ['card-resultado', 'card-resultado-notas', 'card-resultado-aluno'].forEach(id => {
+  // esconde os cards de resultado
+  ['card-resultado', 'card-resultado-notas', 'card-resultado-aluno', 'card-resultado-turmas'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.add('oculto');
   });
 
-  ['rel-tbody', 'rel-notas-tbody', 'rel-aluno-tbody'].forEach(id => {
+  // limpa as tabelas
+  ['rel-tbody', 'rel-notas-tbody', 'rel-aluno-tbody', 'rel-turmas-tbody'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '';
   });
 
-  const busca = document.getElementById('busca-aluno-rel');
-  if (busca) busca.value = '';
-  const resultadoBusca = document.getElementById('resultado-busca-aluno');
-  if (resultadoBusca) resultadoBusca.style.display = 'none';
+  // limpa os campos de busca
+  ['busca-aluno-rel', 'busca-aluno-turmas'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+
+  ['resultado-busca-aluno', 'resultado-busca-turmas'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = 'none';
+  });
 }
 // ===== NOTAS =====
 function gerarRelatorioNotas() {
@@ -417,6 +470,68 @@ function selecionarAluno(alunoId, nome, matricula) {
       }
 
       document.getElementById('card-resultado-aluno').classList.remove('oculto');
+    });
+}
+
+let buscaTurmasTimeout = null;
+
+function buscarAlunoTurmas() {
+  const termo = document.getElementById('busca-aluno-turmas').value;
+  const resultado = document.getElementById('resultado-busca-turmas');
+
+  if (termo.length < 2) { resultado.style.display = 'none'; return; }
+
+  clearTimeout(buscaTurmasTimeout);
+  buscaTurmasTimeout = setTimeout(() => {
+    fetch(`/professor/buscar_alunos_relatorio?q=${encodeURIComponent(termo)}`)
+      .then(r => r.json())
+      .then(alunos => {
+        if (alunos.length === 0) {
+          resultado.innerHTML = '<p style="padding:12px; color:#94a3b8; font-size:0.85rem;">Nenhum aluno encontrado.</p>';
+        } else {
+          resultado.innerHTML = alunos.map(a => `
+            <div onclick="selecionarAlunoTurmas(${a.id}, '${a.nome.replace(/'/g, "\\'")}', '${a.matricula}')"
+                 style="padding:10px 14px; cursor:pointer; font-size:0.88rem; border-bottom:1px solid #f1f5f9;"
+                 onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='white'">
+              ${a.nome} — Mat. ${a.matricula}
+            </div>
+          `).join('');
+        }
+        resultado.style.display = 'block';
+      });
+  }, 300);
+}
+
+function selecionarAlunoTurmas(alunoId, nome, matricula) {
+  document.getElementById('busca-aluno-turmas').value = `${nome} — Mat. ${matricula}`;
+  document.getElementById('resultado-busca-turmas').style.display = 'none';
+
+  fetch(`/professor/turmas_do_aluno/${alunoId}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('rel-turmas-titulo').textContent = nome;
+      document.getElementById('rel-turmas-subtitulo').textContent =
+        `Mat. ${matricula} — ${data.turmas.length} turma(s)`;
+
+      const tbody = document.getElementById('rel-turmas-tbody');
+      tbody.innerHTML = '';
+
+      if (data.turmas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Aluno não está em nenhuma turma.</td></tr>';
+      } else {
+        data.turmas.forEach(t => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${t.curso}</td>
+              <td>${t.turma}</td>
+              <td>${t.dias_semana} ${t.horario}</td>
+              <td>${t.professores || '—'}</td>
+              <td>${t.data_entrada || '—'}</td>
+            </tr>`;
+        });
+      }
+
+      document.getElementById('card-resultado-turmas').classList.remove('oculto');
     });
 }
 
