@@ -501,3 +501,17 @@
 @media (max-width: 700px) {
   .dados-grid { grid-template-columns: repeat(2, 1fr); }
 }
+
+
+.analise-titulo {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.analise-desc {
+  font-size: 0.82rem;
+  color: #64748b;
+  margin: -8px 0 4px;
+}
