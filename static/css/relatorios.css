@@ -513,9 +513,8 @@
 .analise-desc {
   font-size: 0.82rem;
   color: #64748b;
-  margin: -8px 0 4px;
+  margin: 4px 0 0;
 }
-
 .card-expansivel {
   display: block;
   padding: 0;
