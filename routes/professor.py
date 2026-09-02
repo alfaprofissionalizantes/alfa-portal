@@ -1506,3 +1506,62 @@ def turmas_do_aluno(aluno_id):
     cur.close()
     conn.close()
     return jsonify({'turmas': [dict(t) for t in turmas]})
+
+
+@professor_bp.route('/dados_gerais')
+@admin_required
+def dados_gerais():
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    cur.execute("SELECT COUNT(*) as total FROM portal_alunos WHERE ativo = 1 OR ativo IS NULL")
+    total_alunos = cur.fetchone()['total']
+
+    cur.execute("SELECT COUNT(*) as total FROM portal_alunos WHERE ativo = 0")
+    total_desativados = cur.fetchone()['total']
+
+    cur.execute("SELECT COUNT(*) as total FROM portal_turmas")
+    total_turmas = cur.fetchone()['total']
+
+    cur.execute("SELECT COUNT(*) as total FROM portal_professores")
+    total_professores = cur.fetchone()['total']
+
+    # Alunos por curso
+    cur.execute("""
+        SELECT c.nome as curso, COUNT(DISTINCT at2.aluno_id) as total
+        FROM portal_cursos c
+        LEFT JOIN portal_turmas t ON t.curso_id = c.id
+        LEFT JOIN portal_aluno_turma at2 ON at2.turma_id = t.id
+        LEFT JOIN portal_alunos a ON a.id = at2.aluno_id AND (a.ativo = 1 OR a.ativo IS NULL)
+        GROUP BY c.id, c.nome
+        ORDER BY total DESC
+    """)
+    por_curso = cur.fetchall()
+
+    # Cadastros incompletos
+    cur.execute("""
+        SELECT COUNT(*) as total FROM portal_alunos
+        WHERE (ativo = 1 OR ativo IS NULL) AND (
+            nascimento IS NULL OR nascimento_responsavel IS NULL OR
+            nome_responsavel = '' OR cpf_responsavel = '' OR
+            rg_responsavel = '' OR telefone_responsavel = '' OR
+            endereco = '' OR bairro = '' OR numero = '' OR
+            cidade = '' OR cep = ''
+        )
+    """)
+    incompletos = cur.fetchone()['total']
+
+    cur.close()
+    conn.close()
+
+    media = round(total_alunos / total_turmas, 1) if total_turmas else 0
+
+    return jsonify({
+        'total_alunos': total_alunos,
+        'total_desativados': total_desativados,
+        'total_turmas': total_turmas,
+        'total_professores': total_professores,
+        'media_por_turma': media,
+        'incompletos': incompletos,
+        'por_curso': [dict(c) for c in por_curso]
+    })

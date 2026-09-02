@@ -15,10 +15,40 @@
 
   <!-- ABAS -->
   <div class="abas-relatorio">
+    {% if session.cargo and session.cargo.lower() == 'admin' %}
+    <button class="aba-rel" onclick="trocarAbaRel('dados', this)">📈 Dados Gerais</button>
+    {% endif %}
     <button class="aba-rel ativa" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
     <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
     <button class="aba-rel" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
     <button class="aba-rel" onclick="trocarAbaRel('turmas', this)">🏫 Turmas do Aluno</button>
+  </div>
+
+  <!-- ===== ABA DADOS GERAIS ===== -->
+  <div id="painel-dados" class="oculto">
+    <div class="relatorio-card" style="max-width:900px;">
+      <div class="notas-prof-header">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+        </svg>
+        <div>
+          <h2 class="notas-prof-titulo">Dados Gerais</h2>
+          <p class="notas-prof-subtitulo">Visão geral da escola</p>
+        </div>
+      </div>
+
+      <div class="dados-grid" id="dados-cards"></div>
+
+      <h4 style="font-size:0.95rem; color:#1a1a2e; margin:8px 0 0;">Alunos por curso</h4>
+      <div class="relatorio-tabela-wrapper">
+        <table class="relatorio-tabela">
+          <thead>
+            <tr><th>Curso</th><th>Alunos</th></tr>
+          </thead>
+          <tbody id="dados-curso-tbody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
@@ -301,14 +331,75 @@
 {% block script %}
 <script>
 
+function carregarDadosGerais() {
+  fetch('/professor/dados_gerais')
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('dados-cards').innerHTML = `
+        <div class="dado-card"><span class="dado-num">${d.total_alunos}</span><span class="dado-label">Alunos ativos</span></div>
+        <div class="dado-card"><span class="dado-num">${d.total_turmas}</span><span class="dado-label">Turmas</span></div>
+        <div class="dado-card"><span class="dado-num">${d.total_professores}</span><span class="dado-label">Professores</span></div>
+        <div class="dado-card"><span class="dado-num">${d.media_por_turma}</span><span class="dado-label">Média por turma</span></div>
+        <div class="dado-card alerta"><span class="dado-num">${d.incompletos}</span><span class="dado-label">Cadastros pendentes</span></div>
+        <div class="dado-card"><span class="dado-num">${d.total_desativados}</span><span class="dado-label">Desativados</span></div>
+      `;
+
+      const tbody = document.getElementById('dados-curso-tbody');
+      tbody.innerHTML = d.por_curso.map(c =>
+        `<tr><td>${c.curso}</td><td><strong>${c.total}</strong></td></tr>`
+      ).join('');
+    });
+}
+
+
+function gerarRelatorio() {
+  const turmaId    = document.getElementById('select-turma-rel').value;
+  const mes        = document.getElementById('select-mes-rel').value;
+  const ano        = document.getElementById('select-ano-rel').value;
+  const turmaTexto = document.getElementById('select-turma-rel').options[document.getElementById('select-turma-rel').selectedIndex].text;
+  const mesTexto   = document.getElementById('select-mes-rel').options[document.getElementById('select-mes-rel').selectedIndex].text;
+
+  if (!turmaId) { alert('Selecione uma turma!'); return; }
+
+  fetch(`/professor/relatorio_turma/${turmaId}/${ano}/${mes}`)
+    .then(r => r.json())
+    .then(data => {
+      document.getElementById('rel-titulo').textContent = turmaTexto;
+      document.getElementById('rel-subtitulo').textContent = `${mesTexto} ${ano}`;
+
+      const tbody = document.getElementById('rel-tbody');
+      tbody.innerHTML = '';
+
+      if (data.alunos.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
+      } else {
+        data.alunos.forEach(a => {
+          const cor   = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
+          const icone = a.frequencia >= 75 ? '✅' : a.frequencia >= 50 ? '⚠️' : '❌';
+          tbody.innerHTML += `
+            <tr>
+              <td>${a.nome}</td>
+              <td>${a.presencas}</td>
+              <td>${a.faltas}</td>
+              <td>${a.total_aulas}</td>
+              <td><span class="badge-freq ${cor}">${icone} ${a.frequencia}%</span></td>
+            </tr>`;
+        });
+      }
+
+      document.getElementById('card-resultado').classList.remove('oculto');
+    });
+}
+
 function trocarAbaRel(aba, btn) {
   document.querySelectorAll('.aba-rel').forEach(b => b.classList.remove('ativa'));
   btn.classList.add('ativa');
 
-  document.getElementById('painel-frequencia').classList.add('oculto');
-  document.getElementById('painel-notas').classList.add('oculto');
-  document.getElementById('painel-aluno').classList.add('oculto');
-  document.getElementById('painel-turmas').classList.add('oculto');
+  // esconde todos os painéis
+  ['painel-frequencia', 'painel-notas', 'painel-aluno', 'painel-turmas', 'painel-dados'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.add('oculto');
+  });
   document.getElementById('painel-' + aba).classList.remove('oculto');
 
   // esconde os cards de resultado
@@ -333,7 +424,12 @@ function trocarAbaRel(aba, btn) {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
+
+  // carrega os dados ao abrir a aba
+  if (aba === 'dados') carregarDadosGerais();
 }
+
+
 // ===== NOTAS =====
 function gerarRelatorioNotas() {
   const turmaId    = document.getElementById('select-turma-notas-rel').value;
