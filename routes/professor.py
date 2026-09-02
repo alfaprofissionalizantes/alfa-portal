@@ -1565,3 +1565,78 @@ def dados_gerais():
         'incompletos': incompletos,
         'por_curso': [dict(c) for c in por_curso]
     })
+
+@professor_bp.route('/analises')
+@admin_required
+def analises():
+    hoje = date.today()
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    # Alunos cujas 3 últimas chamadas na turma foram falta
+    cur.execute("""
+        SELECT a.id, a.nome, a.matricula, t.nome as turma, c.nome as curso,
+               MAX(DATE_FORMAT(ch.data_aula, '%d/%m')) as ultima_aula
+        FROM portal_chamadas ch
+        JOIN portal_alunos a ON a.id = ch.aluno_id
+        JOIN portal_turmas t ON t.id = ch.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE a.ativo = 1 OR a.ativo IS NULL
+        GROUP BY a.id, a.nome, a.matricula, t.id, t.nome, c.nome
+        HAVING SUBSTRING_INDEX(
+                 GROUP_CONCAT(ch.status ORDER BY ch.data_aula DESC), ',', 3
+               ) = 'F,F,F'
+        ORDER BY a.nome
+        LIMIT 30
+    """)
+    evasao = cur.fetchall()
+
+    # Cadastros incompletos
+    cur.execute("""
+        SELECT id, nome, matricula FROM portal_alunos
+        WHERE (ativo = 1 OR ativo IS NULL) AND (
+            nascimento IS NULL OR nascimento_responsavel IS NULL OR
+            nome_responsavel = '' OR cpf_responsavel = '' OR
+            rg_responsavel = '' OR telefone_responsavel = '' OR
+            endereco = '' OR bairro = '' OR numero = '' OR
+            cidade = '' OR cep = ''
+        )
+        ORDER BY nome
+    """)
+    incompletos = cur.fetchall()
+
+    # Turmas por quantidade de alunos
+    cur.execute("""
+        SELECT t.nome as turma, c.nome as curso, t.dias_semana, t.horario,
+               COUNT(at2.aluno_id) as total
+        FROM portal_turmas t
+        JOIN portal_cursos c ON c.id = t.curso_id
+        LEFT JOIN portal_aluno_turma at2 ON at2.turma_id = t.id
+        LEFT JOIN portal_alunos a ON a.id = at2.aluno_id AND (a.ativo = 1 OR a.ativo IS NULL)
+        GROUP BY t.id, t.nome, c.nome, t.dias_semana, t.horario
+        ORDER BY total DESC
+    """)
+    turmas_tamanho = cur.fetchall()
+
+    # Turmas sem chamada nos últimos 7 dias
+    cur.execute("""
+        SELECT t.nome as turma, c.nome as curso, t.dias_semana, t.horario,
+               COALESCE(DATE_FORMAT(MAX(ch.data_aula), '%d/%m/%Y'), 'Nunca') as ultima_chamada
+        FROM portal_turmas t
+        JOIN portal_cursos c ON c.id = t.curso_id
+        LEFT JOIN portal_chamadas ch ON ch.turma_id = t.id
+        GROUP BY t.id, t.nome, c.nome, t.dias_semana, t.horario
+        HAVING MAX(ch.data_aula) IS NULL OR MAX(ch.data_aula) < DATE_SUB(%s, INTERVAL 7 DAY)
+        ORDER BY c.nome, t.nome
+    """, (hoje,))
+    sem_chamada = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        'evasao':         [dict(e) for e in evasao],
+        'incompletos':    [dict(i) for i in incompletos],
+        'turmas_tamanho': [dict(t) for t in turmas_tamanho],
+        'sem_chamada':    [dict(s) for s in sem_chamada]
+    })
