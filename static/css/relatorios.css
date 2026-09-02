@@ -459,3 +459,45 @@
   .modal { max-width: calc(100% - 32px); }
   .modal-corpo, .modal-header, .modal-rodape { padding-left: 18px; padding-right: 18px; }
 }
+
+
+.dados-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  width: 100%;
+}
+
+.dado-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 18px;
+  background: #f8faff;
+  border: 1px solid #e8eef8;
+  border-radius: 12px;
+}
+
+.dado-card.alerta {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.dado-num {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a3a8f;
+  line-height: 1;
+}
+
+.dado-card.alerta .dado-num { color: #ca8a04; }
+
+.dado-label {
+  font-size: 0.8rem;
+  color: #64748b;
+  font-weight: 600;
+}
+
+@media (max-width: 700px) {
+  .dados-grid { grid-template-columns: repeat(2, 1fr); }
+}
