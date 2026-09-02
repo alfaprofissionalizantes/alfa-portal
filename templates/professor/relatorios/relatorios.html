@@ -49,50 +49,69 @@
         </table>
       </div>
     </div>
-
-      <div class="relatorio-card" style="max-width:900px;">
-        <h4 class="analise-titulo">⚠️ Alunos em risco de evasão</h4>
-        <p class="analise-desc">Faltaram nas 3 últimas aulas seguidas.</p>
+      <details class="relatorio-card card-expansivel" style="max-width:900px;">
+        <summary class="analise-summary">
+          <div>
+            <h4 class="analise-titulo">⚠️ Alunos em risco de evasão <span id="evasao-count" class="analise-count"></span></h4>
+            <p class="analise-desc">Faltaram nas 3 últimas aulas seguidas.</p>
+          </div>
+          <span class="seta-expandir">▾</span>
+        </summary>
         <div class="relatorio-tabela-wrapper">
           <table class="relatorio-tabela">
             <thead><tr><th>Aluno</th><th>Matrícula</th><th>Turma</th><th>Última aula</th></tr></thead>
             <tbody id="evasao-tbody"></tbody>
           </table>
         </div>
-      </div>
+      </details>
 
-      <div class="relatorio-card" style="max-width:900px;">
-        <h4 class="analise-titulo">📋 Cadastros incompletos</h4>
-        <p class="analise-desc" id="incompletos-desc"></p>
+      <details class="relatorio-card card-expansivel" style="max-width:900px;">
+        <summary class="analise-summary">
+          <div>
+            <h4 class="analise-titulo">📋 Cadastros incompletos/pendentes ⚠ <span id="incompletos-count" class="analise-count"></span></h4>
+            <p class="analise-desc" id="incompletos-desc"></p>
+          </div>
+          <span class="seta-expandir">▾</span>
+        </summary>
         <div class="relatorio-tabela-wrapper">
           <table class="relatorio-tabela">
             <thead><tr><th>Aluno</th><th>Matrícula</th></tr></thead>
             <tbody id="incompletos-tbody"></tbody>
           </table>
         </div>
-      </div>
+      </details>
 
-      <div class="relatorio-card" style="max-width:900px;">
-        <h4 class="analise-titulo">🏫 Tamanho das turmas</h4>
-        <p class="analise-desc">Da mais cheia para a mais vazia.</p>
+      <details class="relatorio-card card-expansivel" style="max-width:900px;">
+        <summary class="analise-summary">
+          <div>
+            <h4 class="analise-titulo">🏫 Tamanho das turmas <span id="turmas-count" class="analise-count"></span></h4>
+            <p class="analise-desc">Da mais cheia para a mais vazia.</p>
+          </div>
+          <span class="seta-expandir">▾</span>
+        </summary>
         <div class="relatorio-tabela-wrapper">
           <table class="relatorio-tabela">
             <thead><tr><th>Curso</th><th>Turma</th><th>Dias / Horário</th><th>Alunos</th></tr></thead>
             <tbody id="turmas-tamanho-tbody"></tbody>
           </table>
         </div>
-      </div>
+      </details>
 
-      <div class="relatorio-card" style="max-width:900px;">
-        <h4 class="analise-titulo">📅 Turmas sem chamada recente</h4>
-        <p class="analise-desc">Nenhuma chamada nos últimos 7 dias.</p>
+      <details class="relatorio-card card-expansivel" style="max-width:900px;">
+        <summary class="analise-summary">
+          <div>
+            <h4 class="analise-titulo">📅 Turmas sem chamada recente <span id="sem-chamada-count" class="analise-count"></span></h4>
+            <p class="analise-desc">Nenhuma chamada nos últimos 7 dias.</p>
+          </div>
+          <span class="seta-expandir">▾</span>
+        </summary>
         <div class="relatorio-tabela-wrapper">
           <table class="relatorio-tabela">
             <thead><tr><th>Curso</th><th>Turma</th><th>Dias / Horário</th><th>Última chamada</th></tr></thead>
             <tbody id="sem-chamada-tbody"></tbody>
           </table>
         </div>
-      </div>
+      </details>
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
@@ -403,19 +422,27 @@ function carregarAnalises() {
       const vazio = (cols, msg) =>
         `<tr><td colspan="${cols}" style="text-align:center; color:#94a3b8;">${msg}</td></tr>`;
 
+      const setCount = (id, n) => {
+        const el = document.getElementById(id);
+        if (el) el.textContent = `(${n})`;
+      };
+
+      setCount('evasao-count', d.evasao.length);
       document.getElementById('evasao-tbody').innerHTML = d.evasao.length
         ? d.evasao.map(e => `<tr>
-            <td>${e.nome}</td><td>${e.matricula}</td>
+            <td>${e.nome.toUpperCase()}</td><td>${e.matricula}</td>
             <td>${e.curso} — ${e.turma}</td><td>${e.ultima_aula}</td>
           </tr>`).join('')
         : vazio(4, 'Nenhum aluno em risco. 🎉');
 
+      setCount('incompletos-count', d.incompletos.length);
       document.getElementById('incompletos-desc').textContent =
         `${d.incompletos.length} aluno(s) com dados faltando.`;
       document.getElementById('incompletos-tbody').innerHTML = d.incompletos.length
-        ? d.incompletos.map(i => `<tr><td>${i.nome}</td><td>${i.matricula}</td></tr>`).join('')
+        ? d.incompletos.map(i => `<tr><td>${i.nome.toUpperCase()}</td><td>${i.matricula}</td></tr>`).join('')
         : vazio(2, 'Todos os cadastros estão completos. 🎉');
 
+      setCount('turmas-count', d.turmas_tamanho.length);
       document.getElementById('turmas-tamanho-tbody').innerHTML = d.turmas_tamanho.length
         ? d.turmas_tamanho.map(t => `<tr>
             <td>${t.curso}</td><td>${t.turma}</td>
@@ -424,6 +451,7 @@ function carregarAnalises() {
           </tr>`).join('')
         : vazio(4, 'Nenhuma turma cadastrada.');
 
+      setCount('sem-chamada-count', d.sem_chamada.length);
       document.getElementById('sem-chamada-tbody').innerHTML = d.sem_chamada.length
         ? d.sem_chamada.map(s => `<tr>
             <td>${s.curso}</td><td>${s.turma}</td>

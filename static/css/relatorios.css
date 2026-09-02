@@ -515,3 +515,50 @@
   color: #64748b;
   margin: -8px 0 4px;
 }
+
+
+.card-expansivel {
+  display: block;
+  padding: 0;
+}
+
+.analise-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 32px;
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.analise-summary::-webkit-details-marker {
+  display: none;
+}
+
+.analise-summary:hover {
+  background: #f8faff;
+  border-radius: 18px;
+}
+
+.seta-expandir {
+  font-size: 1.2rem;
+  color: #1a3a8f;
+  transition: transform 0.2s;
+  flex-shrink: 0;
+}
+
+.card-expansivel[open] .seta-expandir {
+  transform: rotate(180deg);
+}
+
+.card-expansivel[open] .analise-summary {
+  border-bottom: 1px solid #e8eef8;
+  border-radius: 18px 18px 0 0;
+}
+
+.card-expansivel .relatorio-tabela-wrapper {
+  border: none;
+  border-radius: 0 0 18px 18px;
+}
