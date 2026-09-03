@@ -29,7 +29,8 @@
 #painel-frequencia,
 #painel-notas,
 #painel-aluno,
-#painel-turmas {
+#painel-turmas,
+#painel-dados {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -515,9 +516,11 @@
   color: #64748b;
   margin: 4px 0 0;
 }
+
 .card-expansivel {
   display: block;
   padding: 0;
+  width: 100%;
 }
 
 .analise-summary {
