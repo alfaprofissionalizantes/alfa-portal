@@ -1,0 +1,21 @@
+# Variáveis de ambiente e segredos
+.env
+.env.*
+certs/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+venv/
+.venv/
+
+# Arquivos gerados pelo sistema
+uploads/
+contrato/
+
+# Editor / SO
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
