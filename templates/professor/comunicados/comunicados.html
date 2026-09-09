@@ -37,7 +37,7 @@
     <div class="lista-comunicados">
       {% if comunicados %}
         {% for c in comunicados %}
-        <a href="{{ url_for('static', filename='uploads/comunicados/' ~ c.arquivo) }}" target="_blank" class="card-comunicado">
+        <a href="{{ c.arquivo if c.arquivo else '#' }}" target="_blank" class="card-comunicado">
           <div class="card-comunicado-esquerda">
             <div class="icone-pdf">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
@@ -116,12 +116,14 @@
       </div>
 
       <div class="campo-grupo">
-        <label class="campo-label">Arquivo (PDF ou DOCX)</label>
+        <label class="campo-label">Arquivo <small style="color:#94a3b8">(PDF, DOCX ou imagem)</small></label>
         <label class="campo-upload">
           <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
             <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/>
           </svg>
-          <span id="upload-label">Selecionar arquivo</span>          
+          <span id="upload-label">Selecionar arquivo</span>
+          <input type="file" name="arquivo" accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp"
+                style="display:none" onchange="atualizarLabel(this)"/>
         </label>
       </div>
 

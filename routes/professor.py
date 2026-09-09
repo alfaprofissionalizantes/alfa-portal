@@ -334,66 +334,86 @@ import os
 from werkzeug.utils import secure_filename
 
 UPLOAD_FOLDER = 'static/uploads/comunicados'
-ALLOWED_EXTENSIONS = {'pdf', 'docx'}
+ALLOWED_EXTENSIONS = {'pdf', 'docx', 'doc', 'jpg', 'jpeg', 'png', 'webp'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+def salvar_arquivo_comunicado(arquivo):
+    if not arquivo or arquivo.filename == '':
+        return None
+    if not allowed_file(arquivo.filename):
+        return None
+    try:
+        resultado = cloudinary.uploader.upload(
+            arquivo,
+            folder='alfa-portal/comunicados',
+            resource_type='auto'
+        )
+        return resultado['secure_url']
+    except Exception as e:
+        print(f"Erro no upload do comunicado: {e}")
+        return None
 
 
 
 @professor_bp.route('/salvar_comunicado', methods=['POST'])
 @login_required
 def salvar_comunicado():
-    from flask import current_app
     professor_id = session['id']
-    titulo    = flask_request.form.get('titulo')
-    tipo      = flask_request.form.get('tipo')
-    turma_id  = flask_request.form.get('turma_id') or None
-    aluno_id  = flask_request.form.get('aluno_id') or None
-    arquivo   = flask_request.files.get('arquivo')
-
-
-    if arquivo and allowed_file(arquivo.filename):
-        filename = secure_filename(arquivo.filename)
-        os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-        arquivo.save(os.path.join(UPLOAD_FOLDER, filename))
-
-        conn = create_connection()
-        cur  = get_cursor(conn)
-
+    f          = flask_request.form
+    titulo     = f.get('titulo', '').strip()
+    tipo       = f.get('tipo')
+    turma_id   = f.get('turma_id') or None
+    aluno_id   = f.get('aluno_id') or None
+    observacao = f.get('observacao', '').strip()
+ 
+    arquivo_url = salvar_arquivo_comunicado(flask_request.files.get('arquivo'))
+ 
+    # Observação não precisa de arquivo; os outros tipos sim
+    if tipo != 'observacao' and not arquivo_url:
+        return "<script>alert('Selecione um arquivo válido (PDF, DOCX ou imagem).'); history.back();</script>"
+ 
+    if tipo == 'observacao' and not observacao:
+        return "<script>alert('Digite a observação.'); history.back();</script>"
+ 
+    conn = create_connection()
+    cur  = get_cursor(conn)
+ 
+    try:
         if tipo == 'todos':
-            # Buscar todos os alunos ativos
             cur.execute("SELECT id FROM portal_alunos WHERE ativo = 1 OR ativo IS NULL")
-            alunos = cur.fetchall()
-            for a in alunos:
+            for a in cur.fetchall():
                 cur.execute("""
                     INSERT INTO portal_comunicados
                     (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
                     VALUES (%s, %s, %s, %s, %s, %s)
-                """, (professor_id, titulo, filename, 'aluno', None, a['id']))
-        else:
+                """, (professor_id, titulo, arquivo_url, 'aluno', None, a['id']))
+ 
+        elif tipo == 'observacao':
             cur.execute("""
                 INSERT INTO portal_comunicados
                 (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
                 VALUES (%s, %s, %s, %s, %s, %s)
-            """, (professor_id, titulo, filename, tipo, turma_id, aluno_id))
-
-
-    observacao = flask_request.form.get('observacao', '').strip()
-
-    if tipo == 'observacao':
-        aluno_id_obs = flask_request.form.get('aluno_id') or None
-        cur.execute("""
-            INSERT INTO portal_comunicados
-            (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-            VALUES (%s, %s, %s, %s, %s, %s)
-        """, (professor_id, observacao, None, 'aluno', None, aluno_id_obs))
+            """, (professor_id, observacao, None, 'aluno', None, aluno_id))
+ 
+        else:  # turma ou aluno
+            cur.execute("""
+                INSERT INTO portal_comunicados
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (professor_id, titulo, arquivo_url, tipo, turma_id, aluno_id))
+ 
         conn.commit()
+    except Exception as e:
+        conn.rollback()
         cur.close()
         conn.close()
-    
-
-    return redirect(url_for('professor.comunicados'))   
+        return f"Erro ao salvar comunicado: {str(e)}", 500
+ 
+    cur.close()
+    conn.close()
+    return redirect(url_for('professor.comunicados'))
  
 
  
