@@ -28,7 +28,7 @@
     <div class="lista-comunicados">
       {% if comunicados %}
         {% for c in comunicados %}
-        <a href="{{ url_for('static', filename='uploads/comunicados/' ~ c.arquivo) }}" target="_blank" class="card-comunicado">
+        <a href="{{ c.arquivo if c.arquivo else '#' }}" target="_blank" class="card-comunicado">
           <div class="card-comunicado-esquerda">
             <div class="icone-pdf">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
