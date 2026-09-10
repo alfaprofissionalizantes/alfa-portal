@@ -1216,13 +1216,13 @@ body.modal-aberto {
 .btn-editar-tel:hover { opacity: 1; }
 
 .dia-cal.feriado {
-  background: #fef2f2;
-  border-color: #fca5a5;
-  color: #dc2626;
+  background: #fcfef2;
+  border-color: #d1ee8e;
+  color: #dbd032;
   cursor: not-allowed;
 }
 
 .dia-cal.feriado:hover {
-  background: #fef2f2;
-  border-color: #fca5a5;
+  background: #f9fef2;
+  border-color: #f6fca5;
 }
