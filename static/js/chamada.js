@@ -34,13 +34,13 @@ function carregarCalendario() {
 
   fetch(`/professor/chamadas_mes/${turmaSelecionada}/${anoAtual}/${mesAtual}`)
     .then(r => r.json())
-    .then(chamadas => {
-      const diasComChamada = chamadas.map(c => c.data_aula);
-      renderizarCalendario(diasComChamada);
+    .then(resp => {
+      const diasComChamada = resp.chamadas.map(c => c.data_aula);
+      renderizarCalendario(diasComChamada, resp.feriados || {});
     });
 }
 
-function renderizarCalendario(diasComChamada) {
+function renderizarCalendario(diasComChamada, feriados) {
   const DIAS_SEMANA_PT = ['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const hoje = new Date();
   hoje.setHours(0, 0, 0, 0);
@@ -68,12 +68,17 @@ function renderizarCalendario(diasComChamada) {
     const isHoje = data.getTime() === hoje.getTime();
     const isFuturo = data > hoje;
     const temChamada = diasComChamada.includes(dataStr);
+    const feriado = feriados[dataStr];
 
     const btn = document.createElement('button');
-    btn.className = `dia-cal ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
+    btn.className = `dia-cal ${feriado ? 'feriado' : ''} ${temChamada ? 'feito' : ''} ${isHoje ? 'hoje' : ''}`;
     btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
 
-    if (isFuturo) {
+    if (feriado) {
+      btn.disabled = true;
+      btn.title = feriado;
+      btn.textContent = `${String(dia).padStart(2,'0')} — ${feriado}`;
+    } else if (isFuturo) {
       btn.disabled = true;
       btn.style.opacity = '0.4';
       btn.style.cursor = 'not-allowed';

@@ -1,11 +1,12 @@
 from flask import Blueprint, render_template, session, redirect, url_for, jsonify
 from db import create_connection, get_cursor
-from datetime import date
+from datetime import date, timedelta
 from crypto import criptografar, descriptografar, hash_senha
 import os
 import cloudinary
 import cloudinary.uploader
 from crypto import criptografar, descriptografar, hash_senha
+
 
 cloudinary.config(
     cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
@@ -45,6 +46,50 @@ DIAS_PT = {
     'Monday': 'Segunda', 'Tuesday': 'Terça', 'Wednesday': 'Quarta',
     'Thursday': 'Quinta', 'Friday': 'Sexta', 'Saturday': 'Sábado', 'Sunday': 'Domingo'
 }
+
+
+
+def _pascoa(ano):
+    a = ano % 19
+    b = ano // 100
+    c = ano % 100
+    d = b // 4
+    e = b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i = c // 4
+    k = c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    mes = (h + l - 7 * m + 114) // 31
+    dia = ((h + l - 7 * m + 114) % 31) + 1
+    return date(ano, mes, dia)
+
+
+def feriados_nacionais(ano):
+    """Retorna {'YYYY-MM-DD': 'Nome do feriado'}"""
+    pascoa = _pascoa(ano)
+    f = {
+        f'{ano}-01-01': 'Confraternização Universal',
+        f'{ano}-04-21': 'Tiradentes',
+        f'{ano}-05-01': 'Dia do Trabalho',
+        f'{ano}-09-07': 'Independência',
+        f'{ano}-10-12': 'Nossa Senhora Aparecida',
+        f'{ano}-11-02': 'Finados',
+        f'{ano}-11-15': 'Proclamação da República',
+        f'{ano}-11-20': 'Consciência Negra',
+        f'{ano}-12-25': 'Natal',
+    }
+    moveis = {
+        pascoa - timedelta(days=48): 'Carnaval',
+        pascoa - timedelta(days=47): 'Carnaval',
+        pascoa - timedelta(days=2):  'Sexta-feira Santa',
+        pascoa + timedelta(days=60): 'Corpus Christi',
+    }
+    for d, nome in moveis.items():
+        f[d.strftime('%Y-%m-%d')] = nome
+    return f
 
 def login_required(f):
     from functools import wraps
@@ -901,7 +946,10 @@ def chamadas_mes(turma_id, ano, mes):
     chamadas = cur.fetchall()
     cur.close()
     conn.close()
-    return jsonify(chamadas)
+    return jsonify({
+        'chamadas': [dict(c) for c in chamadas],
+        'feriados': feriados_nacionais(ano)
+    })
 
 @professor_bp.route('/alunos_chamada/<int:turma_id>/<string:data>')
 @login_required
