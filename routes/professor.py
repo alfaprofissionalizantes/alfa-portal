@@ -225,10 +225,15 @@ def comunicados():
     comunicados = cur.fetchall()
 
     cur.execute("""
-        SELECT t.id, t.nome, c.nome as curso
+        SELECT DISTINCT t.id, t.nome, c.nome as curso
         FROM portal_turmas t
         JOIN portal_cursos c ON c.id = t.curso_id
-        WHERE t.professor_id = %s
+        JOIN portal_turma_professores tp ON tp.turma_id = t.id
+        WHERE tp.professor_id = %s
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
     """, (professor_id,))
     turmas = cur.fetchall()
     cur.close()
