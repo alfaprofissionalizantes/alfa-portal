@@ -183,6 +183,9 @@
           <h3 id="rel-titulo">Relatório</h3>
           <p id="rel-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
         </div>
+        <button class="btn-acao editar" id="btn-pdf-freq" onclick="baixarPdfFrequencia()">
+          📄 Baixar PDF
+        </button>
       </div>
       <div class="relatorio-legenda">
         <span class="badge-freq verde">✅ ≥ 75%</span>
@@ -801,6 +804,16 @@ function carregarGraficos() {
         }
       });
     });
+
+    
+function baixarPdfFrequencia() {
+  const turmaId = document.getElementById('select-turma-rel').value;
+  const mes     = document.getElementById('select-mes-rel').value;
+  const ano     = document.getElementById('select-ano-rel').value;
+  if (!turmaId) { alert('Gere o relatório primeiro.'); return; }
+  window.open(`/professor/relatorio_turma_pdf/${turmaId}/${ano}/${mes}`, '_blank');
+}
+
 }
 </script>
 {% endblock %}

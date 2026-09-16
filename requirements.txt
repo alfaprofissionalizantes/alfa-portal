@@ -10,4 +10,5 @@ cryptography
 python-docx
 gunicorn
 flask-limiter
-cloudinary   
+cloudinary
+reportlab   

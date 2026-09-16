@@ -1751,3 +1751,121 @@ def dados_graficos():
         'cursos_labels': [c['curso'] for c in cursos],
         'cursos_valores': [c['total'] for c in cursos]
     })
+
+
+@professor_bp.route('/relatorio_turma_pdf/<int:turma_id>/<int:ano>/<int:mes>')
+@login_required
+def relatorio_turma_pdf(turma_id, ano, mes):
+    import io
+    from flask import send_file
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    cur.execute("""
+        SELECT a.nome,
+            COUNT(CASE WHEN c.status = 'P' THEN 1 END) as presencas,
+            COUNT(CASE WHEN c.status = 'F' THEN 1 END) as faltas,
+            COUNT(*) as total_aulas
+        FROM portal_chamadas c
+        JOIN portal_alunos a ON a.id = c.aluno_id
+        WHERE c.turma_id = %s
+            AND MONTH(c.data_aula) = %s
+            AND YEAR(c.data_aula) = %s
+        GROUP BY a.id, a.nome
+        ORDER BY a.nome
+    """, (turma_id, mes, ano))
+    alunos = cur.fetchall()
+
+    cur.execute("""
+        SELECT t.nome as turma, c.nome as curso, t.dias_semana, t.horario
+        FROM portal_turmas t
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE t.id = %s
+    """, (turma_id,))
+    turma = cur.fetchone()
+
+    cur.close()
+    conn.close()
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            leftMargin=2*cm, rightMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+
+    estilos = getSampleStyleSheet()
+    titulo = ParagraphStyle('titulo', parent=estilos['Heading1'],
+                            fontSize=16, textColor=colors.HexColor('#1a3a8f'),
+                            spaceAfter=4)
+    sub = ParagraphStyle('sub', parent=estilos['Normal'],
+                         fontSize=10, textColor=colors.HexColor('#64748b'))
+
+    elementos = []
+    elementos.append(Paragraph('Alfa Profissionalizantes', titulo))
+    elementos.append(Paragraph('Relatório de Frequência', estilos['Heading2']))
+    elementos.append(Spacer(1, 8))
+
+    if turma:
+        elementos.append(Paragraph(
+            f"<b>Curso:</b> {turma['curso']} &nbsp;&nbsp; <b>Turma:</b> {turma['turma']}", sub))
+        elementos.append(Paragraph(
+            f"<b>Dias:</b> {turma['dias_semana']} &nbsp;&nbsp; <b>Horário:</b> {turma['horario']}", sub))
+
+    elementos.append(Paragraph(f"<b>Período:</b> {NOMES_MESES[mes]} de {ano}", sub))
+    elementos.append(Spacer(1, 16))
+
+    dados = [['Aluno', 'Presenças', 'Faltas', 'Total', 'Frequência']]
+    for a in alunos:
+        freq = round((a['presencas'] / a['total_aulas']) * 100) if a['total_aulas'] else 0
+        dados.append([
+            a['nome'].upper(),
+            str(a['presencas']),
+            str(a['faltas']),
+            str(a['total_aulas']),
+            f"{freq}%"
+        ])
+
+    if len(dados) == 1:
+        dados.append(['Nenhum registro no período', '', '', '', ''])
+
+    tabela = Table(dados, colWidths=[7.5*cm, 2.2*cm, 2.2*cm, 2*cm, 2.5*cm])
+    estilo_tabela = [
+        ('BACKGROUND',    (0,0), (-1,0), colors.HexColor('#1a3a8f')),
+        ('TEXTCOLOR',     (0,0), (-1,0), colors.white),
+        ('FONTNAME',      (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0), (-1,-1), 9),
+        ('ALIGN',         (1,0), (-1,-1), 'CENTER'),
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING',    (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('GRID',          (0,0), (-1,-1), 0.4, colors.HexColor('#e2e8f0')),
+        ('ROWBACKGROUNDS',(0,1), (-1,-1), [colors.white, colors.HexColor('#f8faff')]),
+    ]
+
+    # destaca quem está abaixo de 75%
+    for i, a in enumerate(alunos, start=1):
+        freq = round((a['presencas'] / a['total_aulas']) * 100) if a['total_aulas'] else 0
+        if freq < 50:
+            estilo_tabela.append(('TEXTCOLOR', (4,i), (4,i), colors.HexColor('#dc2626')))
+            estilo_tabela.append(('FONTNAME',  (4,i), (4,i), 'Helvetica-Bold'))
+        elif freq < 75:
+            estilo_tabela.append(('TEXTCOLOR', (4,i), (4,i), colors.HexColor('#ca8a04')))
+
+    tabela.setStyle(TableStyle(estilo_tabela))
+    elementos.append(tabela)
+
+    elementos.append(Spacer(1, 20))
+    elementos.append(Paragraph(
+        f"Emitido em {date.today().strftime('%d/%m/%Y')} — {len(alunos)} aluno(s)", sub))
+
+    doc.build(elementos)
+    buffer.seek(0)
+
+    nome_arquivo = f"frequencia_{NOMES_MESES[mes].lower()}_{ano}.pdf"
+    return send_file(buffer, as_attachment=True,
+                     download_name=nome_arquivo, mimetype='application/pdf')
