@@ -15,12 +15,12 @@ def create_connection():
             port=int(os.getenv('DB_PORT', 3306)),
             connection_timeout=10
         )
-        if connection.is_connected():
-            print("MYSQL CONECTADO!")
         return connection
     except Error as e:
-        print(f"Erro ao conectar ao MySQL: {e}")
-        return None
+        print(f"ERRO DE CONEXAO COM O BANCO: {e}")
+        raise
 
 def get_cursor(connection):
+    if connection is None:
+        raise RuntimeError("Conexão com o banco não foi estabelecida.")
     return connection.cursor(dictionary=True)
