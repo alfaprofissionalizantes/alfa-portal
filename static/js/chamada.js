@@ -116,6 +116,9 @@ function mudarMes(direcao) {
 }
 
 function abrirChamada(data, dataFormatada) {
+  const msg = document.getElementById('msg-chamada');
+  if (msg) msg.style.display = 'none';
+  
   document.getElementById('chamada-data-label').textContent = `${dataFormatada} — ${turmaInfo.nome}`;
   document.getElementById('card-calendario').classList.add('oculto');
   document.getElementById('card-chamada').classList.remove('oculto');
@@ -208,6 +211,9 @@ function voltarCalendario() {
 }
 
 function voltarSelecao() {
+  const msg = document.getElementById('msg-chamada');
+  if (msg) msg.style.display = 'none';
+
   document.getElementById('card-calendario').classList.add('oculto');
   document.getElementById('card-selecao').classList.remove('oculto');
 }
