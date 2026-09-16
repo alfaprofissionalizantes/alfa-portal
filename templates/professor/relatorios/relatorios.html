@@ -750,11 +750,12 @@ function selecionarAlunoTurmas(alunoId, nome, matricula) {
 
       document.getElementById('card-resultado-turmas').classList.remove('oculto');
     });
+}
 
 let chartMatriculas = null;
 let chartCursos = null;
 
- function carregarGraficos() {
+function carregarGraficos() {
   fetch('/professor/dados_graficos')
     .then(r => r.json())
     .then(d => {
@@ -801,9 +802,5 @@ let chartCursos = null;
       });
     });
 }
-
-
-}
-
 </script>
 {% endblock %}
