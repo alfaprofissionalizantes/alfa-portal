@@ -7,6 +7,7 @@
 <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/notas.css') }}">
 <link rel="stylesheet" href="{{ url_for('static', filename='css/relatorios.css') }}">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 {% endblock %}
 
 {% block conteudo %}
@@ -535,7 +536,7 @@ function trocarAbaRel(aba, btn) {
   });
 
   // carrega os dados ao abrir a aba
-  if (aba === 'dados') { carregarDadosGerais(); carregarAnalises(); }
+    if (aba === 'dados') { carregarDadosGerais(); carregarAnalises(); carregarGraficos(); }
 }
 
 
@@ -738,6 +739,57 @@ function selecionarAlunoTurmas(alunoId, nome, matricula) {
 
       document.getElementById('card-resultado-turmas').classList.remove('oculto');
     });
+
+    let chartMatriculas = null;
+    let chartCursos = null;
+
+    function carregarGraficos() {
+      fetch('/professor/dados_graficos')
+        .then(r => r.json())
+        .then(d => {
+          const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+          document.getElementById('gr-ano').textContent = `(${d.ano})`;
+
+          if (chartMatriculas) chartMatriculas.destroy();
+          chartMatriculas = new Chart(document.getElementById('grafico-matriculas'), {
+            type: 'line',
+            data: {
+              labels: MESES,
+              datasets: [{
+                label: 'Matrículas',
+                data: d.matriculas,
+                borderColor: '#1a3a8f',
+                backgroundColor: 'rgba(26,58,143,0.1)',
+                fill: true,
+                tension: 0.3
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { display: false } },
+              scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+          });
+
+          if (chartCursos) chartCursos.destroy();
+          chartCursos = new Chart(document.getElementById('grafico-cursos'), {
+            type: 'doughnut',
+            data: {
+              labels: d.cursos_labels,
+              datasets: [{
+                data: d.cursos_valores,
+                backgroundColor: ['#1a3a8f','#2563eb','#60a5fa','#f59e0b','#16a34a','#dc2626','#7c3aed']
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: { legend: { position: 'right' } }
+            }
+          });
+        });
+    }
 }
 
 </script>
