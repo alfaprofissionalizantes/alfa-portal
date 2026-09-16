@@ -570,3 +570,9 @@
 #painel-dados .relatorio-card {
   max-width: 900px;
 }
+
+.grafico-wrapper {
+  position: relative;
+  height: 300px;
+  width: 100%;
+}

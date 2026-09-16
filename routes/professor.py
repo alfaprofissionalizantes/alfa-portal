@@ -1713,3 +1713,41 @@ def analises():
         'turmas_tamanho': [dict(t) for t in turmas_tamanho],
         'sem_chamada':    [dict(s) for s in sem_chamada]
     })
+
+@professor_bp.route('/dados_graficos')
+@admin_required
+def dados_graficos():
+    ano = date.today().year
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    cur.execute("""
+        SELECT MONTH(data_matricula) as mes, COUNT(*) as total
+        FROM portal_matriculas_contratos
+        WHERE YEAR(data_matricula) = %s
+        GROUP BY MONTH(data_matricula)
+    """, (ano,))
+    linhas = {l['mes']: l['total'] for l in cur.fetchall()}
+    matriculas = [linhas.get(m, 0) for m in range(1, 13)]
+
+    cur.execute("""
+        SELECT c.nome as curso, COUNT(DISTINCT at2.aluno_id) as total
+        FROM portal_cursos c
+        LEFT JOIN portal_turmas t ON t.curso_id = c.id
+        LEFT JOIN portal_aluno_turma at2 ON at2.turma_id = t.id
+        LEFT JOIN portal_alunos a ON a.id = at2.aluno_id AND (a.ativo = 1 OR a.ativo IS NULL)
+        GROUP BY c.id, c.nome
+        HAVING total > 0
+        ORDER BY total DESC
+    """)
+    cursos = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return jsonify({
+        'ano': ano,
+        'matriculas': matriculas,
+        'cursos_labels': [c['curso'] for c in cursos],
+        'cursos_valores': [c['total'] for c in cursos]
+    })
