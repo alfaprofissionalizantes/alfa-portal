@@ -804,7 +804,7 @@ function carregarGraficos() {
         }
       });
     });
-
+  }
     
 function baixarPdfFrequencia() {
   const turmaId = document.getElementById('select-turma-rel').value;
@@ -814,6 +814,5 @@ function baixarPdfFrequencia() {
   window.open(`/professor/relatorio_turma_pdf/${turmaId}/${ano}/${mes}`, '_blank');
 }
 
-}
 </script>
 {% endblock %}
