@@ -1869,3 +1869,119 @@ def relatorio_turma_pdf(turma_id, ano, mes):
     nome_arquivo = f"frequencia_{NOMES_MESES[mes].lower()}_{ano}.pdf"
     return send_file(buffer, as_attachment=True,
                      download_name=nome_arquivo, mimetype='application/pdf')
+
+def _montar_pdf(titulo_relatorio, linhas_info, cabecalho, dados, larguras, nome_arquivo):
+    import io
+    from flask import send_file
+    from reportlab.lib.pagesizes import A4
+    from reportlab.lib import colors
+    from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+    from reportlab.lib.units import cm
+    from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+
+    buffer = io.BytesIO()
+    doc = SimpleDocTemplate(buffer, pagesize=A4,
+                            leftMargin=2*cm, rightMargin=2*cm,
+                            topMargin=2*cm, bottomMargin=2*cm)
+
+    estilos = getSampleStyleSheet()
+    titulo = ParagraphStyle('titulo', parent=estilos['Heading1'],
+                            fontSize=16, textColor=colors.HexColor('#1a3a8f'), spaceAfter=4)
+    sub = ParagraphStyle('sub', parent=estilos['Normal'],
+                         fontSize=10, textColor=colors.HexColor('#64748b'))
+
+    elementos = [
+        Paragraph('Alfa Profissionalizantes', titulo),
+        Paragraph(titulo_relatorio, estilos['Heading2']),
+        Spacer(1, 8),
+    ]
+    for linha in linhas_info:
+        elementos.append(Paragraph(linha, sub))
+    elementos.append(Spacer(1, 16))
+
+    tabela_dados = [cabecalho] + (dados or [['Nenhum registro'] + [''] * (len(cabecalho) - 1)])
+    tabela = Table(tabela_dados, colWidths=[w*cm for w in larguras])
+    tabela.setStyle(TableStyle([
+        ('BACKGROUND',    (0,0), (-1,0), colors.HexColor('#1a3a8f')),
+        ('TEXTCOLOR',     (0,0), (-1,0), colors.white),
+        ('FONTNAME',      (0,0), (-1,0), 'Helvetica-Bold'),
+        ('FONTSIZE',      (0,0), (-1,-1), 9),
+        ('VALIGN',        (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING',    (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('GRID',          (0,0), (-1,-1), 0.4, colors.HexColor('#e2e8f0')),
+        ('ROWBACKGROUNDS',(0,1), (-1,-1), [colors.white, colors.HexColor('#f8faff')]),
+    ]))
+    elementos.append(tabela)
+    elementos.append(Spacer(1, 20))
+    elementos.append(Paragraph(f"Emitido em {date.today().strftime('%d/%m/%Y')}", sub))
+
+    doc.build(elementos)
+    buffer.seek(0)
+    return send_file(buffer, as_attachment=True,
+                     download_name=nome_arquivo, mimetype='application/pdf')
+
+
+@professor_bp.route('/relatorio_notas_pdf/<int:turma_id>/<int:ano>/<int:mes>')
+@login_required
+def relatorio_notas_pdf(turma_id, ano, mes):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT a.nome, n.nome_atividade, n.valor
+        FROM portal_notas n
+        JOIN portal_alunos a ON a.id = n.aluno_id
+        WHERE n.turma_id = %s AND n.mes = %s AND n.ano = %s
+        ORDER BY a.nome, n.nome_atividade
+    """, (turma_id, mes, ano))
+    notas = cur.fetchall()
+    cur.execute("""
+        SELECT t.nome as turma, c.nome as curso
+        FROM portal_turmas t JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE t.id = %s
+    """, (turma_id,))
+    turma = cur.fetchone()
+    cur.close()
+    conn.close()
+
+    info = [f"<b>Período:</b> {NOMES_MESES[mes]} de {ano}"]
+    if turma:
+        info.insert(0, f"<b>Curso:</b> {turma['curso']} &nbsp;&nbsp; <b>Turma:</b> {turma['turma']}")
+
+    dados = [[n['nome'].upper(), n['nome_atividade'], str(n['valor'])] for n in notas]
+
+    return _montar_pdf('Relatório de Notas', info,
+                       ['Aluno', 'Atividade', 'Nota'], dados,
+                       [8, 6.5, 2], f"notas_{NOMES_MESES[mes].lower()}_{ano}.pdf")
+
+
+@professor_bp.route('/relatorio_notas_aluno_pdf/<int:aluno_id>')
+@login_required
+def relatorio_notas_aluno_pdf(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("SELECT nome, matricula FROM portal_alunos WHERE id = %s", (aluno_id,))
+    aluno = cur.fetchone()
+    cur.execute("""
+        SELECT n.nome_atividade, n.valor, n.mes, n.ano, t.nome as turma, c.nome as curso
+        FROM portal_notas n
+        JOIN portal_turmas t ON t.id = n.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE n.aluno_id = %s
+        ORDER BY n.ano DESC, n.mes DESC
+    """, (aluno_id,))
+    notas = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    if not aluno:
+        return "Aluno não encontrado", 404
+
+    info = [f"<b>Aluno:</b> {aluno['nome'].upper()} &nbsp;&nbsp; <b>Matrícula:</b> {aluno['matricula']}"]
+
+    dados = [[n['nome_atividade'], str(n['valor']), n['curso'],
+              f"{NOMES_MESES[n['mes']]}/{n['ano']}"] for n in notas]
+
+    return _montar_pdf('Boletim de Notas', info,
+                       ['Atividade', 'Nota', 'Curso', 'Mês/Ano'], dados,
+                       [6.5, 2, 4, 4], f"boletim_{aluno['matricula']}.pdf")
