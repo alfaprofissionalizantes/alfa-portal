@@ -267,6 +267,9 @@
           <h3 id="rel-notas-titulo">Notas</h3>
           <p id="rel-notas-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
         </div>
+        <button class="btn-acao editar" onclick="baixarPdfNotas()">
+          📄 Baixar PDF
+        </button>
       </div>
       <div class="relatorio-tabela-wrapper">
         <table class="relatorio-tabela">
@@ -342,6 +345,9 @@
         <h3 id="rel-aluno-titulo">Notas</h3>
         <p id="rel-aluno-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
       </div>
+      <button class="btn-acao editar" onclick="baixarPdfNotasAluno()">
+        📄 Baixar boletim
+      </button>
     </div>
     <div class="relatorio-tabela-wrapper">
       <table class="relatorio-tabela">
@@ -659,6 +665,7 @@ function buscarAlunoRel() {
 }
 
 function selecionarAluno(alunoId, nome, matricula) {
+  alunoSelecionadoId = alunoId;
   document.getElementById('busca-aluno-rel').value = `${nome} — Mat. ${matricula}`;
   document.getElementById('resultado-busca-aluno').style.display = 'none';
 
@@ -812,6 +819,21 @@ function baixarPdfFrequencia() {
   const ano     = document.getElementById('select-ano-rel').value;
   if (!turmaId) { alert('Gere o relatório primeiro.'); return; }
   window.open(`/professor/relatorio_turma_pdf/${turmaId}/${ano}/${mes}`, '_blank');
+}
+
+let alunoSelecionadoId = null;
+
+function baixarPdfNotas() {
+  const turmaId = document.getElementById('select-turma-notas-rel').value;
+  const mes     = document.getElementById('select-mes-notas-rel').value;
+  const ano     = document.getElementById('select-ano-notas-rel').value;
+  if (!turmaId) { alert('Gere o relatório primeiro.'); return; }
+  window.open(`/professor/relatorio_notas_pdf/${turmaId}/${ano}/${mes}`, '_blank');
+}
+
+function baixarPdfNotasAluno() {
+  if (!alunoSelecionadoId) { alert('Selecione um aluno primeiro.'); return; }
+  window.open(`/professor/relatorio_notas_aluno_pdf/${alunoSelecionadoId}`, '_blank');
 }
 
 </script>
