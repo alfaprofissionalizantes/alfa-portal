@@ -2000,3 +2000,48 @@ def relatorio_notas_aluno_pdf(aluno_id):
     return _montar_pdf('Boletim de Notas', info,
                        ['Atividade', 'Nota', 'Curso', 'Mês/Ano'], dados,
                        [6.5, 2, 4, 4], f"boletim_{aluno['matricula']}.pdf")
+
+
+@professor_bp.route('/fotos_pendentes')
+@admin_required
+def fotos_pendentes():
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT id, nome, matricula, foto, foto_pendente
+        FROM portal_alunos
+        WHERE foto_pendente IS NOT NULL AND foto_pendente <> ''
+        ORDER BY nome
+    """)
+    alunos = cur.fetchall()
+    cur.close()
+    conn.close()
+    return render_template('professor/gerenciamento/fotos_pendentes.html', alunos=alunos)
+
+
+@professor_bp.route('/aprovar_foto/<int:aluno_id>', methods=['POST'])
+@admin_required
+def aprovar_foto(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        UPDATE portal_alunos
+        SET foto = foto_pendente, foto_pendente = NULL
+        WHERE id = %s
+    """, (aluno_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
+
+
+@professor_bp.route('/recusar_foto/<int:aluno_id>', methods=['POST'])
+@admin_required
+def recusar_foto(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("UPDATE portal_alunos SET foto_pendente = NULL WHERE id = %s", (aluno_id,))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
