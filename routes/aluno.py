@@ -1,7 +1,19 @@
-from flask import Blueprint, render_template, session, redirect, url_for, jsonify
+from flask import Blueprint, render_template, session, redirect, url_for, jsonify, request as flask_request
 from db import create_connection, get_cursor
+import os
+import cloudinary
+import cloudinary.uploader
+
 
 aluno_bp = Blueprint('aluno', __name__, url_prefix='/aluno')
+
+
+
+cloudinary.config(
+    cloud_name = os.getenv('CLOUDINARY_CLOUD_NAME'),
+    api_key    = os.getenv('CLOUDINARY_API_KEY'),
+    api_secret = os.getenv('CLOUDINARY_API_SECRET')
+)
 
 NOMES_MESES = {
     1: 'Janeiro', 2: 'Fevereiro', 3: 'Março', 4: 'Abril',
@@ -229,6 +241,34 @@ def notificacoes():
         'comunicados': [dict(c) for c in comunicados]
     })
 
+@aluno_bp.route('/enviar_foto', methods=['POST'])
+@login_required
+def enviar_foto():
+    arquivo = flask_request.files.get('foto')
+    if not arquivo or arquivo.filename == '':
+        return jsonify({'ok': False, 'erro': 'Nenhum arquivo enviado.'})
 
+    ext = arquivo.filename.rsplit('.', 1)[-1].lower()
+    if ext not in {'png', 'jpg', 'jpeg', 'webp'}:
+        return jsonify({'ok': False, 'erro': 'Formato não permitido.'})
+
+    try:
+        resultado = cloudinary.uploader.upload(
+            arquivo,
+            folder='alfa-portal/fotos-pendentes',
+            transformation=[{'width': 400, 'height': 400, 'crop': 'fill', 'gravity': 'face'}]
+        )
+        url = resultado['secure_url']
+    except Exception as e:
+        return jsonify({'ok': False, 'erro': str(e)})
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("UPDATE portal_alunos SET foto_pendente = %s WHERE id = %s",
+                (url, session['id']))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
 
 

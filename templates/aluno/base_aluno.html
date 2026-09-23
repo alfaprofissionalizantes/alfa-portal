@@ -27,6 +27,11 @@
         {% endif %}
       </div>
 
+      <label class="btn-trocar-foto" title="Enviar nova foto">
+        📸
+        <input type="file" accept="image/*" style="display:none" onchange="enviarFotoAluno(this)"/>
+      </label>
+
       <div class="sidebar-info">
         <p class="sidebar-nome">{{ session.nome or 'Aluno' }}</p>
         <p class="sidebar-detalhe">Matrícula: <span>{{ session.matricula or '—' }}</span></p>
@@ -102,6 +107,27 @@
   <div class="overlay" id="overlay" onclick="toggleSidebar()"></div>
 
   <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+
+    <script src="{{ url_for('static', filename='js/sidebar.js') }}"></script>
+  <script>
+  function enviarFotoAluno(input) {
+    if (!input.files[0]) return;
+    const dados = new FormData();
+    dados.append('foto', input.files[0]);
+
+    fetch('/aluno/enviar_foto', { method: 'POST', body: dados })
+      .then(r => r.json())
+      .then(d => {
+        if (d.ok) {
+          alert('Foto enviada! Ela aparecerá depois que a escola aprovar.');
+        } else {
+          alert('Erro ao enviar: ' + (d.erro || 'tente novamente.'));
+        }
+        input.value = '';
+      });
+  }
+  </script>
+  
   {% block script %}{% endblock %}
 </body>
 </html>
