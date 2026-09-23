@@ -576,3 +576,15 @@
   height: 300px;
   width: 100%;
 }
+
+
+.btn-acao.excluir {
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-acao.excluir:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}

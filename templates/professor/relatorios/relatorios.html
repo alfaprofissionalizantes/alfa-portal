@@ -586,9 +586,12 @@ function gerarRelatorioNotas() {
               <td>${n.nome_aluno}</td>
               <td>${n.nome_atividade}</td>
               <td><strong>${n.valor}</strong></td>
-              <td>
+              <td style="display:flex; gap:6px;">
                 <button class="btn-acao editar" onclick="abrirModalNota(${n.id}, '${n.nome_aluno}', '${n.nome_atividade}', ${n.valor})">
                   Editar
+                </button>
+                <button class="btn-acao excluir" onclick="confirmarExcluirNota(${n.id}, '${n.nome_aluno}', '${n.nome_atividade}', ${n.valor})">
+                  Excluir
                 </button>
               </td>
             </tr>`;
@@ -834,6 +837,25 @@ function baixarPdfNotas() {
 function baixarPdfNotasAluno() {
   if (!alunoSelecionadoId) { alert('Selecione um aluno primeiro.'); return; }
   window.open(`/professor/relatorio_notas_aluno_pdf/${alunoSelecionadoId}`, '_blank');
+}
+
+function confirmarExcluirNota(notaId, nomeAluno, atividade, valor) {
+  const msg = `Excluir esta nota?\n\n`
+            + `Aluno: ${nomeAluno}\n`
+            + `Atividade: ${atividade}\n`
+            + `Nota: ${valor}\n\n`
+            + `Esta ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+
+  fetch(`/professor/excluir_nota/${notaId}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        gerarRelatorioNotas();
+      } else {
+        alert('Erro ao excluir a nota.');
+      }
+    });
 }
 
 </script>

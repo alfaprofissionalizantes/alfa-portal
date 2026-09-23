@@ -1357,7 +1357,22 @@ def editar_nota():
     conn.close()
     return jsonify({'ok': True})
 
-
+@professor_bp.route('/excluir_nota/<int:nota_id>', methods=['POST'])
+@login_required
+def excluir_nota(nota_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    try:
+        cur.execute("DELETE FROM portal_notas WHERE id = %s", (nota_id,))
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return jsonify({'ok': False, 'erro': str(e)}), 500
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})
 
 @professor_bp.route('/historico_notas/<int:aluno_id>/<int:turma_id>')
 @login_required
