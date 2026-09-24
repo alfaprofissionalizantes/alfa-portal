@@ -72,9 +72,7 @@
 
       <button class="btn-filtro-limpar" onclick="limparFiltrosTurmas()">Limpar</button>
       <button class="btn-filtro-buscar" onclick="filtrarTurmas()">Buscar</button>
-      <a href="{{ url_for('professor.fotos_pendentes') }}" class="btn-filtro-limpar" style="text-decoration:none;">
-        📸 Fotos pendentes
-      </a>
+      
     </div>
 
     <div class="lista-ger" id="lista-turmas">
@@ -173,6 +171,9 @@
 
       <button class="btn-filtro-limpar" onclick="limparFiltros()">Limpar</button>
       <button class="btn-filtro-buscar" onclick="filtrarAlunos()">Buscar</button>
+      <a href="{{ url_for('professor.fotos_pendentes') }}" class="btn-filtro-limpar" style="text-decoration:none;">
+        📸 Fotos pendentes
+      </a>
     </div>
 
     <div class="lista-ger">
