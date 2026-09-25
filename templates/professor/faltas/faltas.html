@@ -135,6 +135,34 @@
   </div>
 </div>
 
+<!-- MODAL REPOSIÇÃO -->
+<div class="modal-overlay oculto" id="overlay-modal-reposicao" onclick="fecharModalReposicao()"></div>
+<div class="modal oculto" id="modal-reposicao">
+  <div class="modal-header">
+    <h3>Reposição de Falta</h3>
+    <button class="modal-fechar" onclick="fecharModalReposicao()">✕</button>
+  </div>
+  <div class="modal-corpo">
+    <input type="hidden" id="rep-aluno-id"/>
+    <div class="campo-grupo">
+      <label class="campo-label">Aluno</label>
+      <input type="text" class="campo-input" id="rep-aluno-nome" disabled/>
+    </div>
+    <div class="campo-grupo">
+      <label class="campo-label">Falta do dia</label>
+      <input type="text" class="campo-input" id="rep-data-falta" disabled/>
+    </div>
+    <div class="campo-grupo">
+      <label class="campo-label">Repôs no dia</label>
+      <input type="date" class="campo-input" id="rep-data-reposicao"/>
+    </div>
+  </div>
+  <div class="modal-rodape">
+    <button class="btn-cancelar" onclick="fecharModalReposicao()">Cancelar</button>
+    <button class="btn-enviar" onclick="salvarReposicao()">Confirmar reposição</button>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block script %}

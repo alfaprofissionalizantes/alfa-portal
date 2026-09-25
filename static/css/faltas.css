@@ -1226,3 +1226,18 @@ body.modal-aberto {
   background: #eaebaa;
   border-color: #adb361;
 }
+
+.btn-historico.reposta {
+  background: #fff7ed;
+  border-color: #fdba74;
+  color: #ea580c;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 6px 10px;
+}
+
+.badge-falta.R {
+  background: #fff7ed;
+  color: #ea580c;
+  border: 1px solid #fdba74;
+}

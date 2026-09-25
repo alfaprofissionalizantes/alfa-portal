@@ -972,6 +972,8 @@ def alunos_chamada(turma_id, data):
                 WHERE aluno_id = a.id AND turma_id = %s AND data_aula = %s),
                 'P'
             ) as status,
+            (SELECT DATE_FORMAT(reposta_em, '%d/%m/%Y') FROM portal_chamadas
+            WHERE aluno_id = a.id AND turma_id = %s AND data_aula = %s) as reposta_em,
             (SELECT COUNT(*) FROM portal_chamadas
             WHERE aluno_id = a.id AND turma_id = %s
             AND status = 'F' AND MONTH(data_aula) = MONTH(%s)) as faltas_mes
@@ -981,7 +983,7 @@ def alunos_chamada(turma_id, data):
         AND (a.ativo = 1 OR a.ativo IS NULL)
         AND (at2.data_entrada IS NULL OR at2.data_entrada <= %s)
         ORDER BY a.nome
-    """, (turma_id, data, turma_id, data, turma_id, data))
+    """, (turma_id, data, turma_id, data, turma_id, data, turma_id, data))
     alunos = cur.fetchall()
     for aluno in alunos:
         try:
@@ -991,7 +993,6 @@ def alunos_chamada(turma_id, data):
     cur.close()
     conn.close()
     return jsonify(alunos)
-
 
 @professor_bp.route('/curso/<int:curso_id>/turmas')
 @admin_required
@@ -2045,3 +2046,44 @@ def recusar_foto(aluno_id):
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+    @professor_bp.route('/marcar_reposicao/<int:aluno_id>/<int:turma_id>/<string:data_falta>', methods=['POST'])
+@login_required
+def marcar_reposicao(aluno_id, turma_id, data_falta):
+    dados = flask_request.get_json()
+    data_reposicao = dados.get('data_reposicao')
+
+    if not data_reposicao:
+        return jsonify({'ok': False, 'erro': 'Informe a data da reposição.'})
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        UPDATE portal_chamadas
+        SET reposta_em = %s
+        WHERE aluno_id = %s AND turma_id = %s AND data_aula = %s AND status = 'F'
+    """, (data_reposicao, aluno_id, turma_id, data_falta))
+    afetadas = cur.rowcount
+    conn.commit()
+    cur.close()
+    conn.close()
+
+    if afetadas == 0:
+        return jsonify({'ok': False, 'erro': 'Falta não encontrada nesta data.'})
+    return jsonify({'ok': True})
+
+
+@professor_bp.route('/desfazer_reposicao/<int:aluno_id>/<int:turma_id>/<string:data_falta>', methods=['POST'])
+@login_required
+def desfazer_reposicao(aluno_id, turma_id, data_falta):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        UPDATE portal_chamadas
+        SET reposta_em = NULL
+        WHERE aluno_id = %s AND turma_id = %s AND data_aula = %s
+    """, (aluno_id, turma_id, data_falta))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True})\

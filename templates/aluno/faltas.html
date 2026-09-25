@@ -46,9 +46,15 @@
           <div class="card-falta-aluno">
             <div class="falta-info">
               <span class="falta-data">{{ falta.data }}</span>
-              <span class="falta-materia">{{ falta.materia }}</span>
+              <span class="falta-materia">
+                {{ falta.materia }}{% if falta.reposta_em %} — reposta em {{ falta.reposta_em }}{% endif %}
+              </span>
             </div>
+            {% if falta.reposta_em %}
+            <span class="badge-falta R" title="Falta reposta em {{ falta.reposta_em }}">R</span>
+            {% else %}
             <span class="badge-falta F">F</span>
+            {% endif %}
           </div>
           {% endfor %}
         {% else %}
