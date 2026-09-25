@@ -118,7 +118,7 @@ function mudarMes(direcao) {
 function abrirChamada(data, dataFormatada) {
   const msg = document.getElementById('msg-chamada');
   if (msg) msg.style.display = 'none';
-  
+
   document.getElementById('chamada-data-label').textContent = `${dataFormatada} — ${turmaInfo.nome}`;
   document.getElementById('card-calendario').classList.add('oculto');
   document.getElementById('card-chamada').classList.remove('oculto');
@@ -136,6 +136,13 @@ function abrirChamada(data, dataFormatada) {
         card.id = `card-${a.id}`;
         card.dataset.status = a.status;
 
+        let btnReposicao = '';
+        if (a.status === 'F') {
+          btnReposicao = a.reposta_em
+            ? `<button class="btn-historico reposta" onclick="desfazerReposicao(${a.id}, '${a.nome.replace(/'/g, "\\'")}')" title="Reposta em ${a.reposta_em} — clique para desfazer">✓ ${a.reposta_em}</button>`
+            : `<button class="btn-historico" onclick="abrirModalReposicao(${a.id}, '${a.nome.replace(/'/g, "\\'")}')" title="Marcar reposição">🔁</button>`;
+        }
+
         card.innerHTML = `
           <div class="chamada-aluno-info">
             ${a.foto ? `<img src="${a.foto}" class="aluno-avatar-foto"/>` : `<div class="aluno-avatar">${a.nome[0]}</div>`}
@@ -152,6 +159,7 @@ function abrirChamada(data, dataFormatada) {
           </div>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
             <button class="btn-historico" onclick="abrirLancarNota(${a.id}, ${turmaSelecionada})" title="Lançar nota">📝</button>
+            ${btnReposicao}
             <button class="btn-historico" style="background:#fee2e2; border-color:#fca5a5;" onclick="confirmarRemoverAluno(${a.id}, '${a.nome}', ${turmaSelecionada})" title="Remover da turma">🗑️</button>
             <button class="btn-status ${a.status === 'F' ? 'falta' : 'presente'}" onclick="toggleStatus(${a.id})">
               ${a.status === 'F' ? '❌ Falta' : '✅ Presente'}
@@ -162,7 +170,6 @@ function abrirChamada(data, dataFormatada) {
       });
     });
 }
-
 function toggleStatus(alunoId) {
   const card = document.getElementById(`card-${alunoId}`);
   const btn  = card.querySelector('.btn-status');
@@ -374,4 +381,56 @@ function editarTelefone(alunoId, telAtual) {
       abrirChamada(lista.dataset.data, document.getElementById('chamada-data-label').textContent.split(' — ')[0]);
     }
   });
+}
+
+
+function abrirModalReposicao(alunoId, nomeAluno) {
+  const dataFalta = document.getElementById('lista-alunos').dataset.data;
+  document.getElementById('rep-aluno-id').value        = alunoId;
+  document.getElementById('rep-aluno-nome').value      = nomeAluno;
+  document.getElementById('rep-data-falta').value      = dataFalta.split('-').reverse().join('/');
+  document.getElementById('rep-data-reposicao').value  = new Date().toISOString().split('T')[0];
+  document.getElementById('rep-data-reposicao').min    = dataFalta;
+
+  document.getElementById('overlay-modal-reposicao').classList.remove('oculto');
+  document.getElementById('modal-reposicao').classList.remove('oculto');
+}
+
+function fecharModalReposicao() {
+  document.getElementById('overlay-modal-reposicao').classList.add('oculto');
+  document.getElementById('modal-reposicao').classList.add('oculto');
+}
+
+function salvarReposicao() {
+  const alunoId   = document.getElementById('rep-aluno-id').value;
+  const dataRep   = document.getElementById('rep-data-reposicao').value;
+  const dataFalta = document.getElementById('lista-alunos').dataset.data;
+
+  if (!dataRep) { alert('Informe a data da reposição.'); return; }
+
+  fetch(`/professor/marcar_reposicao/${alunoId}/${turmaSelecionada}/${dataFalta}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data_reposicao: dataRep })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.ok) {
+      fecharModalReposicao();
+      abrirChamada(dataFalta, dataFalta.split('-').reverse().join('/'));
+    } else {
+      alert(d.erro || 'Erro ao marcar reposição.');
+    }
+  });
+}
+
+function desfazerReposicao(alunoId, nomeAluno) {
+  if (!confirm(`Desfazer a reposição de ${nomeAluno}?\n\nA falta volta a contar como pendente.`)) return;
+  const dataFalta = document.getElementById('lista-alunos').dataset.data;
+
+  fetch(`/professor/desfazer_reposicao/${alunoId}/${turmaSelecionada}/${dataFalta}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) abrirChamada(dataFalta, dataFalta.split('-').reverse().join('/'));
+    });
 }

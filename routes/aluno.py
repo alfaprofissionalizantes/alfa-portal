@@ -114,6 +114,7 @@ def faltas():
     cur.execute("""
         SELECT MONTH(data_aula) as mes,
                DATE_FORMAT(data_aula, '%d/%m/%Y') as data,
+               DATE_FORMAT(reposta_em, '%d/%m/%Y') as reposta_em,
                t.nome as turma
         FROM portal_chamadas c
         JOIN portal_turmas t ON t.id = c.turma_id
@@ -131,7 +132,11 @@ def faltas():
         m = f['mes']
         if m not in faltas_detalhe:
             faltas_detalhe[m] = []
-        faltas_detalhe[m].append({'data': f['data'], 'materia': f['turma']})
+        faltas_detalhe[m].append({
+            'data': f['data'],
+            'materia': f['turma'],
+            'reposta_em': f['reposta_em']
+        })
 
     return render_template('aluno/faltas.html',
         faltas_por_mes=faltas_por_mes,
