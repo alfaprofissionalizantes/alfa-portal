@@ -2047,7 +2047,7 @@ def recusar_foto(aluno_id):
     conn.close()
     return jsonify({'ok': True})
 
-    @professor_bp.route('/marcar_reposicao/<int:aluno_id>/<int:turma_id>/<string:data_falta>', methods=['POST'])
+@professor_bp.route('/marcar_reposicao/<int:aluno_id>/<int:turma_id>/<string:data_falta>', methods=['POST'])
 @login_required
 def marcar_reposicao(aluno_id, turma_id, data_falta):
     dados = flask_request.get_json()
