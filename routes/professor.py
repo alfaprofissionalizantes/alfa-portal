@@ -2086,4 +2086,4 @@ def desfazer_reposicao(aluno_id, turma_id, data_falta):
     conn.commit()
     cur.close()
     conn.close()
-    return jsonify({'ok': True})\
+    return jsonify({'ok': True})
