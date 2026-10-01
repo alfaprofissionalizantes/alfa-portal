@@ -640,13 +640,17 @@ def salvar_matricula():
             INSERT INTO portal_matriculas_contratos (
                 aluno_id, numero_contrato, data_matricula, data_primeiro_pagamento,
                 curso_contrato, modulo, preco_total, qtd_parcelas,
-                parcelas_extenso, valor_parcela, dia_horario
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                parcelas_extenso, valor_parcela, dia_horario,
+                taxa_matricula, dia_pagamento, dias_aula, horario_aula,
+                valor_desconto, valor_reajustado
+            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
         """, (
             aluno_id, numero_contrato, f['data_matricula'],
             f['data_primeiro_pagamento'], f['curso_contrato'], f['modulo'],
             f['preco_total'], f['qtd_parcelas'], parcelas_extenso,
-            f['valor_parcela'], dia_horario
+            f['valor_parcela'], dia_horario,
+            taxa_matricula, dia_pagamento, dias_aula, horario_aula,
+            valor_desconto, valor_reajustado
         ))
         conn.commit()
     except Exception as e:

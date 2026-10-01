@@ -47,6 +47,12 @@ function abrirModalMatricula(alunoId, nomeAluno) {
         document.querySelector('[name="preco_total"]').value     = m.preco_total || '';
         document.querySelector('[name="qtd_parcelas"]').value    = m.qtd_parcelas || '';
         document.querySelector('[name="valor_parcela"]').value   = m.valor_parcela || '';
+        document.querySelector('[name="taxa_matricula"]').value   = m.taxa_matricula || '';
+        document.querySelector('[name="dia_pagamento"]').value    = m.dia_pagamento || '';
+        document.querySelector('[name="dias_aula"]').value        = m.dias_aula || '';
+        document.querySelector('[name="horario_aula"]').value     = m.horario_aula || '';
+        document.querySelector('[name="valor_desconto"]').value   = m.valor_desconto || '';
+        document.querySelector('[name="valor_reajustado"]').value = m.valor_reajustado || '';
       }
       abrirModal('modal-matricula');
     });
