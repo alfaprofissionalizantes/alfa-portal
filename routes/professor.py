@@ -432,13 +432,13 @@ def salvar_comunicado():
  
     try:
         if tipo == 'todos':
-            cur.execute("SELECT id FROM portal_alunos WHERE ativo = 1 OR ativo IS NULL")
-            for a in cur.fetchall():
-                cur.execute("""
-                    INSERT INTO portal_comunicados
-                    (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-                    VALUES (%s, %s, %s, %s, %s, %s)
-                """, (professor_id, titulo, arquivo_url, 'aluno', None, a['id']))
+            cur.execute("""
+                INSERT INTO portal_comunicados
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
+                SELECT %s, %s, %s, 'aluno', NULL, id
+                FROM portal_alunos
+                WHERE ativo = 1 OR ativo IS NULL
+            """, (professor_id, titulo, arquivo_url))
  
         elif tipo == 'observacao':
             cur.execute("""
