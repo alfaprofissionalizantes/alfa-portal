@@ -43,7 +43,15 @@
             <path d="M18 8h-1V6A5 5 0 0 0 7 6v2H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V10a2 2 0 0 0-2-2zm-6 9a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm3.1-9H8.9V6a3.1 3.1 0 0 1 6.2 0v2z"/>
           </svg>
         </span>
-        <input type="password" name="senha" placeholder="Senha" required/>
+        <input type="password" name="senha" id="campo-senha" placeholder="Senha" required/>
+        <button type="button" class="btn-olho" onclick="alternarSenha()" aria-label="Mostrar senha">
+          <svg id="olho-aberto" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#94a3b8" width="20" height="20">
+            <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zm0 12a4.5 4.5 0 1 1 0-9 4.5 4.5 0 0 1 0 9zm0-7a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5z"/>
+          </svg>
+          <svg id="olho-fechado" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="#94a3b8" width="20" height="20" style="display:none">
+            <path d="M12 7a4.5 4.5 0 0 1 4.5 4.5c0 .6-.12 1.16-.33 1.68l2.63 2.63A10.6 10.6 0 0 0 23 11.5C21.27 7.11 17 4 12 4c-1.4 0-2.73.25-3.98.7l1.94 1.94c.52-.21 1.08-.33 1.68-.33l.36.69zM2.7 3.3 1.29 4.71l2.48 2.48A10.6 10.6 0 0 0 1 11.5C2.73 15.89 7 19 12 19c1.52 0 2.98-.29 4.32-.82l3.26 3.26 1.41-1.41L2.7 3.3zm4.44 4.44 1.65 1.65A4.5 4.5 0 0 0 12 16c.55 0 1.08-.1 1.57-.28l.92.92c-.78.23-1.61.36-2.49.36a7.5 7.5 0 0 1-7.5-5.5 7.47 7.47 0 0 1 2.64-3.76z"/>
+          </svg>
+        </button>
       </div>
 
       <a href="https://wa.me/5512997781432?text=Olá!%20Esqueci%20minha%20senha%20do%20portal%20da%20Alfa%20Profissionalizantes.%20Minha%20matrícula%20é%3A%20" target="_blank" class="link-esqueceu">Esqueceu sua senha?</a>
@@ -57,6 +65,24 @@
     <a href="{{ url_for('inicial') }}" class="link-voltar">← Voltar</a>
 
   </div>
+
+  <script>
+  function alternarSenha() {
+    const campo  = document.getElementById('campo-senha');
+    const aberto = document.getElementById('olho-aberto');
+    const fechado = document.getElementById('olho-fechado');
+
+    if (campo.type === 'password') {
+      campo.type = 'text';
+      aberto.style.display = 'none';
+      fechado.style.display = 'block';
+    } else {
+      campo.type = 'password';
+      aberto.style.display = 'block';
+      fechado.style.display = 'none';
+    }
+  }
+  </script>
 
 </body>
 </html>
