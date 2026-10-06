@@ -217,10 +217,13 @@ def comunicados():
     cur  = get_cursor(conn)
 
     cur.execute("""
-        SELECT titulo, arquivo, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y') as data
+        SELECT titulo, arquivo, tipo,
+               DATE_FORMAT(criado_em, '%d/%m/%Y') as data,
+               COUNT(*) as qtd_alunos
         FROM portal_comunicados
         WHERE professor_id = %s
-        ORDER BY criado_em DESC
+        GROUP BY titulo, arquivo, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y')
+        ORDER BY MAX(criado_em) DESC
     """, (professor_id,))
     comunicados = cur.fetchall()
 
