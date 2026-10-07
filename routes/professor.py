@@ -2094,3 +2094,22 @@ def desfazer_reposicao(aluno_id, turma_id, data_falta):
     cur.close()
     conn.close()
     return jsonify({'ok': True})
+
+
+    @professor_bp.route('/limpar_comunicados', methods=['POST'])
+@admin_required
+def limpar_comunicados():
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    try:
+        cur.execute("DELETE FROM portal_comunicados")
+        total = cur.rowcount
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return jsonify({'ok': False, 'erro': str(e)}), 500
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True, 'total': total})

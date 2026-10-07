@@ -13,7 +13,12 @@
 
 <div class="comunicados-prof-wrapper">
 
-  <div class="comunicados-prof-topo">
+  <div class="comunicados-prof-topo">    
+    {% if session.cargo and session.cargo.lower() == 'admin' and comunicados %}
+    <button class="btn-cadastrar" style="background:#dc2626; margin-right:10px;" onclick="limparComunicados()">
+      🗑️ Limpar todos
+    </button>
+    {% endif %}
     <button class="btn-cadastrar" onclick="abrirModal()">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="18" height="18">
         <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
@@ -203,5 +208,31 @@ function carregarAlunosCom() {
       });
     });
 }
+
+function limparComunicados() {
+  const aviso = 'ATENÇÃO — esta ação não pode ser desfeita.\n\n'
+              + 'Todos os comunicados serão apagados do portal, '
+              + 'inclusive os que já foram enviados aos alunos.\n\n'
+              + 'Deseja continuar?';
+  if (!confirm(aviso)) return;
+
+  const confirmacao = prompt('Para confirmar, digite APAGAR em letras maiúsculas:');
+  if (confirmacao !== 'APAGAR') {
+    alert('Ação cancelada.');
+    return;
+  }
+
+  fetch('/professor/limpar_comunicados', { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        alert(`${d.total} registro(s) apagado(s).`);
+        location.reload();
+      } else {
+        alert('Erro ao apagar os comunicados.');
+      }
+    });
+}
+
 </script>
 {% endblock %}
