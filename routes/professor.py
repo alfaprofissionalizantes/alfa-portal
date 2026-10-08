@@ -2096,7 +2096,7 @@ def desfazer_reposicao(aluno_id, turma_id, data_falta):
     return jsonify({'ok': True})
 
 
-    @professor_bp.route('/limpar_comunicados', methods=['POST'])
+@professor_bp.route('/limpar_comunicados', methods=['POST'])
 @admin_required
 def limpar_comunicados():
     conn = create_connection()
