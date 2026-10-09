@@ -1,27 +1,79 @@
-<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
-
-{% extends "aluno/base_aluno.html" %}
-
-{% block titulo %}Home{% endblock %}
-{% block pagina_titulo %}Home{% endblock %}
-
-{% block estilo %}
-<link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
-{% endblock %}
-
 {% block conteudo %}
 
 <div class="home-wrapper">
-  <div class="banner-home">
-    <img
-      src="{{ url_for('static', filename='img/8D9F42CA-3EF2-48C3-875D-FF9E3689F5D1.png') }}"
-      alt="Alfa Profissionalizantes"
-      class="banner-imagem"
-    />
-    <div class="banner-overlay">
-      <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Alfa" class="banner-logo"/>
-    </div>
+
+  <div class="cursos-header">
+    <h2>Nossos Cursos</h2>
+    <p>Escolha a área ideal para desenvolver suas habilidades e crescer profissionalmente.</p>
+    <a href="https://alfaprofissionalizantes.com/cursos" target="_blank" class="btn-ver-cursos">
+      Ver todos os cursos →
+    </a>
   </div>
+
+  <div class="cursos-grid-portal">
+
+    <a href="https://alfaprofissionalizantes.com/cursos/ingles" target="_blank" class="curso-card-portal ingles">
+      <div class="curso-icone-portal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+          <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+        </svg>
+      </div>
+      <h3>Inglês</h3>
+      <span class="curso-linha-portal"></span>
+      <p>Aprenda conversação, escrita e fluência completa com metodologia moderna e prática.</p>
+      <span class="curso-link-portal">Saiba mais →</span>
+    </a>
+
+    <a href="https://alfaprofissionalizantes.com/cursos/informatica" target="_blank" class="curso-card-portal info">
+      <div class="curso-icone-portal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+          <path d="M20 18c1.1 0 2-.9 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
+        </svg>
+      </div>
+      <h3>Informática</h3>
+      <span class="curso-linha-portal"></span>
+      <p>Domine Windows, Office, internet, Excel e ferramentas profissionais essenciais.</p>
+      <span class="curso-link-portal">Saiba mais →</span>
+    </a>
+
+    <a href="https://alfaprofissionalizantes.com/cursos/enem" target="_blank" class="curso-card-portal enem">
+      <div class="curso-icone-portal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+          <path d="M19 3h-4.18C14.4 1.84 13.3 1 12 1s-2.4.84-2.82 2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2zm-2 14l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+        </svg>
+      </div>
+      <h3>Preparatório ENEM</h3>
+      <span class="curso-linha-portal"></span>
+      <p>Aulas completas, simulados e reforço intensivo para vestibulares e concursos.</p>
+      <span class="curso-link-portal">Saiba mais →</span>
+    </a>
+
+    <a href="https://alfaprofissionalizantes.com/cursos/reforco" target="_blank" class="curso-card-portal reforco">
+      <div class="curso-icone-portal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+          <path d="M18 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2zm-6 3a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zm5 14H7v-1.5c0-1.67 3.33-2.5 5-2.5s5 .83 5 2.5V19z"/>
+        </svg>
+      </div>
+      <h3>Reforço e Alfabetização</h3>
+      <span class="curso-linha-portal"></span>
+      <p>Acompanhamento personalizado para fortalecer a aprendizagem, leitura, escrita e desempenho escolar.</p>
+      <span class="curso-link-portal">Saiba mais →</span>
+    </a>
+
+    <a href="https://alfaprofissionalizantes.com/cursos/embraer" target="_blank" class="curso-card-portal embraer">
+      <div class="curso-icone-portal">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+          <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+        </svg>
+      </div>
+      <h3>Preparatório Embraer</h3>
+      <span class="curso-linha-portal"></span>
+      <p>Curso focado no processo seletivo da Embraer, com aulas, simulados e acompanhamento completo.</p>
+      <span class="curso-link-portal">Saiba mais →</span>
+    </a>
+
+  </div>
+
 </div>
 
 {% endblock %}
