@@ -167,3 +167,131 @@
   .banner-home  { border-radius: 12px; }
   .banner-logo  { width: 52px; height: 52px; }
 }
+
+/* ============================================================
+   Cursos na home do aluno
+   ============================================================ */
+.cursos-header {
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+.cursos-header h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin: 0 0 8px;
+}
+
+.cursos-header p {
+  font-size: 0.92rem;
+  color: #64748b;
+  margin: 0 auto 16px;
+  max-width: 520px;
+}
+
+.btn-ver-cursos {
+  display: inline-block;
+  padding: 10px 22px;
+  background: #1a3a8f;
+  color: #ffffff;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.15s;
+}
+
+.btn-ver-cursos:hover {
+  background: #1f47b0;
+  transform: translateY(-1px);
+}
+
+.cursos-grid-portal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.curso-card-portal {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+  border-radius: 18px;
+  text-decoration: none;
+  transition: transform 0.25s, box-shadow 0.25s;
+}
+
+.curso-card-portal:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.1);
+}
+
+.curso-icone-portal {
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  margin-bottom: 16px;
+}
+
+.curso-card-portal h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin: 0 0 10px;
+}
+
+.curso-linha-portal {
+  display: block;
+  width: 32px;
+  height: 4px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+}
+
+.curso-card-portal p {
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #334155;
+  margin: 0 0 16px;
+  flex: 1;
+}
+
+.curso-link-portal {
+  font-size: 0.88rem;
+  font-weight: 700;
+}
+
+/* ===== Cores por curso ===== */
+.curso-card-portal.ingles  { background: #fff7f7; border: 1px solid #ffd0d0; }
+.ingles h3, .ingles .curso-link-portal { color: #ef4444; }
+.ingles .curso-icone-portal  { background: #ef4444; }
+.ingles .curso-linha-portal  { background: #ef4444; }
+
+.curso-card-portal.info { background: #f2f7ff; border: 1px solid #cfe0ff; }
+.info h3, .info .curso-link-portal { color: #2563eb; }
+.info .curso-icone-portal  { background: #2563eb; }
+.info .curso-linha-portal  { background: #2563eb; }
+
+.curso-card-portal.enem { background: #fff7f0; border: 1px solid #ffd8b5; }
+.enem h3, .enem .curso-link-portal { color: #f97316; }
+.enem .curso-icone-portal  { background: #f97316; }
+.enem .curso-linha-portal  { background: #f97316; }
+
+.curso-card-portal.reforco { background: #faf5ff; border: 1px solid #e6d5ff; }
+.reforco h3, .reforco .curso-link-portal { color: #7c3aed; }
+.reforco .curso-icone-portal  { background: #7c3aed; }
+.reforco .curso-linha-portal  { background: #7c3aed; }
+
+.curso-card-portal.embraer { background: #fffdf3; border: 1px solid #f8e9b5; }
+.embraer h3, .embraer .curso-link-portal { color: #d4a017; }
+.embraer .curso-icone-portal  { background: #d4a017; }
+.embraer .curso-linha-portal  { background: #d4a017; }
+
+@media (max-width: 600px) {
+  .cursos-grid-portal { grid-template-columns: 1fr; }
+  .curso-card-portal  { padding: 20px; }
+}
