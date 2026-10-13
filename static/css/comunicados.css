@@ -302,8 +302,10 @@
 
 .radio-grupo {
   display: flex;
-  gap: 20px;
+  flex-direction: column;
+  gap: 10px;
 }
+
 
 .radio-opcao {
   display: flex;
@@ -312,6 +314,7 @@
   font-size: 0.88rem;
   color: #374151;
   cursor: pointer;
+  white-space: nowrap;
 }
 
 .campo-upload {
