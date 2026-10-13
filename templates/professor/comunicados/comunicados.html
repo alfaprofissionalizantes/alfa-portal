@@ -98,6 +98,7 @@
           <label class="radio-opcao"><input type="radio" name="tipo" value="turma" checked onchange="trocarTipo('turma')"/> Para turma</label>
           <label class="radio-opcao"><input type="radio" name="tipo" value="aluno" onchange="trocarTipo('aluno')"/> Para aluno específico</label>
           <label class="radio-opcao"><input type="radio" name="tipo" value="todos" onchange="trocarTipo('todos')"/> Para todos os alunos</label>
+          <label class="radio-opcao"><input type="radio" name="tipo" value="dia" onchange="trocarTipo('dia')"/> Para todas as turmas de um dia</label>
           <label class="radio-opcao"><input type="radio" name="tipo" value="observacao" onchange="trocarTipo('observacao')"/> Observação</label>
         </div>
       </div>
@@ -111,6 +112,20 @@
           {% endfor %}
         </select>
       </div>
+
+      <div class="campo-grupo oculto" id="campo-dia-com">
+        <label class="campo-label">Dia da semana</label>
+        <select class="campo-select" name="dia_semana" id="select-dia-com">
+          <option value="">Selecione o dia</option>
+          <option value="Segunda">Segunda</option>
+          <option value="Terça">Terça</option>
+          <option value="Quarta">Quarta</option>
+          <option value="Quinta">Quinta</option>
+          <option value="Sexta">Sexta</option>
+          <option value="Sábado">Sábado</option>
+        </select>
+      </div>
+
 
       <div class="campo-grupo oculto" id="campo-aluno-com">
         <label class="campo-label">Aluno</label>
@@ -167,12 +182,15 @@ function fecharModal() {
   document.getElementById('modal-comunicado').classList.add('oculto');
 }
 
+
 function trocarTipo(tipo) {
-  const campoAluno   = document.getElementById('campo-aluno-com');
-  const campoTurma   = document.getElementById('select-turma-com').parentElement;
-  const campoObs     = document.getElementById('campo-observacao');
+  const campoAluno = document.getElementById('campo-aluno-com');
+  const campoTurma = document.getElementById('select-turma-com').parentElement;
+  const campoObs   = document.getElementById('campo-observacao');
+  const campoDia   = document.getElementById('campo-dia-com');
 
   campoObs.classList.add('oculto');
+  campoDia.classList.add('oculto');
 
   if (tipo === 'aluno') {
     campoAluno.classList.remove('oculto');
@@ -183,6 +201,10 @@ function trocarTipo(tipo) {
   } else if (tipo === 'todos') {
     campoAluno.classList.add('oculto');
     campoTurma.classList.add('oculto');
+  } else if (tipo === 'dia') {
+    campoAluno.classList.add('oculto');
+    campoTurma.classList.add('oculto');
+    campoDia.classList.remove('oculto');
   } else if (tipo === 'observacao') {
     campoAluno.classList.remove('oculto');
     campoTurma.classList.add('oculto');
