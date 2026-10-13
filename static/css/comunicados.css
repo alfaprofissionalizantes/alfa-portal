@@ -424,3 +424,35 @@
 .comunicados-prof-card .card-comunicado {
   border-radius: 10px;
 }
+
+
+
+.card-comunicado-wrapper {
+  display: flex;
+  align-items: stretch;
+  gap: 8px;
+}
+
+.card-comunicado-wrapper .card-comunicado {
+  flex: 1;
+}
+
+.btn-excluir-comunicado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  flex-shrink: 0;
+  background: #fff;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+  color: #dc2626;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-excluir-comunicado:hover {
+  background: #dc2626;
+  color: #fff;
+  border-color: #dc2626;
+}
