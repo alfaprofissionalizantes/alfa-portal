@@ -420,6 +420,7 @@ def salvar_comunicado():
     turma_id   = f.get('turma_id') or None
     aluno_id   = f.get('aluno_id') or None
     observacao = f.get('observacao', '').strip()
+    dia_semana = f.get('dia_semana', '')
  
     arquivo_url = salvar_arquivo_comunicado(flask_request.files.get('arquivo'))
  
@@ -449,6 +450,23 @@ def salvar_comunicado():
                 (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (professor_id, observacao, None, 'aluno', None, aluno_id))
+
+        elif tipo == 'dia':
+            if not dia_semana:
+                cur.close()
+                conn.close()
+                return "<script>alert('Selecione o dia da semana.'); history.back();</script>"
+
+            cur.execute("""
+                INSERT INTO portal_comunicados
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
+                SELECT DISTINCT %s, %s, %s, 'aluno', NULL, at2.aluno_id
+                FROM portal_turmas t
+                JOIN portal_aluno_turma at2 ON at2.turma_id = t.id
+                JOIN portal_alunos a ON a.id = at2.aluno_id
+                WHERE t.dias_semana LIKE %s
+                  AND (a.ativo = 1 OR a.ativo IS NULL)
+            """, (professor_id, titulo, arquivo_url, f'%{dia_semana}%'))
  
         else:  # turma ou aluno
             cur.execute("""
