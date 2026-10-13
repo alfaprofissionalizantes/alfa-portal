@@ -217,7 +217,7 @@ def comunicados():
     cur  = get_cursor(conn)
 
     cur.execute("""
-        SELECT titulo, arquivo, tipo,
+        SELECT MIN(id) as grupo_id, titulo, arquivo, tipo,
                DATE_FORMAT(criado_em, '%d/%m/%Y') as data,
                COUNT(*) as qtd_alunos
         FROM portal_comunicados
@@ -248,7 +248,46 @@ def comunicados():
     )
 
 
+@professor_bp.route('/excluir_comunicado/<int:grupo_id>', methods=['POST'])
+@login_required
+def excluir_comunicado(grupo_id):
+    professor_id = session['id']
+    conn = create_connection()
+    cur  = get_cursor(conn)
 
+    cur.execute("""
+        SELECT titulo, arquivo, tipo, DATE(criado_em) as dia
+        FROM portal_comunicados
+        WHERE id = %s AND professor_id = %s
+    """, (grupo_id, professor_id))
+    ref = cur.fetchone()
+
+    if not ref:
+        cur.close()
+        conn.close()
+        return jsonify({'ok': False, 'erro': 'Comunicado não encontrado.'}), 404
+
+    try:
+        cur.execute("""
+            DELETE FROM portal_comunicados
+            WHERE professor_id = %s
+              AND titulo = %s
+              AND tipo = %s
+              AND DATE(criado_em) = %s
+              AND (arquivo = %s OR (arquivo IS NULL AND %s IS NULL))
+        """, (professor_id, ref['titulo'], ref['tipo'], ref['dia'],
+              ref['arquivo'], ref['arquivo']))
+        total = cur.rowcount
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        cur.close()
+        conn.close()
+        return jsonify({'ok': False, 'erro': str(e)}), 500
+
+    cur.close()
+    conn.close()
+    return jsonify({'ok': True, 'total': total})
  
  
 @professor_bp.route('/gerenciamento')
