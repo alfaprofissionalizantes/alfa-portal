@@ -59,11 +59,14 @@
                     </svg>
                     {{ c.data }}
                   </p>
-                  <span class="badge-tipo {{ c.tipo }}">{{ c.tipo | capitalize }}</span>
-                  {% if c.qtd_alunos > 1 %}
-                  <span class="badge-tipo" style="background:#f1f5f9; color:#64748b; border:1px solid #e2e8f0;">
-                    {{ c.qtd_alunos }} alunos
-                  </span>
+                  {% if c.destino %}
+                  <span class="badge-destino">{{ c.destino }}</span>
+                  {% elif c.tipo == 'turma' and c.turma_nome %}
+                  <span class="badge-destino">{{ c.curso_nome }} — {{ c.turma_nome }}</span>
+                  {% elif c.qtd_alunos == 1 and c.aluno_nome %}
+                  <span class="badge-destino">{{ c.aluno_nome }}</span>
+                  {% else %}
+                  <span class="badge-destino">{{ c.qtd_alunos }} alunos</span>
                   {% endif %}
                   {% if c.professor_nome %}
                   <span class="comunicado-autor">por {{ c.professor_nome }}</span>

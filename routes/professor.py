@@ -220,13 +220,19 @@ def comunicados():
         SELECT MIN(c.id) as grupo_id, c.titulo, c.arquivo, c.tipo,
                DATE_FORMAT(c.criado_em, '%d/%m/%Y') as data,
                COUNT(*) as qtd_alunos,
-               c.professor_id,
-               p.nome as professor_nome
+               c.professor_id, c.destino,
+               p.nome  as professor_nome,
+               MAX(t.nome)  as turma_nome,
+               MAX(cs.nome) as curso_nome,
+               MAX(a.nome)  as aluno_nome
         FROM portal_comunicados c
-        LEFT JOIN portal_professores p ON p.id = c.professor_id
+        LEFT JOIN portal_professores p  ON p.id  = c.professor_id
+        LEFT JOIN portal_turmas t       ON t.id  = c.turma_id
+        LEFT JOIN portal_cursos cs      ON cs.id = t.curso_id
+        LEFT JOIN portal_alunos a       ON a.id  = c.aluno_id
         GROUP BY c.titulo, c.arquivo, c.tipo,
                  DATE_FORMAT(c.criado_em, '%d/%m/%Y'),
-                 c.professor_id, p.nome
+                 c.professor_id, p.nome, c.destino
         ORDER BY MAX(c.criado_em) DESC
     """)
     comunicados = cur.fetchall()
@@ -489,18 +495,18 @@ def salvar_comunicado():
         if tipo == 'todos':
             cur.execute("""
                 INSERT INTO portal_comunicados
-                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-                SELECT %s, %s, %s, 'aluno', NULL, id
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id, destino)
+                SELECT %s, %s, %s, 'aluno', NULL, id, 'Todos os alunos'
                 FROM portal_alunos
                 WHERE ativo = 1 OR ativo IS NULL
             """, (professor_id, titulo, arquivo_url))
- 
+
         elif tipo == 'observacao':
             cur.execute("""
                 INSERT INTO portal_comunicados
-                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-                VALUES (%s, %s, %s, %s, %s, %s)
-            """, (professor_id, observacao, None, 'aluno', None, aluno_id))
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id, destino)
+                VALUES (%s, %s, %s, %s, %s, %s, %s)
+            """, (professor_id, observacao, None, 'aluno', None, aluno_id, 'Observação'))
 
         elif tipo == 'dia':
             if not dia_semana:
@@ -510,20 +516,21 @@ def salvar_comunicado():
 
             cur.execute("""
                 INSERT INTO portal_comunicados
-                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-                SELECT DISTINCT %s, %s, %s, 'aluno', NULL, at2.aluno_id
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id, destino)
+                SELECT DISTINCT %s, %s, %s, 'aluno', NULL, at2.aluno_id, %s
                 FROM portal_turmas t
                 JOIN portal_aluno_turma at2 ON at2.turma_id = t.id
                 JOIN portal_alunos a ON a.id = at2.aluno_id
                 WHERE t.dias_semana LIKE %s
                   AND (a.ativo = 1 OR a.ativo IS NULL)
-            """, (professor_id, titulo, arquivo_url, f'%{dia_semana}%'))
- 
+            """, (professor_id, titulo, arquivo_url,
+                  f'Turmas de {dia_semana}', f'%{dia_semana}%'))
+
         else:  # turma ou aluno
             cur.execute("""
                 INSERT INTO portal_comunicados
-                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                (professor_id, titulo, arquivo, tipo, turma_id, aluno_id, destino)
+                VALUES (%s, %s, %s, %s, %s, %s, NULL)
             """, (professor_id, titulo, arquivo_url, tipo, turma_id, aluno_id))
  
         conn.commit()
