@@ -456,3 +456,9 @@
   color: #fff;
   border-color: #dc2626;
 }
+
+.comunicado-autor {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-style: italic;
+}
