@@ -33,7 +33,7 @@
         <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
       </svg>
       <div>
-        <h2 class="comunicados-titulo">Comunicados enviados</h2>
+        <h2 class="comunicados-titulo">Comunicados da escola</h2>
         <p class="comunicados-subtitulo">Clique em um comunicado para visualizar o documento.</p>
       </div>
     </div>
@@ -65,10 +65,14 @@
                     {{ c.qtd_alunos }} alunos
                   </span>
                   {% endif %}
+                  {% if c.professor_nome %}
+                  <span class="comunicado-autor">por {{ c.professor_nome }}</span>
+                  {% endif %}
                 </div>
               </div>
             </div>
           </a>
+          {% if c.professor_id == professor_id or (session.cargo and session.cargo.lower() == 'admin') %}
           <button class="btn-excluir-comunicado"
                   data-id="{{ c.grupo_id }}"
                   data-titulo="{{ c.titulo }}"
@@ -79,6 +83,7 @@
               <path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
             </svg>
           </button>
+          {% endif %}
         </div>
         {% endfor %}
       {% else %}

@@ -217,14 +217,18 @@ def comunicados():
     cur  = get_cursor(conn)
 
     cur.execute("""
-        SELECT MIN(id) as grupo_id, titulo, arquivo, tipo,
-               DATE_FORMAT(criado_em, '%d/%m/%Y') as data,
-               COUNT(*) as qtd_alunos
-        FROM portal_comunicados
-        WHERE professor_id = %s
-        GROUP BY titulo, arquivo, tipo, DATE_FORMAT(criado_em, '%d/%m/%Y')
-        ORDER BY MAX(criado_em) DESC
-    """, (professor_id,))
+        SELECT MIN(c.id) as grupo_id, c.titulo, c.arquivo, c.tipo,
+               DATE_FORMAT(c.criado_em, '%d/%m/%Y') as data,
+               COUNT(*) as qtd_alunos,
+               c.professor_id,
+               p.nome as professor_nome
+        FROM portal_comunicados c
+        LEFT JOIN portal_professores p ON p.id = c.professor_id
+        GROUP BY c.titulo, c.arquivo, c.tipo,
+                 DATE_FORMAT(c.criado_em, '%d/%m/%Y'),
+                 c.professor_id, p.nome
+        ORDER BY MAX(c.criado_em) DESC
+    """)
     comunicados = cur.fetchall()
 
     cur.execute("""
@@ -244,7 +248,8 @@ def comunicados():
 
     return render_template('professor/comunicados/comunicados.html',
         comunicados=comunicados,
-        turmas=turmas
+        turmas=turmas,
+        professor_id=professor_id
     )
 
 
@@ -252,20 +257,27 @@ def comunicados():
 @login_required
 def excluir_comunicado(grupo_id):
     professor_id = session['id']
+    is_admin = (session.get('cargo') or '').lower() == 'admin'
+
     conn = create_connection()
     cur  = get_cursor(conn)
 
     cur.execute("""
-        SELECT titulo, arquivo, tipo, DATE(criado_em) as dia
+        SELECT titulo, arquivo, tipo, professor_id, DATE(criado_em) as dia
         FROM portal_comunicados
-        WHERE id = %s AND professor_id = %s
-    """, (grupo_id, professor_id))
+        WHERE id = %s
+    """, (grupo_id,))
     ref = cur.fetchone()
 
     if not ref:
         cur.close()
         conn.close()
         return jsonify({'ok': False, 'erro': 'Comunicado não encontrado.'}), 404
+
+    if not is_admin and ref['professor_id'] != professor_id:
+        cur.close()
+        conn.close()
+        return jsonify({'ok': False, 'erro': 'Você só pode excluir os seus comunicados.'}), 403
 
     try:
         cur.execute("""
@@ -275,7 +287,7 @@ def excluir_comunicado(grupo_id):
               AND tipo = %s
               AND DATE(criado_em) = %s
               AND (arquivo = %s OR (arquivo IS NULL AND %s IS NULL))
-        """, (professor_id, ref['titulo'], ref['tipo'], ref['dia'],
+        """, (ref['professor_id'], ref['titulo'], ref['tipo'], ref['dia'],
               ref['arquivo'], ref['arquivo']))
         total = cur.rowcount
         conn.commit()
