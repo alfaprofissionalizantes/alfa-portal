@@ -36,6 +36,11 @@ def security_headers(response):
     response.headers['Referrer-Policy']         = 'strict-origin-when-cross-origin'
     return response
 
+
+# Fecha a conexão do banco ao fim de cada requisição
+from db import fechar_conexao
+app.teardown_appcontext(fechar_conexao)
+
 # Blueprints
 from routes.auth      import auth_bp
 from routes.aluno     import aluno_bp
