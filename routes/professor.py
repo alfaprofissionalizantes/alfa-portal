@@ -677,135 +677,141 @@ def salvar_aluno():
 import os
 from docxtpl import DocxTemplate
 
-
 @professor_bp.route('/salvar_matricula', methods=['POST'])
 @login_required
 def salvar_matricula():
+    from flask import send_file
+
     f = flask_request.form
     aluno_id = f['aluno_id']
- 
+
     conn = create_connection()
     cur  = get_cursor(conn)
- 
-    cur.execute("SELECT * FROM portal_alunos WHERE id = %s", (aluno_id,))
-    aluno = cur.fetchone()
- 
-    cur.execute("""
-        SELECT t.dias_semana, t.horario
-        FROM portal_aluno_turma at2
-        JOIN portal_turmas t ON t.id = at2.turma_id
-        WHERE at2.aluno_id = %s LIMIT 1
-    """, (aluno_id,))
-    turma = cur.fetchone()
- 
-    numero_contrato = f.get('numero_contrato')
-    taxa_matricula  = f.get('taxa_matricula', '')
-    dia_pagamento = f.get('dia_pagamento', '')
-    valor_desconto  = f.get('valor_desconto', '')
-    valor_reajustado = f.get('valor_reajustado', '')
-    dias_aula    = f.get('dias_aula', '')
-    horario_aula = f.get('horario_aula', '')
-    if not numero_contrato:
-        cur.execute("SELECT MAX(numero_contrato) as max_num FROM portal_matriculas_contratos")
-        resultado = cur.fetchone()
-        numero_contrato = (resultado['max_num'] or 0) + 1
- 
-    extenso_map = {'6': 'SEIS', '12': 'DOZE', '18': 'DEZOITO'}
-    parcelas_extenso = extenso_map.get(str(f['qtd_parcelas']), f['qtd_parcelas'])
-    dia_horario = f'{turma["dias_semana"]} {turma["horario"]}' if turma else '—'
- 
+
     try:
+        cur.execute("SELECT * FROM portal_alunos WHERE id = %s", (aluno_id,))
+        aluno = cur.fetchone()
+
+        if not aluno:
+            return "<script>alert('Aluno não encontrado.'); history.back();</script>"
+
         cur.execute("""
-            INSERT INTO portal_matriculas_contratos (
-                aluno_id, numero_contrato, data_matricula, data_primeiro_pagamento,
-                curso_contrato, modulo, preco_total, qtd_parcelas,
-                parcelas_extenso, valor_parcela, dia_horario,
+            SELECT t.dias_semana, t.horario
+            FROM portal_aluno_turma at2
+            JOIN portal_turmas t ON t.id = at2.turma_id
+            WHERE at2.aluno_id = %s LIMIT 1
+        """, (aluno_id,))
+        turma = cur.fetchone()
+
+        numero_contrato  = f.get('numero_contrato')
+        taxa_matricula   = f.get('taxa_matricula', '')
+        dia_pagamento    = f.get('dia_pagamento', '')
+        valor_desconto   = f.get('valor_desconto', '')
+        valor_reajustado = f.get('valor_reajustado', '')
+        dias_aula        = f.get('dias_aula', '')
+        horario_aula     = f.get('horario_aula', '')
+
+        if not numero_contrato:
+            cur.execute("SELECT MAX(numero_contrato) as max_num FROM portal_matriculas_contratos")
+            resultado = cur.fetchone()
+            numero_contrato = (resultado['max_num'] or 0) + 1
+
+        extenso_map = {'6': 'SEIS', '12': 'DOZE', '18': 'DEZOITO'}
+        parcelas_extenso = extenso_map.get(str(f['qtd_parcelas']), f['qtd_parcelas'])
+        dia_horario = f'{turma["dias_semana"]} {turma["horario"]}' if turma else '—'
+
+        try:
+            cur.execute("""
+                INSERT INTO portal_matriculas_contratos (
+                    aluno_id, numero_contrato, data_matricula, data_primeiro_pagamento,
+                    curso_contrato, modulo, preco_total, qtd_parcelas,
+                    parcelas_extenso, valor_parcela, dia_horario,
+                    taxa_matricula, dia_pagamento, dias_aula, horario_aula,
+                    valor_desconto, valor_reajustado
+                ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+            """, (
+                aluno_id, numero_contrato, f['data_matricula'],
+                f['data_primeiro_pagamento'], f['curso_contrato'], f['modulo'],
+                f['preco_total'], f['qtd_parcelas'], parcelas_extenso,
+                f['valor_parcela'], dia_horario,
                 taxa_matricula, dia_pagamento, dias_aula, horario_aula,
                 valor_desconto, valor_reajustado
-            ) VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-        """, (
-            aluno_id, numero_contrato, f['data_matricula'],
-            f['data_primeiro_pagamento'], f['curso_contrato'], f['modulo'],
-            f['preco_total'], f['qtd_parcelas'], parcelas_extenso,
-            f['valor_parcela'], dia_horario,
-            taxa_matricula, dia_pagamento, dias_aula, horario_aula,
-            valor_desconto, valor_reajustado
-        ))
+            ))
+            conn.commit()
+        except Exception as e:
+            conn.rollback()
+            if '1062' in str(e):
+                return f"<script>alert('Número de contrato {numero_contrato} já existe! Use outro número.'); history.back();</script>"
+            return f"Erro ao salvar matrícula: {str(e)}", 500
+
+        def fmt_data(d):
+            if not d:
+                return ''
+            partes = str(d).split('-')
+            if len(partes) == 3:
+                return f"{partes[2]}/{partes[1]}/{partes[0]}"
+            return str(d)
+
+        contexto = {
+            'numero_contrato':         str(numero_contrato),
+            'nome_responsavel':        descriptografar(aluno['nome_responsavel']),
+            'nascimento_responsavel':  fmt_data(aluno['nascimento_responsavel']),
+            'cpf_responsavel':         descriptografar(aluno['cpf_responsavel']),
+            'rg_responsavel':          descriptografar(aluno['rg_responsavel']),
+            'telefone_responsavel':    descriptografar(aluno['telefone_responsavel']),
+            'nome_aluno':              aluno['nome'],
+            'nascimento_aluno':        fmt_data(aluno['nascimento']),
+            'endereco':                descriptografar(aluno['endereco']),
+            'bairro':                  descriptografar(aluno['bairro']),
+            'numero':                  descriptografar(aluno['numero']),
+            'cidade':                  descriptografar(aluno['cidade']),
+            'cep':                     descriptografar(aluno['cep']),
+            'data_matricula':          fmt_data(f['data_matricula']),
+            'data_primeiro_pagamento': fmt_data(f['data_primeiro_pagamento']),
+            'curso_contrato':          f['curso_contrato'],
+            'modulo':                  f['modulo'],
+            'preco_total':             f['preco_total'],
+            'qtd_parcelas':            f['qtd_parcelas'],
+            'parcelas_extenso':        parcelas_extenso,
+            'valor_parcela':           f['valor_parcela'],
+            'dia_horario':             dia_horario,
+            'taxa_matricula':          taxa_matricula,
+            'dia_pagamento':           dia_pagamento,
+            'valor_desconto':          valor_desconto,
+            'valor_reajustado':        valor_reajustado,
+            'dias_aula':               dias_aula,
+            'horario_aula':            horario_aula,
+        }
+
+        modelo_path  = os.path.join('contrato', 'modelo-contrato-final.docx')
+        nome_arquivo = f"contrato_{numero_contrato}_{aluno_id}.docx"
+        caminho_docx = os.path.join('uploads', 'contratos', nome_arquivo)
+
+        try:
+            doc = DocxTemplate(modelo_path)
+            doc.render(contexto)
+            os.makedirs('uploads/contratos', exist_ok=True)
+            doc.save(caminho_docx)
+        except Exception as e:
+            print(f"ERRO AO GERAR CONTRATO: {e}")
+            return (f"<script>alert('A matrícula foi salva, mas o contrato não pôde ser gerado: "
+                    f"{str(e)}'); window.location='/professor/gerenciamento';</script>")
+
+        cur.execute("""
+            UPDATE portal_matriculas_contratos SET arquivo_gerado = %s
+            WHERE aluno_id = %s AND numero_contrato = %s
+        """, (nome_arquivo, aluno_id, numero_contrato))
         conn.commit()
-    except Exception as e:
+
+    finally:
         cur.close()
         conn.close()
-        if '1062' in str(e):
-            return f"<script>alert('Número de contrato {numero_contrato} já existe! Use outro número.'); history.back();</script>"
-        return f"Erro: {str(e)}", 500
- 
-    def fmt_data(d):
-        if not d: return ''
-        partes = str(d).split('-')
-        if len(partes) == 3:
-            return f"{partes[2]}/{partes[1]}/{partes[0]}"
-        return str(d)
- 
-    modelo_path = os.path.join('contrato', 'modelo-contrato-final.docx')
-    doc = DocxTemplate(modelo_path)
- 
-    contexto = {
-        'numero_contrato':         str(numero_contrato),
-        'nome_responsavel':        descriptografar(aluno['nome_responsavel']),
-        'nascimento_responsavel':  fmt_data(aluno['nascimento_responsavel']),
-        'cpf_responsavel':         descriptografar(aluno['cpf_responsavel']),
-        'rg_responsavel':          descriptografar(aluno['rg_responsavel']),
-        'telefone_responsavel':    descriptografar(aluno['telefone_responsavel']),
-        'nome_aluno':              aluno['nome'],
-        'nascimento_aluno':        fmt_data(aluno['nascimento']),
-        'endereco':                descriptografar(aluno['endereco']),
-        'bairro':                  descriptografar(aluno['bairro']),
-        'numero':                  descriptografar(aluno['numero']),
-        'cidade':                  descriptografar(aluno['cidade']),
-        'cep':                     descriptografar(aluno['cep']),
-        'data_matricula':          fmt_data(f['data_matricula']),
-        'data_primeiro_pagamento': fmt_data(f['data_primeiro_pagamento']),
-        'curso_contrato':          f['curso_contrato'],
-        'modulo':                  f['modulo'],
-        'preco_total':             f['preco_total'],
-        'qtd_parcelas':            f['qtd_parcelas'],
-        'parcelas_extenso':        parcelas_extenso,
-        'valor_parcela':           f['valor_parcela'],
-        'dia_horario':             dia_horario,
-        'taxa_matricula':          taxa_matricula,
-        'dia_pagamento':           dia_pagamento,
-        'valor_desconto':          valor_desconto,
-        'valor_reajustado':        valor_reajustado,
-        'dias_aula':               dias_aula,
-        'horario_aula':            horario_aula,
-    }
- 
-    try:
-        doc.render(contexto)
-    except Exception as e:
-        print(f"ERRO DOCXTPL: {e}")
-        return f"Erro ao gerar contrato: {str(e)}", 500
- 
-    os.makedirs('uploads/contratos', exist_ok=True)
-    nome_arquivo  = f"contrato_{numero_contrato}_{aluno_id}.docx"
-    caminho_docx  = os.path.join('uploads', 'contratos', nome_arquivo)
-    doc.save(caminho_docx)
- 
-    cur.execute("""
-        UPDATE portal_matriculas_contratos SET arquivo_gerado = %s
-        WHERE aluno_id = %s AND numero_contrato = %s
-    """, (nome_arquivo, aluno_id, numero_contrato))
-    conn.commit()
-    cur.close()
-    conn.close()
- 
-    from flask import send_file
+
     return send_file(
         caminho_docx,
         as_attachment=True,
         download_name=f"Contrato_{aluno['nome']}.docx"
     )
- 
 
 from crypto import criptografar, descriptografar, hash_senha
  
@@ -868,42 +874,51 @@ def editar_aluno():
         matricula
     )
 
-    if f.get('senha') and foto:
-        cur.execute("""
-            UPDATE portal_alunos SET
-                nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
-                rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
-                endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
-                matricula=%s, senha=%s, foto=%s WHERE id=%s
-        """, (*campos_base, hash_senha(f['senha']), foto, aluno_id))
-    elif f.get('senha'):
-        cur.execute("""
-            UPDATE portal_alunos SET
-                nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
-                rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
-                endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
-                matricula=%s, senha=%s WHERE id=%s
-        """, (*campos_base, hash_senha(f['senha']), aluno_id))
-    elif foto:
-        cur.execute("""
-            UPDATE portal_alunos SET
-                nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
-                rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
-                endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
-                matricula=%s, foto=%s WHERE id=%s
-        """, (*campos_base, foto, aluno_id))
-    else:
-        cur.execute("""
-            UPDATE portal_alunos SET
-                nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
-                rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
-                endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
-                matricula=%s WHERE id=%s
-        """, (*campos_base, aluno_id))
+    
+    try:
+        if f.get('senha') and foto:
+            cur.execute("""
+                UPDATE portal_alunos SET
+                    nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
+                    rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
+                    endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
+                    matricula=%s, senha=%s, foto=%s WHERE id=%s
+            """, (*campos_base, hash_senha(f['senha']), foto, aluno_id))
+        elif f.get('senha'):
+            cur.execute("""
+                UPDATE portal_alunos SET
+                    nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
+                    rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
+                    endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
+                    matricula=%s, senha=%s WHERE id=%s
+            """, (*campos_base, hash_senha(f['senha']), aluno_id))
+        elif foto:
+            cur.execute("""
+                UPDATE portal_alunos SET
+                    nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
+                    rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
+                    endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
+                    matricula=%s, foto=%s WHERE id=%s
+            """, (*campos_base, foto, aluno_id))
+        else:
+            cur.execute("""
+                UPDATE portal_alunos SET
+                    nome_responsavel=%s, nascimento_responsavel=%s, cpf_responsavel=%s,
+                    rg_responsavel=%s, telefone_responsavel=%s, nome=%s, nascimento=%s,
+                    endereco=%s, bairro=%s, numero=%s, cidade=%s, cep=%s, periodo=%s,
+                    matricula=%s WHERE id=%s
+            """, (*campos_base, aluno_id))
 
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn.commit()
+    except Exception as e:
+        conn.rollback()
+        if '1062' in str(e):
+            return "<script>alert('Matrícula já cadastrada! Use outra.'); history.back();</script>"
+        return f"Erro ao editar aluno: {str(e)}", 500
+    finally:
+        cur.close()
+        conn.close()
+
     return redirect(url_for('professor.gerenciamento'))
 
 
