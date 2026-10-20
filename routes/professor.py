@@ -623,13 +623,12 @@ def salvar_aluno():
     conn = create_connection()
     cur  = get_cursor(conn)
  
-    cur.execute("SELECT MAX(CAST(matricula AS UNSIGNED)) as max_mat FROM portal_alunos")
-    resultado      = cur.fetchone()
-    matricula_manual = flask_request.form.get('matricula_manual', '').strip()
-    if matricula_manual:
-        nova_matricula = matricula_manual
-    else:
-        nova_matricula = str((resultado['max_mat'] or 50240000) + 1)
+    nova_matricula = flask_request.form.get('matricula_manual', '').strip()
+
+    if not nova_matricula:
+        cur.close()
+        conn.close()
+        return "<script>alert('Informe a matrícula do aluno.'); history.back();</script>"
  
     try:
         cur.execute("""
