@@ -151,13 +151,23 @@ function filtrarAlunos() {
   const curso = document.getElementById('filtro-curso').value.toLowerCase();
   const dia   = document.getElementById('filtro-dia').value.toLowerCase();
 
+  const soNumeros = t => (t || '').replace(/\D/g, '');
+  const nomeNum   = soNumeros(nome);
+
   document.querySelectorAll('#painel-alunos .card-ger').forEach(card => {
     const titulo      = card.querySelector('.card-ger-titulo').textContent.toLowerCase();
     const sub         = card.querySelector('.card-ger-sub').textContent.toLowerCase();
     const responsavel = (card.dataset.responsavel || '').toLowerCase();
     const telefone    = (card.dataset.telefone || '').toLowerCase();
+    const telNum      = soNumeros(telefone);
 
-    const matchNome  = !nome  || titulo.includes(nome) || sub.includes(nome) || responsavel.includes(nome) || telefone.includes(nome);
+    const matchNome = !nome
+      || titulo.includes(nome)
+      || sub.includes(nome)
+      || responsavel.includes(nome)
+      || telefone.includes(nome)
+      || (nomeNum.length >= 4 && telNum.includes(nomeNum));
+
     const matchCurso = !curso || sub.includes(curso);
     const matchDia   = !dia   || card.dataset.dias?.toLowerCase().includes(dia);
 
