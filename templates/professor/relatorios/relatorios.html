@@ -23,6 +23,7 @@
     <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
     <button class="aba-rel" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
     <button class="aba-rel" onclick="trocarAbaRel('turmas', this)">🏫 Turmas do Aluno</button>
+    <button class="aba-rel" onclick="trocarAbaRel('faltasaluno', this)">🚫 Faltas por Aluno</button>
   </div>
 
   <!-- ===== ABA DADOS GERAIS ===== -->
@@ -410,6 +411,54 @@
   </div>
 </div>
 
+<!-- ===== ABA FALTAS POR ALUNO ===== -->
+<div id="painel-faltasaluno" class="oculto">
+  <div class="relatorio-card">
+    <div class="notas-prof-header">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+        <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+      </svg>
+      <div>
+        <h2 class="notas-prof-titulo">Faltas por Aluno</h2>
+        <p class="notas-prof-subtitulo">Pesquise um aluno para ver o histórico de presenças e faltas</p>
+      </div>
+    </div>
+
+    <div class="campo-grupo">
+      <label class="campo-label">Buscar aluno</label>
+      <input type="text" class="campo-input" id="busca-aluno-faltas" placeholder="Nome ou matrícula..." oninput="buscarAlunoFaltas()"/>
+      <div id="resultado-busca-faltas" style="margin-top:8px; max-height:200px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; display:none;"></div>
+    </div>
+  </div>
+
+  <div class="relatorio-card oculto" id="card-resultado-faltas">
+    <div class="relatorio-resultado-header">
+      <div>
+        <h3 id="rel-faltas-titulo">Histórico</h3>
+        <p id="rel-faltas-subtitulo" style="color:#64748b; font-size:0.88rem;"></p>
+      </div>
+    </div>
+    <div class="relatorio-legenda">
+      <span class="badge-freq vermelho">❌ Falta</span>
+      <span class="badge-freq amarelo">🔁 Reposta</span>
+      <span class="badge-freq verde">✅ Presença</span>
+    </div>
+    <div class="relatorio-tabela-wrapper">
+      <table class="relatorio-tabela">
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Curso</th>
+            <th>Turma / Horário</th>
+            <th>Situação</th>
+          </tr>
+        </thead>
+        <tbody id="rel-faltas-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
 {% endblock %}
 
 {% block script %}
@@ -526,31 +575,31 @@ function trocarAbaRel(aba, btn) {
   btn.classList.add('ativa');
 
   // esconde todos os painéis
-  ['painel-frequencia', 'painel-notas', 'painel-aluno', 'painel-turmas', 'painel-dados'].forEach(id => {
+  ['painel-frequencia', 'painel-notas', 'painel-aluno', 'painel-turmas', 'painel-dados', 'painel-faltasaluno'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.add('oculto');
   });
   document.getElementById('painel-' + aba).classList.remove('oculto');
 
   // esconde os cards de resultado
-  ['card-resultado', 'card-resultado-notas', 'card-resultado-aluno', 'card-resultado-turmas'].forEach(id => {
+  ['card-resultado', 'card-resultado-notas', 'card-resultado-aluno', 'card-resultado-turmas', 'card-resultado-faltas'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.classList.add('oculto');
   });
 
   // limpa as tabelas
-  ['rel-tbody', 'rel-notas-tbody', 'rel-aluno-tbody', 'rel-turmas-tbody'].forEach(id => {
+  ['rel-tbody', 'rel-notas-tbody', 'rel-aluno-tbody', 'rel-turmas-tbody', 'rel-faltas-tbody'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.innerHTML = '';
   });
 
   // limpa os campos de busca
-  ['busca-aluno-rel', 'busca-aluno-turmas'].forEach(id => {
+  ['busca-aluno-rel', 'busca-aluno-turmas', 'busca-aluno-faltas'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
 
-  ['resultado-busca-aluno', 'resultado-busca-turmas'].forEach(id => {
+  ['resultado-busca-aluno', 'resultado-busca-turmas', 'resultado-busca-faltas'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = 'none';
   });
@@ -855,6 +904,77 @@ function confirmarExcluirNota(notaId, nomeAluno, atividade, valor) {
       } else {
         alert('Erro ao excluir a nota.');
       }
+    });
+}
+
+let buscaFaltasTimeout = null;
+
+function buscarAlunoFaltas() {
+  const termo = document.getElementById('busca-aluno-faltas').value;
+  const resultado = document.getElementById('resultado-busca-faltas');
+
+  if (termo.length < 2) { resultado.style.display = 'none'; return; }
+
+  clearTimeout(buscaFaltasTimeout);
+  buscaFaltasTimeout = setTimeout(() => {
+    fetch(`/professor/buscar_alunos_relatorio?q=${encodeURIComponent(termo)}`)
+      .then(r => r.json())
+      .then(alunos => {
+        if (alunos.length === 0) {
+          resultado.innerHTML = '<p style="padding:12px; color:#94a3b8; font-size:0.85rem;">Nenhum aluno encontrado.</p>';
+        } else {
+          resultado.innerHTML = alunos.map(a => `
+            <div onclick="selecionarAlunoFaltas(${a.id}, '${a.nome.replace(/'/g, "\\'")}', '${a.matricula}')"
+                 style="padding:10px 14px; cursor:pointer; font-size:0.88rem; border-bottom:1px solid #f1f5f9;"
+                 onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='white'">
+              ${a.nome} — Mat. ${a.matricula}
+            </div>
+          `).join('');
+        }
+        resultado.style.display = 'block';
+      });
+  }, 300);
+}
+
+function selecionarAlunoFaltas(alunoId, nome, matricula) {
+  document.getElementById('busca-aluno-faltas').value = `${nome} — Mat. ${matricula}`;
+  document.getElementById('resultado-busca-faltas').style.display = 'none';
+
+  fetch(`/professor/faltas_do_aluno/${alunoId}`)
+    .then(r => r.json())
+    .then(d => {
+      document.getElementById('rel-faltas-titulo').textContent = nome.toUpperCase();
+
+      const pendentes = d.total_faltas - d.total_repostas;
+      document.getElementById('rel-faltas-subtitulo').textContent =
+        `Mat. ${matricula} — ${d.total_faltas} falta(s), ${d.total_repostas} reposta(s), `
+        + `${pendentes} pendente(s) · ${d.total_presencas} presença(s)`;
+
+      const tbody = document.getElementById('rel-faltas-tbody');
+
+      if (d.registros.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Nenhum registro de chamada.</td></tr>';
+      } else {
+        tbody.innerHTML = d.registros.map(r => {
+          let situacao, classeLinha = '';
+          if (r.status === 'F' && r.reposta_em) {
+            situacao = `<span class="badge-freq amarelo">🔁 Reposta em ${r.reposta_em}</span>`;
+          } else if (r.status === 'F') {
+            situacao = '<span class="badge-freq vermelho">❌ Falta</span>';
+            classeLinha = ' class="linha-falta"';
+          } else {
+            situacao = '<span class="badge-freq verde">✅ Presente</span>';
+          }
+          return `<tr${classeLinha}>
+            <td><strong>${r.data}</strong></td>
+            <td>${r.curso}</td>
+            <td>${r.turma} — ${r.horario}</td>
+            <td>${situacao}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      document.getElementById('card-resultado-faltas').classList.remove('oculto');
     });
 }
 
