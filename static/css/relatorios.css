@@ -30,6 +30,7 @@
 #painel-notas,
 #painel-aluno,
 #painel-turmas,
+#painel-faltasaluno,
 #painel-dados {
   display: flex;
   flex-direction: column;
@@ -41,7 +42,9 @@
 /* painel-aluno e painel-turmas estão FORA da .relatorios-wrapper no HTML,
    então precisam replicar a largura e a centralização dela. */
 #painel-aluno,
-#painel-turmas {
+#painel-turmas,
+#painel-faltasaluno {
+  max-width: 900px;
   max-width: 900px;
   margin-left: auto;
   margin-right: auto;
@@ -67,7 +70,8 @@
 #card-resultado,
 #card-resultado-notas,
 #card-resultado-aluno,
-#card-resultado-turmas {
+#card-resultado-turmas,
+#card-resultado-faltas {
   max-width: 900px;
 }
 
@@ -454,7 +458,7 @@
 @media (max-width: 600px) {
   .relatorio-linha { grid-template-columns: 1fr; }
   .relatorios-wrapper { padding: 16px; gap: 16px; }
-  #painel-aluno, #painel-turmas { padding: 0 16px 16px; }
+  #painel-aluno, #painel-turmas, #painel-faltasaluno { padding: 0 16px 16px; }
   .relatorio-card { padding: 20px; border-radius: 14px; }
   .relatorio-resultado-header { padding: 14px 16px; }
   .modal { max-width: calc(100% - 32px); }
