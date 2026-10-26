@@ -588,3 +588,11 @@
   color: #ffffff;
   border-color: #dc2626;
 }
+
+.relatorio-tabela tr.linha-falta td {
+  background: #fef2f2;
+}
+
+.relatorio-tabela tr.linha-falta:hover td {
+  background: #fee2e2;
+}

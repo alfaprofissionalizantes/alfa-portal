@@ -2214,3 +2214,36 @@ def limpar_comunicados():
     cur.close()
     conn.close()
     return jsonify({'ok': True, 'total': total})
+
+
+@professor_bp.route('/faltas_do_aluno/<int:aluno_id>')
+@login_required
+def faltas_do_aluno(aluno_id):
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT DATE_FORMAT(ch.data_aula, '%d/%m/%Y') as data,
+               ch.status,
+               DATE_FORMAT(ch.reposta_em, '%d/%m/%Y') as reposta_em,
+               t.nome as turma, c.nome as curso,
+               t.horario
+        FROM portal_chamadas ch
+        JOIN portal_turmas t ON t.id = ch.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        WHERE ch.aluno_id = %s
+        ORDER BY ch.data_aula DESC
+    """, (aluno_id,))
+    registros = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    total_faltas    = sum(1 for r in registros if r['status'] == 'F')
+    total_repostas  = sum(1 for r in registros if r['status'] == 'F' and r['reposta_em'])
+    total_presencas = sum(1 for r in registros if r['status'] == 'P')
+
+    return jsonify({
+        'registros': [dict(r) for r in registros],
+        'total_faltas': total_faltas,
+        'total_repostas': total_repostas,
+        'total_presencas': total_presencas
+    })
