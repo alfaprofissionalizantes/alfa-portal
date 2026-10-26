@@ -360,10 +360,21 @@ def gerenciamento():
     alunos = cur.fetchall()
     cur.close()
     conn.close()
- 
+
+    for aluno in alunos:
+        try:
+            aluno['telefone_responsavel'] = descriptografar(aluno['telefone_responsavel'] or '')
+        except Exception:
+            aluno['telefone_responsavel'] = ''
+        try:
+            aluno['nome_responsavel'] = descriptografar(aluno['nome_responsavel'] or '')
+        except Exception:
+            aluno['nome_responsavel'] = ''
+
     return render_template('professor/gerenciamento/gerenciamento.html',
         cursos=cursos, turmas=turmas, professores=professores, alunos=alunos)
  
+
 
 from flask import jsonify, request as flask_request
 import datetime
