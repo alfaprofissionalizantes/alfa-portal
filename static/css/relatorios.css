@@ -606,47 +606,51 @@
 .menu-rel-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  width: 100%;
+  gap: 24px;
+  /* estoura a largura da wrapper (900px) pra cada card ficar mais largo */
+  width: calc(100% + 220px);
+  margin-left: -110px;
+  margin-right: -110px;
 }
 
 .card-rel-menu {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  padding: 26px 24px;
+  gap: 10px;
+  min-height: 240px;
+  padding: 36px 30px;
   background: #ffffff;
   border: 1px solid #e8eef8;
-  border-radius: 18px;
+  border-radius: 20px;
   box-shadow: 0 4px 24px rgba(26, 58, 143, 0.08);
   cursor: pointer;
   transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
 }
 
 .card-rel-menu:hover {
-  transform: translateY(-3px);
+  transform: translateY(-4px);
   border-color: #c7d7f5;
-  box-shadow: 0 10px 28px rgba(26, 58, 143, 0.16);
+  box-shadow: 0 12px 32px rgba(26, 58, 143, 0.18);
 }
 
 .card-rel-icone {
-  font-size: 2rem;
+  font-size: 2.9rem;
   line-height: 1;
-  margin-bottom: 4px;
+  margin-bottom: 10px;
 }
 
 .card-rel-menu h3 {
-  font-size: 1.05rem;
+  font-size: 1.25rem;
   font-weight: 700;
   color: #1a1a2e;
   margin: 0;
 }
 
 .card-rel-menu p {
-  font-size: 0.84rem;
+  font-size: 0.92rem;
   color: #64748b;
   margin: 0;
-  line-height: 1.45;
+  line-height: 1.5;
 }
 
 .aba-rel.voltar {
@@ -660,11 +664,21 @@
   color: #1a1a2e;
 }
 
+/* ===== Responsivo do menu ===== */
+@media (max-width: 1280px) {
+  .menu-rel-grid {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+}
+
 @media (max-width: 900px) {
   .menu-rel-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 @media (max-width: 620px) {
   .menu-rel-grid { grid-template-columns: 1fr; gap: 14px; }
-  .card-rel-menu { padding: 20px; }
+  .card-rel-menu { min-height: auto; padding: 24px 22px; }
+  .card-rel-icone { font-size: 2.3rem; }
 }
