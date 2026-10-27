@@ -600,3 +600,71 @@
 .relatorio-tabela tr.linha-falta:hover td {
   background: #fee2e2;
 }
+
+
+/* ===== MENU DE CARDS DOS RELATÓRIOS ===== */
+.menu-rel-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+  width: 100%;
+}
+
+.card-rel-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 26px 24px;
+  background: #ffffff;
+  border: 1px solid #e8eef8;
+  border-radius: 18px;
+  box-shadow: 0 4px 24px rgba(26, 58, 143, 0.08);
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.2s, border-color 0.2s;
+}
+
+.card-rel-menu:hover {
+  transform: translateY(-3px);
+  border-color: #c7d7f5;
+  box-shadow: 0 10px 28px rgba(26, 58, 143, 0.16);
+}
+
+.card-rel-icone {
+  font-size: 2rem;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.card-rel-menu h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.card-rel-menu p {
+  font-size: 0.84rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.45;
+}
+
+.aba-rel.voltar {
+  background: #f1f5f9;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.aba-rel.voltar:hover {
+  background: #e2e8f0;
+  color: #1a1a2e;
+}
+
+@media (max-width: 900px) {
+  .menu-rel-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 620px) {
+  .menu-rel-grid { grid-template-columns: 1fr; gap: 14px; }
+  .card-rel-menu { padding: 20px; }
+}

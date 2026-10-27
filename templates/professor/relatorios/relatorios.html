@@ -14,16 +14,53 @@
 
 <div class="relatorios-wrapper">
 
-  <!-- ABAS -->
-  <div class="abas-relatorio">
+  <!-- ===== MENU DE CARDS ===== -->
+  <div class="menu-rel-grid" id="menu-relatorios">
     {% if session.cargo and session.cargo.lower() == 'admin' %}
-    <button class="aba-rel" onclick="trocarAbaRel('dados', this)">📈 Dados Gerais</button>
+    <div class="card-rel-menu" onclick="abrirRelatorio('dados')">
+      <span class="card-rel-icone">📈</span>
+      <h3>Dados Gerais</h3>
+      <p>Resumo consolidado de métricas e estatísticas da plataforma.</p>
+    </div>
     {% endif %}
-    <button class="aba-rel ativa" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
-    <button class="aba-rel" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
-    <button class="aba-rel" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
-    <button class="aba-rel" onclick="trocarAbaRel('turmas', this)">🏫 Turmas do Aluno</button>
-    <button class="aba-rel" onclick="trocarAbaRel('faltasaluno', this)">🚫 Faltas por Aluno</button>
+    <div class="card-rel-menu" onclick="abrirRelatorio('frequencia')">
+      <span class="card-rel-icone">📊</span>
+      <h3>Frequência</h3>
+      <p>Relatórios detalhados de presença diária e mensal das turmas.</p>
+    </div>
+    <div class="card-rel-menu" onclick="abrirRelatorio('notas')">
+      <span class="card-rel-icone">📝</span>
+      <h3>Notas</h3>
+      <p>Acompanhamento de avaliações, médias e desempenho acadêmico.</p>
+    </div>
+    <div class="card-rel-menu" onclick="abrirRelatorio('aluno')">
+      <span class="card-rel-icone">🎓</span>
+      <h3>Notas Por Aluno</h3>
+      <p>Visualização individualizada do histórico de notas de cada estudante.</p>
+    </div>
+    <div class="card-rel-menu" onclick="abrirRelatorio('turmas')">
+      <span class="card-rel-icone">🏫</span>
+      <h3>Turmas do Aluno</h3>
+      <p>Lista de turmas e horários onde o aluno está matriculado.</p>
+    </div>
+    <div class="card-rel-menu" onclick="abrirRelatorio('faltasaluno')">
+      <span class="card-rel-icone">🚫</span>
+      <h3>Faltas por Aluno</h3>
+      <p>Histórico detalhado das ausências, presenças e reposições.</p>
+    </div>
+  </div>
+
+  <!-- ABAS -->
+  <div class="abas-relatorio oculto" id="barra-abas">
+    <button class="aba-rel voltar" onclick="voltarMenuRel()">← Voltar</button>
+    {% if session.cargo and session.cargo.lower() == 'admin' %}
+    <button class="aba-rel" id="aba-dados" onclick="trocarAbaRel('dados', this)">📈 Dados Gerais</button>
+    {% endif %}
+    <button class="aba-rel" id="aba-frequencia" onclick="trocarAbaRel('frequencia', this)">📊 Frequência</button>
+    <button class="aba-rel" id="aba-notas" onclick="trocarAbaRel('notas', this)">📝 Notas</button>
+    <button class="aba-rel" id="aba-aluno" onclick="trocarAbaRel('aluno', this)">🎓 Notas Por Aluno</button>
+    <button class="aba-rel" id="aba-turmas" onclick="trocarAbaRel('turmas', this)">🏫 Turmas do Aluno</button>
+    <button class="aba-rel" id="aba-faltasaluno" onclick="trocarAbaRel('faltasaluno', this)">🚫 Faltas por Aluno</button>
   </div>
 
   <!-- ===== ABA DADOS GERAIS ===== -->
@@ -128,7 +165,7 @@
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
-  <div id="painel-frequencia">
+  <div id="painel-frequencia" class="oculto">
 
     <div class="relatorio-card">
       <div class="notas-prof-header">
@@ -976,6 +1013,26 @@ function selecionarAlunoFaltas(alunoId, nome, matricula) {
 
       document.getElementById('card-resultado-faltas').classList.remove('oculto');
     });
+}
+
+function abrirRelatorio(aba) {
+  document.getElementById('menu-relatorios').classList.add('oculto');
+  document.getElementById('barra-abas').classList.remove('oculto');
+  document.getElementById('aba-' + aba).click();
+}
+
+function voltarMenuRel() {
+  document.getElementById('barra-abas').classList.add('oculto');
+  document.getElementById('menu-relatorios').classList.remove('oculto');
+
+  ['painel-frequencia','painel-notas','painel-aluno','painel-turmas','painel-dados','painel-faltasaluno']
+    .forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('oculto');
+    });
+
+  document.querySelectorAll('.aba-rel').forEach(b => b.classList.remove('ativa'));
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 </script>
