@@ -488,6 +488,7 @@
             <th>Curso</th>
             <th>Turma / Horário</th>
             <th>Situação</th>
+            <th>Ação</th>
           </tr>
         </thead>
         <tbody id="rel-faltas-tbody"></tbody>
@@ -495,6 +496,34 @@
     </div>
   </div>
 </div>
+
+
+<!-- MODAL REPOSIÇÃO (relatórios) -->
+<div class="modal-overlay oculto" id="overlay-rep-rel" onclick="fecharModalRepRel()"></div>
+<div class="modal oculto" id="modal-rep-rel">
+  <div class="modal-header">
+    <h3>Marcar Reposição</h3>
+    <button class="modal-fechar" onclick="fecharModalRepRel()">✕</button>
+  </div>
+  <div class="modal-corpo">
+    <input type="hidden" id="rep-rel-turma-id"/>
+    <input type="hidden" id="rep-rel-data-falta"/>
+    <div class="campo-grupo">
+      <label class="campo-label">Falta</label>
+      <input type="text" class="campo-input" id="rep-rel-info" disabled/>
+    </div>
+    <div class="campo-grupo">
+      <label class="campo-label">Data da reposição</label>
+      <input type="date" class="campo-input" id="rep-rel-data"/>
+    </div>
+  </div>
+  <div class="modal-rodape">
+    <button class="btn-cancelar" onclick="fecharModalRepRel()">Cancelar</button>
+    <button class="btn-enviar" onclick="salvarRepRel()">Salvar</button>
+  </div>
+</div>
+
+
 
 {% endblock %}
 
@@ -973,7 +1002,11 @@ function buscarAlunoFaltas() {
   }, 300);
 }
 
+let faltasAlunoAtual = null;
+
 function selecionarAlunoFaltas(alunoId, nome, matricula) {
+  faltasAlunoAtual = { id: alunoId, nome: nome, matricula: matricula };
+
   document.getElementById('busca-aluno-faltas').value = `${nome} — Mat. ${matricula}`;
   document.getElementById('resultado-busca-faltas').style.display = 'none';
 
@@ -990,28 +1023,93 @@ function selecionarAlunoFaltas(alunoId, nome, matricula) {
       const tbody = document.getElementById('rel-faltas-tbody');
 
       if (d.registros.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:#94a3b8;">Nenhum registro de chamada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum registro de chamada.</td></tr>';
       } else {
         tbody.innerHTML = d.registros.map(r => {
-          let situacao, classeLinha = '';
+          let situacao, acao = '—', classeLinha = '';
+          const turmaEsc = (r.turma || '').replace(/'/g, "\\'");
+
           if (r.status === 'F' && r.reposta_em) {
             situacao = `<span class="badge-freq amarelo">🔁 Reposta em ${r.reposta_em}</span>`;
+            acao = `<button class="btn-acao excluir" onclick="desfazerRepRel(${r.turma_id}, '${r.data_iso}')">Desfazer</button>`;
           } else if (r.status === 'F') {
             situacao = '<span class="badge-freq vermelho">❌ Falta</span>';
             classeLinha = ' class="linha-falta"';
+            acao = `<button class="btn-acao editar" onclick="abrirModalRepRel(${r.turma_id}, '${r.data_iso}', '${r.data}', '${turmaEsc}')">🔁 Repor</button>`;
           } else {
             situacao = '<span class="badge-freq verde">✅ Presente</span>';
           }
+
           return `<tr${classeLinha}>
             <td><strong>${r.data}</strong></td>
             <td>${r.curso}</td>
             <td>${r.turma} — ${r.horario}</td>
             <td>${situacao}</td>
+            <td>${acao}</td>
           </tr>`;
         }).join('');
       }
 
       document.getElementById('card-resultado-faltas').classList.remove('oculto');
+    });
+}
+
+
+function abrirModalRepRel(turmaId, dataIso, dataBr, turmaNome) {
+  document.getElementById('rep-rel-turma-id').value   = turmaId;
+  document.getElementById('rep-rel-data-falta').value = dataIso;
+  document.getElementById('rep-rel-info').value       = `${dataBr} — ${turmaNome}`;
+
+  const campo = document.getElementById('rep-rel-data');
+  campo.value = new Date().toISOString().split('T')[0];
+  campo.min   = dataIso;
+
+  document.getElementById('overlay-rep-rel').classList.remove('oculto');
+  document.getElementById('modal-rep-rel').classList.remove('oculto');
+}
+
+function fecharModalRepRel() {
+  document.getElementById('overlay-rep-rel').classList.add('oculto');
+  document.getElementById('modal-rep-rel').classList.add('oculto');
+}
+
+function salvarRepRel() {
+  if (!faltasAlunoAtual) return;
+
+  const turmaId   = document.getElementById('rep-rel-turma-id').value;
+  const dataFalta = document.getElementById('rep-rel-data-falta').value;
+  const dataRep   = document.getElementById('rep-rel-data').value;
+
+  if (!dataRep) { alert('Informe a data da reposição.'); return; }
+
+  fetch(`/professor/marcar_reposicao/${faltasAlunoAtual.id}/${turmaId}/${dataFalta}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ data_reposicao: dataRep })
+  })
+  .then(r => r.json())
+  .then(d => {
+    if (d.ok) {
+      fecharModalRepRel();
+      selecionarAlunoFaltas(faltasAlunoAtual.id, faltasAlunoAtual.nome, faltasAlunoAtual.matricula);
+    } else {
+      alert(d.erro || 'Erro ao salvar a reposição.');
+    }
+  });
+}
+
+function desfazerRepRel(turmaId, dataIso) {
+  if (!faltasAlunoAtual) return;
+  if (!confirm('Desfazer a reposição desta falta?')) return;
+
+  fetch(`/professor/desfazer_reposicao/${faltasAlunoAtual.id}/${turmaId}/${dataIso}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(d => {
+      if (d.ok) {
+        selecionarAlunoFaltas(faltasAlunoAtual.id, faltasAlunoAtual.nome, faltasAlunoAtual.matricula);
+      } else {
+        alert('Erro ao desfazer.');
+      }
     });
 }
 

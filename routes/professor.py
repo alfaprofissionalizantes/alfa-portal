@@ -2223,8 +2223,10 @@ def faltas_do_aluno(aluno_id):
     cur  = get_cursor(conn)
     cur.execute("""
         SELECT DATE_FORMAT(ch.data_aula, '%d/%m/%Y') as data,
+               DATE_FORMAT(ch.data_aula, '%Y-%m-%d') as data_iso,
                ch.status,
                DATE_FORMAT(ch.reposta_em, '%d/%m/%Y') as reposta_em,
+               t.id as turma_id,
                t.nome as turma, c.nome as curso,
                t.horario
         FROM portal_chamadas ch
