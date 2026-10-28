@@ -8,6 +8,116 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/sidebar.css') }}">
   {% block estilo %}{% endblock %}
 </head>
+
+
+<!-- ===== TELA DE CARREGAMENTO ===== -->
+<div id="tela-carregando" class="carregando-overlay oculto">
+  <div class="carregando-box">
+    <div class="carregando-spinner"></div>
+    <span>Carregando...</span>
+  </div>
+</div>
+
+<style>
+.carregando-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(248, 250, 255, 0.82);
+  backdrop-filter: blur(2px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeLoader 0.15s ease;
+}
+
+.carregando-overlay.oculto { display: none !important; }
+
+@keyframes fadeLoader {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.carregando-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 44px;
+  background: #ffffff;
+  border: 1px solid #e8eef8;
+  border-radius: 18px;
+  box-shadow: 0 12px 40px rgba(26, 58, 143, 0.18);
+  color: #1a3a8f;
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.92rem;
+  font-weight: 600;
+}
+
+.carregando-spinner {
+  width: 42px;
+  height: 42px;
+  border: 4px solid #e8eef8;
+  border-top-color: #1a3a8f;
+  border-radius: 50%;
+  animation: girarLoader 0.7s linear infinite;
+}
+
+@keyframes girarLoader {
+  to { transform: rotate(360deg); }
+}
+</style>
+
+<script>
+(function () {
+  const tela = document.getElementById('tela-carregando');
+  let timer = null;
+
+  function mostrarCarregando() {
+    tela.classList.remove('oculto');
+    clearTimeout(timer);
+    timer = setTimeout(esconderCarregando, 20000); // trava de segurança
+  }
+
+  function esconderCarregando() {
+    tela.classList.add('oculto');
+    clearTimeout(timer);
+  }
+
+  function ehDownload(href) {
+    return href.includes('/backup')
+        || href.includes('_pdf')
+        || href.includes('cloudinary');
+  }
+
+  document.addEventListener('click', function (e) {
+    const link = e.target.closest('a');
+    if (!link) return;
+
+    const href = link.getAttribute('href') || '';
+    if (!href || href.startsWith('#') || href.startsWith('javascript:')) return;
+    if (href.startsWith('mailto:') || href.startsWith('tel:')) return;
+    if (link.target === '_blank' || link.hasAttribute('download')) return;
+    if (link.hasAttribute('data-sem-loader')) return;
+    if (ehDownload(href)) return;
+    if (e.ctrlKey || e.metaKey || e.shiftKey || e.button !== 0) return;
+    if (link.origin && link.origin !== window.location.origin) return;
+
+    mostrarCarregando();
+  });
+
+  document.addEventListener('submit', function (e) {
+    const form = e.target;
+    if (form.hasAttribute('data-sem-loader')) return;
+    if (form.target === '_blank') return;
+    mostrarCarregando();
+  });
+
+  window.addEventListener('pageshow', esconderCarregando);
+})();
+</script>
+
+
 <body class="painel">
 
   <!-- ===== SIDEBAR ===== -->
