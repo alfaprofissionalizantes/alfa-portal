@@ -1219,7 +1219,7 @@ body.modal-aberto {
   background: #ecf7b5;
   border-color: #dae766;
   color: #cec21a;
-  cursor: not-allowed;
+  cursor: pointer;
 }
 
 .dia-cal.feriado:hover {

@@ -75,10 +75,11 @@ function renderizarCalendario(diasComChamada, feriados) {
     btn.textContent = `${String(dia).padStart(2,'0')} ${diaSemana}`;
 
     if (feriado) {
-      btn.disabled = true;
       btn.title = feriado;
       btn.textContent = `${String(dia).padStart(2,'0')} — ${feriado}`;
-    } else if (isFuturo) {
+    }
+
+    if (isFuturo) {
       btn.disabled = true;
       btn.style.opacity = '0.4';
       btn.style.cursor = 'not-allowed';
