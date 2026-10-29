@@ -199,6 +199,9 @@ function salvarChamada() {
   .then(d => {
     const msg = document.getElementById('msg-chamada');
     msg.style.display = 'block';
+
+    clearTimeout(window._timerMsgChamada);
+    window._timerMsgChamada = setTimeout(() => { msg.style.display = 'none'; }, 3500);
     if (d.ok) {
       msg.style.background = '#dcfce7';
       msg.style.color = '#16a34a';
