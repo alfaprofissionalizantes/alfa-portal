@@ -72,6 +72,7 @@
   border-radius: 14px;
   border: 1px solid #e8eef8;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.2s, transform 0.15s;
 }
 
 .resumo-icone {
@@ -136,6 +137,8 @@
   border-radius: 12px;
   border: 1px solid #e8eef8;
   box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.2s, transform 0.15s;
 }
 
 .turma-cor {
@@ -143,6 +146,7 @@
   height: 40px;
   border-radius: 4px;
   flex-shrink: 0;
+  transition: height 0.18s, width 0.18s;
 }
 
 .turma-cor.azul    { background: #1a3a8f; }
@@ -161,6 +165,41 @@
   color: #64748b;
   margin: 0;
 }
+
+
+/* ===== Hover: cards do topo (só os clicáveis) ===== */
+a.resumo-card {
+  cursor: pointer;
+}
+
+a.resumo-card:hover {
+  background: #f8faff;
+  border-color: #1a3a8f;
+  box-shadow: 0 8px 20px rgba(26, 58, 143, 0.16);
+  transform: translateY(-3px);
+}
+
+a.resumo-card:hover .resumo-numero {
+  color: #1a3a8f;
+}
+
+/* ===== Hover: turmas de hoje ===== */
+.card-turma-hoje:hover {
+  background: #f8faff;
+  border-color: #1a3a8f;
+  box-shadow: 0 8px 20px rgba(26, 58, 143, 0.16);
+  transform: translateX(4px);
+}
+
+.card-turma-hoje:hover .turma-nome {
+  color: #1a3a8f;
+}
+
+.card-turma-hoje:hover .turma-cor {
+  width: 6px;
+  height: 46px;
+}
+
 
 /* ===== Responsivo ===== */
 @media (max-width: 768px) {
