@@ -396,6 +396,7 @@
             <th>Turma</th>
             <th>Curso</th>
             <th>Mês/Ano</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody id="rel-aluno-tbody"></tbody>
@@ -717,6 +718,7 @@ function gerarRelatorioNotas() {
 }
 
 function abrirModalNota(id, aluno, atividade, valor) {
+  origemNota = 'turma';
   document.getElementById('edit-nota-id').value       = id;
   document.getElementById('edit-nota-aluno').value    = aluno;
   document.getElementById('edit-nota-atividade').value = atividade;
@@ -744,7 +746,7 @@ function salvarEdicaoNota() {
   .then(data => {
     if (data.ok) {
       fecharModalNota();
-      gerarRelatorioNotas();
+      recarregarNotas();
     } else {
       alert('Erro ao salvar nota.');
     }
@@ -783,7 +785,10 @@ function buscarAlunoRel() {
 }
 
 function selecionarAluno(alunoId, nome, matricula) {
-  alunoSelecionadoId = alunoId;
+  alunoSelecionadoId   = alunoId;
+  alunoSelecionadoNome = nome;
+  alunoSelecionadoMat  = matricula;
+
   document.getElementById('busca-aluno-rel').value = `${nome} — Mat. ${matricula}`;
   document.getElementById('resultado-busca-aluno').style.display = 'none';
 
@@ -800,9 +805,10 @@ function selecionarAluno(alunoId, nome, matricula) {
       tbody.innerHTML = '';
 
       if (data.notas.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhuma nota lançada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:#94a3b8;">Nenhuma nota lançada.</td></tr>';
       } else {
         data.notas.forEach(n => {
+          const ativEsc = (n.nome_atividade || '').replace(/'/g, "\\'");
           tbody.innerHTML += `
             <tr>
               <td>${n.nome_atividade}</td>
@@ -810,12 +816,52 @@ function selecionarAluno(alunoId, nome, matricula) {
               <td>${n.turma}</td>
               <td>${n.curso}</td>
               <td>${MESES[n.mes]} ${n.ano}</td>
+              <td style="display:flex; gap:6px;">
+                <button class="btn-acao amarelo" onclick="abrirModalNotaAluno(${n.id}, '${ativEsc}', ${n.valor})">Editar</button>
+                <button class="btn-acao vermelho" onclick="excluirNotaAluno(${n.id}, '${ativEsc}', ${n.valor})">Excluir</button>
+              </td>
             </tr>`;
         });
       }
 
       document.getElementById('card-resultado-aluno').classList.remove('oculto');
     });
+} 
+
+
+function abrirModalNotaAluno(id, atividade, valor) {
+  origemNota = 'aluno';
+  document.getElementById('edit-nota-id').value        = id;
+  document.getElementById('edit-nota-aluno').value     = alunoSelecionadoNome;
+  document.getElementById('edit-nota-atividade').value = atividade;
+  document.getElementById('edit-nota-valor').value     = valor;
+  document.getElementById('overlay-modal-nota').classList.remove('oculto');
+  document.getElementById('modal-editar-nota').classList.remove('oculto');
+}
+
+function excluirNotaAluno(notaId, atividade, valor) {
+  origemNota = 'aluno';
+  const msg = `Excluir esta nota?\n\n`
+            + `Aluno: ${alunoSelecionadoNome}\n`
+            + `Atividade: ${atividade}\n`
+            + `Nota: ${valor}\n\n`
+            + `Esta ação não pode ser desfeita.`;
+  if (!confirm(msg)) return;
+
+  fetch(`/professor/excluir_nota/${notaId}`, { method: 'POST' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) recarregarNotas();
+      else alert('Erro ao excluir a nota.');
+    });
+}
+
+function recarregarNotas() {
+  if (origemNota === 'aluno' && alunoSelecionadoId) {
+    selecionarAluno(alunoSelecionadoId, alunoSelecionadoNome, alunoSelecionadoMat);
+  } else {
+    gerarRelatorioNotas();
+  }
 }
 
 let buscaTurmasTimeout = null;
@@ -940,6 +986,9 @@ function baixarPdfFrequencia() {
 }
 
 let alunoSelecionadoId = null;
+let alunoSelecionadoNome = '';
+let alunoSelecionadoMat  = '';
+let origemNota = 'turma';
 
 function baixarPdfNotas() {
   const turmaId = document.getElementById('select-turma-notas-rel').value;

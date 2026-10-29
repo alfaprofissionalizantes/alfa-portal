@@ -682,3 +682,27 @@
   .card-rel-menu { min-height: auto; padding: 24px 22px; }
   .card-rel-icone { font-size: 2.3rem; }
 }
+
+.btn-acao.amarelo {
+  background: #fef9c3;
+  color: #ca8a04;
+  border-color: #fde047;
+}
+
+.btn-acao.amarelo:hover {
+  background: #ca8a04;
+  color: #ffffff;
+  border-color: #ca8a04;
+}
+
+.btn-acao.vermelho {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.btn-acao.vermelho:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
