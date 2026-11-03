@@ -89,11 +89,7 @@
       </div>
     </div>
 
-      <div class="relatorio-card" style="max-width:900px;">
-        <h4 class="analise-titulo">📈 Matrículas por mês <span id="gr-ano" class="analise-count"></span></h4>
-        <div class="grafico-wrapper"><canvas id="grafico-matriculas"></canvas></div>
-      </div>
-
+      
       <div class="relatorio-card" style="max-width:900px;">
         <h4 class="analise-titulo">🎓 Alunos por curso</h4>
         <div class="grafico-wrapper"><canvas id="grafico-cursos"></canvas></div>
@@ -926,38 +922,12 @@ function selecionarAlunoTurmas(alunoId, nome, matricula) {
     });
 }
 
-let chartMatriculas = null;
 let chartCursos = null;
 
 function carregarGraficos() {
   fetch('/professor/dados_graficos')
     .then(r => r.json())
     .then(d => {
-      const MESES = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
-      document.getElementById('gr-ano').textContent = `(${d.ano})`;
-
-      if (chartMatriculas) chartMatriculas.destroy();
-      chartMatriculas = new Chart(document.getElementById('grafico-matriculas'), {
-        type: 'line',
-        data: {
-          labels: MESES,
-          datasets: [{
-            label: 'Matrículas',
-            data: d.matriculas,
-            borderColor: '#1a3a8f',
-            backgroundColor: 'rgba(26,58,143,0.1)',
-            fill: true,
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-        }
-      });
-
       if (chartCursos) chartCursos.destroy();
       chartCursos = new Chart(document.getElementById('grafico-cursos'), {
         type: 'doughnut',
@@ -975,7 +945,7 @@ function carregarGraficos() {
         }
       });
     });
-  }
+}
     
 function baixarPdfFrequencia() {
   const turmaId = document.getElementById('select-turma-rel').value;
