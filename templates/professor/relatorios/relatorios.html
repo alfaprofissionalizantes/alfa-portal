@@ -230,11 +230,11 @@
         <table class="relatorio-tabela">
           <thead>
             <tr>
-              <th>Aluno</th>
-              <th>Presenças</th>
-              <th>Faltas</th>
-              <th>Total Aulas</th>
-              <th>Frequência</th>
+              <th class="th-ord" data-campo="nome"        onclick="ordenarFreq('nome')">Aluno <span class="seta-ord"></span></th>
+              <th class="th-ord" data-campo="presencas"   onclick="ordenarFreq('presencas')">Presenças <span class="seta-ord"></span></th>
+              <th class="th-ord" data-campo="faltas"      onclick="ordenarFreq('faltas')">Faltas <span class="seta-ord"></span></th>
+              <th class="th-ord" data-campo="total_aulas" onclick="ordenarFreq('total_aulas')">Total Aulas <span class="seta-ord"></span></th>
+              <th class="th-ord" data-campo="frequencia"  onclick="ordenarFreq('frequencia')">Frequência <span class="seta-ord"></span></th>
             </tr>
           </thead>
           <tbody id="rel-tbody"></tbody>
@@ -594,6 +594,9 @@ function carregarAnalises() {
     });
 }
 
+let dadosFreq  = [];
+let ordemFreq  = { campo: null, asc: false };
+
 function gerarRelatorio() {
   const turmaId    = document.getElementById('select-turma-rel').value;
   const mes        = document.getElementById('select-mes-rel').value;
@@ -609,28 +612,70 @@ function gerarRelatorio() {
       document.getElementById('rel-titulo').textContent = turmaTexto;
       document.getElementById('rel-subtitulo').textContent = `${mesTexto} ${ano}`;
 
-      const tbody = document.getElementById('rel-tbody');
-      tbody.innerHTML = '';
-
-      if (data.alunos.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
-      } else {
-        data.alunos.forEach(a => {
-          const cor   = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
-          const icone = a.frequencia >= 75 ? '✅' : a.frequencia >= 50 ? '⚠️' : '❌';
-          tbody.innerHTML += `
-            <tr>
-              <td>${a.nome}</td>
-              <td>${a.presencas}</td>
-              <td>${a.faltas}</td>
-              <td>${a.total_aulas}</td>
-              <td><span class="badge-freq ${cor}">${icone} ${a.frequencia}%</span></td>
-            </tr>`;
-        });
-      }
+      dadosFreq = data.alunos || [];
+      ordemFreq = { campo: null, asc: false };
+      renderizarTabelaFreq();
 
       document.getElementById('card-resultado').classList.remove('oculto');
     });
+}
+
+function ordenarFreq(campo) {
+  if (ordemFreq.campo === campo) {
+    ordemFreq.asc = !ordemFreq.asc;
+  } else {
+    ordemFreq.campo = campo;
+    ordemFreq.asc   = (campo === 'nome'); // nome começa A→Z, números do maior pro menor
+  }
+  renderizarTabelaFreq();
+}
+
+function renderizarTabelaFreq() {
+  const tbody = document.getElementById('rel-tbody');
+  tbody.innerHTML = '';
+
+  // setas no cabeçalho
+  document.querySelectorAll('#card-resultado th.th-ord').forEach(th => {
+    const seta = th.querySelector('.seta-ord');
+    if (!seta) return;
+    seta.textContent = (th.dataset.campo === ordemFreq.campo)
+      ? (ordemFreq.asc ? '▲' : '▼')
+      : '';
+  });
+
+  if (dadosFreq.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhum dado encontrado.</td></tr>';
+    return;
+  }
+
+  const lista = [...dadosFreq];
+
+  if (ordemFreq.campo) {
+    const campo = ordemFreq.campo;
+    lista.sort((a, b) => {
+      let r;
+      if (campo === 'nome') {
+        r = String(a.nome).localeCompare(String(b.nome), 'pt-BR');
+      } else {
+        r = Number(a[campo]) - Number(b[campo]);
+        if (r === 0) r = String(a.nome).localeCompare(String(b.nome), 'pt-BR');
+      }
+      return ordemFreq.asc ? r : -r;
+    });
+  }
+
+  lista.forEach(a => {
+    const cor   = a.frequencia >= 75 ? 'verde' : a.frequencia >= 50 ? 'amarelo' : 'vermelho';
+    const icone = a.frequencia >= 75 ? '✅' : a.frequencia >= 50 ? '⚠️' : '❌';
+    tbody.innerHTML += `
+      <tr>
+        <td>${a.nome}</td>
+        <td>${a.presencas}</td>
+        <td>${a.faltas}</td>
+        <td>${a.total_aulas}</td>
+        <td><span class="badge-freq ${cor}">${icone} ${a.frequencia}%</span></td>
+      </tr>`;
+  });
 }
 
 function trocarAbaRel(aba, btn) {
