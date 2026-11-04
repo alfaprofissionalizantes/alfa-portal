@@ -706,3 +706,20 @@
   color: #ffffff;
   border-color: #dc2626;
 }
+
+.relatorio-tabela th.th-ord {
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s, color 0.15s;
+}
+
+.relatorio-tabela th.th-ord:hover {
+  background: #eef2ff;
+  color: #1a3a8f;
+}
+
+.seta-ord {
+  font-size: 0.7rem;
+  color: #1a3a8f;
+  margin-left: 4px;
+}
