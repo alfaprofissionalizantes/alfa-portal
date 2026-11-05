@@ -1684,7 +1684,7 @@ def turmas_do_aluno(aluno_id):
     conn = create_connection()
     cur  = get_cursor(conn)
     cur.execute("""
-        SELECT t.nome as turma, c.nome as curso, t.dias_semana, t.horario, t.periodo,
+        SELECT t.id as turma_id, t.nome as turma, c.nome as curso, t.dias_semana, t.horario, t.periodo,
                DATE_FORMAT(at2.data_entrada, '%d/%m/%Y') as data_entrada,
                GROUP_CONCAT(DISTINCT p.nome SEPARATOR ', ') as professores
         FROM portal_aluno_turma at2
@@ -1700,9 +1700,16 @@ def turmas_do_aluno(aluno_id):
             t.horario
     """, (aluno_id,))
     turmas = cur.fetchall()
+
+    cur.execute("SELECT nome, matricula FROM portal_alunos WHERE id = %s", (aluno_id,))
+    aluno = cur.fetchone()
+
     cur.close()
     conn.close()
-    return jsonify({'turmas': [dict(t) for t in turmas]})
+    return jsonify({
+        'turmas': [dict(t) for t in turmas],
+        'aluno': dict(aluno) if aluno else None
+    })
 
 
 @professor_bp.route('/dados_gerais')
