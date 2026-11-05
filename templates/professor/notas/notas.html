@@ -16,21 +16,19 @@
   <div class="notas-prof-card">
 
     <div class="campo-grupo">
-      <label class="campo-label">Turma</label>
-      <select class="campo-select" id="select-turma-nota" onchange="carregarAlunos()">
-        <option value="">Selecione a turma</option>
-        {% for turma in turmas %}
-        <option value="{{ turma.id }}" data-dias="{{ turma.dias_semana }}">
-          {{ turma.curso }} — {{ turma.nome }}
-        </option>
-        {% endfor %}
-      </select>
+      <label class="campo-label">Aluno</label>
+      <input type="text" class="campo-input" id="busca-aluno-nota"
+             placeholder="Digite o nome ou a matrícula..."
+             oninput="buscarAlunoNota()" autocomplete="off"/>
+      <input type="hidden" id="aluno-id-nota"/>
+      <div id="resultado-busca-nota"
+           style="margin-top:8px; max-height:200px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; display:none;"></div>
     </div>
 
     <div class="campo-grupo">
-      <label class="campo-label">Aluno</label>
-      <select class="campo-select" id="select-aluno" disabled>
-        <option value="">Selecione o aluno</option>
+      <label class="campo-label">Turma</label>
+      <select class="campo-select" id="select-turma-nota" disabled>
+        <option value="">Selecione o aluno primeiro</option>
       </select>
     </div>
 
@@ -74,40 +72,95 @@
 
 {% block script %}
 <script>
-function carregarAlunos() {
-  const turmaId = document.getElementById('select-turma-nota').value;
-  const selectAluno = document.getElementById('select-aluno');
+let buscaNotaTimeout = null;
 
-  if (!turmaId) {
-    selectAluno.disabled = true;
-    selectAluno.innerHTML = '<option value="">Selecione o aluno</option>';
-    return;
-  }
+function buscarAlunoNota() {
+  const termo     = document.getElementById('busca-aluno-nota').value;
+  const resultado = document.getElementById('resultado-busca-nota');
+  const selTurma  = document.getElementById('select-turma-nota');
 
-  fetch(`/professor/alunos_turma/${turmaId}`)
-    .then(r => r.json())
-    .then(alunos => {
-      selectAluno.innerHTML = '<option value="">Selecione o aluno</option>';
-      alunos.forEach(a => {
-        selectAluno.innerHTML += `<option value="${a.id}">${a.nome}</option>`;
+  // qualquer digitação invalida a seleção anterior
+  document.getElementById('aluno-id-nota').value = '';
+  selTurma.disabled = true;
+  selTurma.innerHTML = '<option value="">Selecione o aluno primeiro</option>';
+
+  if (termo.length < 2) { resultado.style.display = 'none'; return; }
+
+  clearTimeout(buscaNotaTimeout);
+  buscaNotaTimeout = setTimeout(() => {
+    fetch(`/professor/buscar_alunos_relatorio?q=${encodeURIComponent(termo)}`)
+      .then(r => r.json())
+      .then(alunos => {
+        if (alunos.length === 0) {
+          resultado.innerHTML = '<p style="padding:12px; color:#94a3b8; font-size:0.85rem;">Nenhum aluno encontrado.</p>';
+        } else {
+          resultado.innerHTML = alunos.map(a => `
+            <div onclick="selecionarAlunoNota(${a.id}, '${(a.nome || '').replace(/'/g, "\\'")}', '${a.matricula}')"
+                 style="padding:10px 14px; cursor:pointer; font-size:0.88rem; border-bottom:1px solid #f1f5f9;"
+                 onmouseover="this.style.background='#f8faff'" onmouseout="this.style.background='white'">
+              ${a.nome} — Mat. ${a.matricula}
+            </div>
+          `).join('');
+        }
+        resultado.style.display = 'block';
       });
-      selectAluno.disabled = false;
+  }, 300);
+}
+
+function selecionarAlunoNota(alunoId, nome, matricula) {
+  document.getElementById('aluno-id-nota').value   = alunoId;
+  document.getElementById('busca-aluno-nota').value = `${nome} — Mat. ${matricula}`;
+  document.getElementById('resultado-busca-nota').style.display = 'none';
+  carregarTurmasDoAluno(alunoId);
+}
+
+function carregarTurmasDoAluno(alunoId, turmaPreSelecionada) {
+  const selTurma = document.getElementById('select-turma-nota');
+  selTurma.disabled  = true;
+  selTurma.innerHTML = '<option value="">Carregando...</option>';
+
+  fetch(`/professor/turmas_do_aluno/${alunoId}`)
+    .then(r => r.json())
+    .then(d => {
+      // se veio por link direto, preenche o nome do aluno no campo
+      const campoBusca = document.getElementById('busca-aluno-nota');
+      if (!campoBusca.value && d.aluno) {
+        campoBusca.value = `${d.aluno.nome} — Mat. ${d.aluno.matricula}`;
+      }
+
+      if (!d.turmas || d.turmas.length === 0) {
+        selTurma.innerHTML = '<option value="">Aluno não está em nenhuma turma</option>';
+        return;
+      }
+
+      selTurma.innerHTML = '<option value="">Selecione a turma</option>';
+      d.turmas.forEach(t => {
+        selTurma.innerHTML += `<option value="${t.turma_id}">${t.curso} — ${t.turma} (${t.dias_semana} ${t.horario})</option>`;
+      });
+      selTurma.disabled = false;
+
+      if (turmaPreSelecionada) {
+        selTurma.value = turmaPreSelecionada;
+      } else if (d.turmas.length === 1) {
+        selTurma.value = d.turmas[0].turma_id;
+      }
     });
 }
 
 function salvarNota() {
+  const aluno_id  = document.getElementById('aluno-id-nota').value;
   const turma_id  = document.getElementById('select-turma-nota').value;
-  const aluno_id  = document.getElementById('select-aluno').value;
   const atividade = document.getElementById('input-atividade').value;
   const mes       = document.getElementById('input-mes').value;
   const nota      = document.getElementById('input-nota').value;
   const msg       = document.getElementById('msg-nota');
 
-  if (!turma_id || !aluno_id || !atividade || !mes || !nota) {
+  if (!aluno_id || !turma_id || !atividade || !mes || !nota) {
     msg.style.display = 'block';
     msg.style.background = '#fee2e2';
     msg.style.color = '#dc2626';
     msg.textContent = 'Preencha todos os campos!';
+    setTimeout(() => msg.style.display = 'none', 3000);
     return;
   }
 
@@ -135,20 +188,13 @@ function salvarNota() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  const params = new URLSearchParams(window.location.search);
+  const params     = new URLSearchParams(window.location.search);
   const turmaParam = params.get('turma');
   const alunoParam = params.get('aluno');
 
-  if (turmaParam) {
-    const selectTurma = document.getElementById('select-turma-nota');
-    selectTurma.value = turmaParam;
-    carregarAlunos();
-
-    if (alunoParam) {
-      setTimeout(() => {
-        document.getElementById('select-aluno').value = alunoParam;
-      }, 800);
-    }
+  if (alunoParam) {
+    document.getElementById('aluno-id-nota').value = alunoParam;
+    carregarTurmasDoAluno(alunoParam, turmaParam);
   }
 });
 </script>
