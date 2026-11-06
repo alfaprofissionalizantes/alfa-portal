@@ -634,10 +634,27 @@
 }
 
 .card-rel-icone {
-  font-size: 2.9rem;
-  line-height: 1;
-  margin-bottom: 10px;
+  width: 54px;
+  height: 54px;
+  border-radius: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-bottom: 12px;
+  transition: transform 0.18s;
 }
+
+.card-rel-icone svg { fill: currentColor; }
+
+.card-rel-menu:hover .card-rel-icone { transform: scale(1.08); }
+
+.card-rel-icone.azul     { background: #eef2ff; color: #1a3a8f; }
+.card-rel-icone.verde    { background: #f0fdf4; color: #16a34a; }
+.card-rel-icone.roxo     { background: #faf5ff; color: #7c3aed; }
+.card-rel-icone.ciano    { background: #ecfeff; color: #0891b2; }
+.card-rel-icone.laranja  { background: #fff7ed; color: #ea580c; }
+.card-rel-icone.vermelho { background: #fef2f2; color: #dc2626; }
 
 .card-rel-menu h3 {
   font-size: 1.25rem;
@@ -680,7 +697,7 @@
 @media (max-width: 620px) {
   .menu-rel-grid { grid-template-columns: 1fr; gap: 14px; }
   .card-rel-menu { min-height: auto; padding: 24px 22px; }
-  .card-rel-icone { font-size: 2.3rem; }
+  .card-rel-icone { width: 46px; height: 46px; border-radius: 13px; }
 }
 
 .btn-acao.amarelo {

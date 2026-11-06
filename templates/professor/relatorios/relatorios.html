@@ -18,33 +18,62 @@
   <div class="menu-rel-grid" id="menu-relatorios">
     {% if session.cargo and session.cargo.lower() == 'admin' %}
     <div class="card-rel-menu" onclick="abrirRelatorio('dados')">
-      <span class="card-rel-icone">📈</span>
+      <span class="card-rel-icone azul">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M5 9.2h3V19H5zM10.6 5h2.8v14h-2.8zm5.6 8H19v6h-2.8z"/>
+        </svg>
+      </span>
       <h3>Dados Gerais</h3>
       <p>Resumo consolidado de métricas e estatísticas da plataforma.</p>
     </div>
     {% endif %}
+
     <div class="card-rel-menu" onclick="abrirRelatorio('frequencia')">
-      <span class="card-rel-icone">📊</span>
+      <span class="card-rel-icone verde">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M17 12l-5 5-3-3 1.4-1.4 1.6 1.6 3.6-3.6L17 12zM19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11z"/>
+        </svg>
+      </span>
       <h3>Frequência</h3>
       <p>Relatórios detalhados de presença diária e mensal das turmas.</p>
     </div>
+
     <div class="card-rel-menu" onclick="abrirRelatorio('notas')">
-      <span class="card-rel-icone">📝</span>
+      <span class="card-rel-icone roxo">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+        </svg>
+      </span>
       <h3>Notas</h3>
       <p>Acompanhamento de avaliações, médias e desempenho acadêmico.</p>
     </div>
+
     <div class="card-rel-menu" onclick="abrirRelatorio('aluno')">
-      <span class="card-rel-icone">🎓</span>
+      <span class="card-rel-icone ciano">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+        </svg>
+      </span>
       <h3>Notas Por Aluno</h3>
       <p>Visualização individualizada do histórico de notas de cada estudante.</p>
     </div>
+
     <div class="card-rel-menu" onclick="abrirRelatorio('turmas')">
-      <span class="card-rel-icone">🏫</span>
+      <span class="card-rel-icone laranja">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+        </svg>
+      </span>
       <h3>Turmas do Aluno</h3>
       <p>Lista de turmas e horários onde o aluno está matriculado.</p>
     </div>
+
     <div class="card-rel-menu" onclick="abrirRelatorio('faltasaluno')">
-      <span class="card-rel-icone">🚫</span>
+      <span class="card-rel-icone vermelho">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+          <path d="M9.31 17l2.44-2.44L14.19 17l1.06-1.06-2.44-2.44 2.44-2.44L14.19 10l-2.44 2.44L9.31 10l-1.06 1.06 2.44 2.44-2.44 2.44L9.31 17zM19 3h-1V1h-2v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm0 16H5V8h14v11z"/>
+        </svg>
+      </span>
       <h3>Faltas por Aluno</h3>
       <p>Histórico detalhado das ausências, presenças e reposições.</p>
     </div>
