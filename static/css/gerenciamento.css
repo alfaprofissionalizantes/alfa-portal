@@ -6,7 +6,7 @@
   display: flex;
   flex-direction: column;
   gap: 20px;
-  max-width: 900px;
+  max-width: 1120px;
 }
 
 /* ===== Abas ===== */
@@ -72,26 +72,75 @@
 /* ===== Grid de cursos ===== */
 .grid-cursos {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 12px;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
 }
 
 .card-curso-ger {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  padding: 24px 16px;
+  align-items: flex-start;
+  gap: 14px;
+  min-height: 210px;
+  padding: 28px 26px;
   background: #ffffff;
   border: 1px solid #e8eef8;
-  border-radius: 14px;
-  font-size: 0.9rem;
-  font-weight: 600;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(26, 58, 143, 0.07);
   color: #1a1a2e;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
 }
 
-.card-curso-ger svg { color: #1a3a8f; }
+.curso-ger-icone {
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.18s;
+}
+
+.curso-ger-icone svg { fill: currentColor; }
+
+.curso-ger-icone.azul     { background: #eef2ff; color: #1a3a8f; }
+.curso-ger-icone.vermelho { background: #fef2f2; color: #ef4444; }
+.curso-ger-icone.laranja  { background: #fff7ed; color: #ea580c; }
+.curso-ger-icone.roxo     { background: #faf5ff; color: #7c3aed; }
+.curso-ger-icone.amarelo  { background: #fffdf3; color: #d4a017; }
+.curso-ger-icone.cinza    { background: #f1f5f9; color: #475569; }
+
+.curso-ger-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.curso-ger-texto h4 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.curso-ger-texto p {
+  font-size: 0.86rem;
+  color: #64748b;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.curso-ger-seta {
+  margin-top: auto;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #1a3a8f;
+}
+
+@media (max-width: 620px) {
+  .grid-cursos { grid-template-columns: 1fr; gap: 14px; }
+  .card-curso-ger { min-height: auto; padding: 22px 20px; }
+}
 
 /* ===== Lista genérica ===== */
 .lista-ger {
@@ -441,15 +490,15 @@ a.card-curso-ger {
   color: #1a1a2e;
   cursor: pointer;
   transition: box-shadow 0.2s, transform 0.15s, border-color 0.2s;
-  border: 1px solid #e8eef8;
 }
 
 a.card-curso-ger:hover {
   border-color: #1a3a8f;
-  box-shadow: 0 4px 16px rgba(26,58,143,0.12);
-  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(26, 58, 143, 0.16);
+  transform: translateY(-3px);
 }
 
+a.card-curso-ger:hover .curso-ger-icone { transform: scale(1.08); }
 /* ===== Card de turma link ===== */
 .card-ger-link {
   text-decoration: none;
