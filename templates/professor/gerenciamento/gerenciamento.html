@@ -26,13 +26,53 @@
     <div class="secao-topo">
       <h3 class="secao-titulo">Cursos cadastrados</h3>
     </div>
+
+    {% set info_cursos = {
+      'Inglês':      {'cor': 'vermelho', 'desc': 'Turmas de idioma, do básico à conversação.'},
+      'Informática': {'cor': 'azul',     'desc': 'Pacote Office, digitação e informática essencial.'},
+      'ENEM':        {'cor': 'laranja',  'desc': 'Preparatório para o ENEM e para vestibulares.'},
+      'Reforço':     {'cor': 'roxo',     'desc': 'Reforço escolar e alfabetização para crianças e jovens.'},
+      'Embraer':     {'cor': 'amarelo',  'desc': 'Preparatório para o processo seletivo da Embraer.'}
+    } %}
+
     <div class="grid-cursos">
       {% for curso in cursos %}
+      {% set info = info_cursos.get(curso.nome, {'cor': 'cinza', 'desc': 'Veja as turmas e horários deste curso.'}) %}
       <a href="{{ url_for('professor.curso_turmas', curso_id=curso.id) }}" class="card-curso-ger">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
-          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
-        </svg>
-        <span>{{ curso.nome }}</span>
+        <span class="curso-ger-icone {{ info.cor }}">
+          {% if curso.nome == 'Inglês' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M12.87 15.07l-2.54-2.51.03-.03A17.52 17.52 0 0 0 14.07 6H17V4h-7V2H8v2H1v2h11.17C11.5 7.92 10.44 9.75 9 11.35 8.07 10.32 7.3 9.19 6.69 8h-2c.73 1.63 1.73 3.17 2.98 4.56l-5.09 5.02L4 19l5-5 3.11 3.11.76-2.04zM18.5 10h-2L12 22h2l1.12-3h4.75L21 22h2l-4.5-12zm-2.62 7l1.62-4.33L19.12 17h-3.24z"/>
+            </svg>
+          {% elif curso.nome == 'Informática' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M20 18c1.1 0 2-.9 2-2V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v10c0 1.1.9 2 2 2H0v2h24v-2h-4zM4 6h16v10H4V6z"/>
+            </svg>
+          {% elif curso.nome == 'ENEM' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M21 5c-1.11-.35-2.33-.5-3.5-.5-1.95 0-4.05.4-5.5 1.5-1.45-1.1-3.55-1.5-5.5-1.5S2.45 4.9 1 6v14.65c0 .25.25.5.5.5.1 0 .15-.05.25-.05C3.1 20.45 5.05 20 6.5 20c1.95 0 4.05.4 5.5 1.5 1.35-.85 3.8-1.5 5.5-1.5 1.65 0 3.35.3 4.75 1.05.1.05.15.05.25.05.25 0 .5-.25.5-.5V6c-.6-.45-1.25-.75-2-1zm0 13.5c-1.1-.35-2.3-.5-3.5-.5-1.7 0-4.15.65-5.5 1.5V8c1.35-.85 3.8-1.5 5.5-1.5 1.2 0 2.4.15 3.5.5v11.5z"/>
+            </svg>
+          {% elif curso.nome == 'Reforço' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/>
+            </svg>
+          {% elif curso.nome == 'Embraer' %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+            </svg>
+          {% else %}
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="28" height="28">
+              <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+            </svg>
+          {% endif %}
+        </span>
+
+        <div class="curso-ger-texto">
+          <h4>{{ curso.nome }}</h4>
+          <p>{{ info.desc }}</p>
+        </div>
+
+        <span class="curso-ger-seta">Ver turmas →</span>
       </a>
       {% endfor %}
     </div>
