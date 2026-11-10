@@ -499,6 +499,8 @@ a.card-curso-ger:hover {
 }
 
 a.card-curso-ger:hover .curso-ger-icone { transform: scale(1.08); }
+
+
 /* ===== Card de turma link ===== */
 .card-ger-link {
   text-decoration: none;
@@ -717,3 +719,15 @@ a.card-curso-ger:hover .curso-ger-icone { transform: scale(1.08); }
   color: #94a3b8;
   font-size: 1.1rem;
 }
+
+/* Tela de turmas do curso: cards ocupam toda a largura disponível */
+.gerenciamento-wrapper.wrapper-largo {
+  max-width: 100%;
+}
+
+.wrapper-largo .card-ger {
+  padding: 18px 26px;
+}
+
+.wrapper-largo .card-ger-titulo { font-size: 1rem; }
+.wrapper-largo .card-ger-sub    { font-size: 0.85rem; }
