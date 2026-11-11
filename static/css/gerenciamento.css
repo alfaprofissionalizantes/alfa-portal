@@ -731,3 +731,29 @@ a.card-curso-ger:hover .curso-ger-icone { transform: scale(1.08); }
 
 .wrapper-largo .card-ger-titulo { font-size: 1rem; }
 .wrapper-largo .card-ger-sub    { font-size: 0.85rem; }
+
+/* ===== Gerenciamento ocupando a largura toda ===== */
+.gerenciamento-wrapper {
+  max-width: 100%;
+  width: 100%;
+}
+
+.painel-aba,
+.secao-topo,
+.lista-ger,
+.filtros-alunos {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* o campo de texto do filtro cresce e ocupa a sobra da linha */
+.filtros-alunos .filtro-input {
+  flex: 1;
+  min-width: 200px;
+  width: auto;
+}
+
+/* cards de turma com mais respiro agora que são largos */
+#painel-turmas .card-ger {
+  padding: 18px 26px;
+}
