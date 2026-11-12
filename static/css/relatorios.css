@@ -886,3 +886,72 @@
     font-size: 0.72rem;
   }
 }
+
+/* ===== Menu de Relatórios: 2x2 em largura total ===== */
+.wrapper-amplo {
+  max-width: 100%;
+  padding-left: 32px;
+  padding-right: 32px;
+}
+
+.wrapper-amplo .menu-rel-grid {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+  gap: 28px;
+}
+
+#menu-relatorios {
+  grid-template-columns: repeat(2, 1fr);
+  grid-auto-rows: 1fr;
+  min-height: calc(100vh - 240px);
+}
+
+/* se o menu tiver 3 cards (professor sem Dados Gerais),
+   o último ocupa a linha inteira em vez de deixar buraco */
+#menu-relatorios .card-rel-menu:last-child:nth-child(odd) {
+  grid-column: span 2;
+}
+
+#menu-relatorios .card-rel-menu {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 18px;
+  min-height: 220px;
+  padding: 44px 36px;
+}
+
+#menu-relatorios .card-rel-icone {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  margin-bottom: 6px;
+}
+
+#menu-relatorios .card-rel-icone svg {
+  width: 42px;
+  height: 42px;
+}
+
+#menu-relatorios .card-rel-menu h3 { font-size: 1.55rem; }
+
+#menu-relatorios .card-rel-menu p {
+  font-size: 1.02rem;
+  line-height: 1.55;
+  max-width: 420px;
+}
+
+@media (max-width: 900px) {
+  #menu-relatorios {
+    grid-template-columns: 1fr;
+    grid-auto-rows: auto;
+    min-height: 0;
+  }
+  #menu-relatorios .card-rel-menu:last-child:nth-child(odd) { grid-column: auto; }
+  #menu-relatorios .card-rel-menu { min-height: auto; padding: 28px 22px; }
+  #menu-relatorios .card-rel-icone { width: 64px; height: 64px; }
+  #menu-relatorios .card-rel-icone svg { width: 32px; height: 32px; }
+  #menu-relatorios .card-rel-menu h3 { font-size: 1.25rem; }
+  .wrapper-amplo { padding-left: 16px; padding-right: 16px; }
+}
