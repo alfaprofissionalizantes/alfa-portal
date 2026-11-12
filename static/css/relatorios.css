@@ -806,3 +806,40 @@
   #menu-notas .card-rel-menu h3 { font-size: 1.25rem; }
   .wrapper-notas { padding-left: 16px; padding-right: 16px; }
 }
+
+
+/* ===== Painéis da tela de Notas ===== */
+#painel-cadastrar,
+#painel-notasturma,
+#painel-notasaluno {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+}
+
+/* cards ocupam toda a largura disponível */
+.wrapper-notas .relatorio-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 32px 36px;
+}
+
+/* aproveita a largura colocando mês e ano lado a lado com mais folga */
+.wrapper-notas .relatorio-linha {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+/* a barra de abas acompanha a largura e fica centralizada */
+.wrapper-notas .abas-relatorio {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .wrapper-notas .relatorio-card { padding: 22px 20px; }
+  .wrapper-notas .relatorio-linha { grid-template-columns: 1fr; }
+}
