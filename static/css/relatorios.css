@@ -740,3 +740,33 @@
   color: #1a3a8f;
   margin-left: 4px;
 }
+
+
+
+/* ===== Menu da tela de Notas: 3 cards preenchendo a altura ===== */
+#menu-notas {
+  min-height: calc(100vh - 240px);
+  grid-auto-rows: 1fr;
+}
+
+#menu-notas .card-rel-menu {
+  min-height: 280px;
+  justify-content: flex-start;
+  gap: 14px;
+}
+
+#menu-notas .card-rel-menu h3 {
+  font-size: 1.35rem;
+}
+
+#menu-notas .card-rel-menu p {
+  font-size: 0.95rem;
+}
+
+@media (max-width: 900px) {
+  #menu-notas {
+    min-height: 0;
+    grid-auto-rows: auto;
+  }
+  #menu-notas .card-rel-menu { min-height: auto; }
+}
