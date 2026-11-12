@@ -843,3 +843,46 @@
   .wrapper-notas .relatorio-card { padding: 22px 20px; }
   .wrapper-notas .relatorio-linha { grid-template-columns: 1fr; }
 }
+
+
+/* ===== Notas por Turma: ajuste no celular ===== */
+@media (max-width: 600px) {
+  #painel-notasturma .relatorio-card {
+    padding: 18px 14px;
+  }
+
+  #painel-notasturma .notas-prof-titulo    { font-size: 1rem; }
+  #painel-notasturma .notas-prof-subtitulo { font-size: 0.75rem; }
+
+  #painel-notasturma .campo-select,
+  #painel-notasturma .campo-input {
+    padding: 9px 11px;
+    font-size: 0.85rem;
+  }
+
+  #painel-notasturma .btn-salvar-nota-prof {
+    padding: 11px;
+    font-size: 0.88rem;
+  }
+
+  #painel-notasturma .relatorio-resultado-header {
+    padding: 12px 14px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  #painel-notasturma .relatorio-tabela { font-size: 0.78rem; }
+
+  #painel-notasturma .relatorio-tabela th {
+    padding: 8px 10px;
+    font-size: 0.66rem;
+    letter-spacing: 0.3px;
+  }
+
+  #painel-notasturma .relatorio-tabela td { padding: 9px 10px; }
+
+  #painel-notasturma .btn-acao {
+    padding: 5px 9px;
+    font-size: 0.72rem;
+  }
+}
