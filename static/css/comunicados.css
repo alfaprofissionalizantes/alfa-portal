@@ -473,3 +473,46 @@
   color: #1a3a8f;
   border: 1px solid #c7d2fe;
 }
+
+
+/* ===== Comunicados do professor: mais largo e em 2 colunas ===== */
+.comunicados-prof-topo,
+.comunicados-prof-card {
+  max-width: 1100px;
+}
+
+.comunicados-prof-card .comunicados-cabecalho {
+  padding: 22px 26px;
+}
+
+.comunicados-prof-card .comunicados-titulo {
+  font-size: 1.1rem;
+}
+
+.comunicados-prof-card .lista-comunicados {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(440px, 1fr));
+  gap: 10px;
+  padding: 14px;
+}
+
+.comunicados-prof-card .card-comunicado {
+  padding: 16px 18px;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.comunicados-prof-card .comunicado-titulo {
+  font-size: 0.96rem;
+}
+
+.comunicados-prof-card .comunicado-rodape {
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+@media (max-width: 1000px) {
+  .comunicados-prof-card .lista-comunicados {
+    grid-template-columns: 1fr;
+  }
+}
