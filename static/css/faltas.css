@@ -1255,7 +1255,7 @@ x
 #card-selecao,
 #card-calendario,
 #card-chamada {
-  max-width: 100%;
+  max-width: 1000px;
   padding: 28px 32px;
 }
 
