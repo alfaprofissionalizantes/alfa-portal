@@ -1245,3 +1245,29 @@ x
 
 
 
+/* ===== Faltas: cards em largura total ===== */
+.faltas-prof-wrapper {
+  padding-left: 32px;
+  padding-right: 32px;
+  box-sizing: border-box;
+}
+
+#card-selecao,
+#card-calendario,
+#card-chamada {
+  max-width: 100%;
+  padding: 28px 32px;
+}
+
+@media (max-width: 760px) {
+  .faltas-prof-wrapper {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  #card-selecao,
+  #card-calendario,
+  #card-chamada {
+    padding: 20px 16px;
+  }
+}
