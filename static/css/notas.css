@@ -757,3 +757,26 @@
   letter-spacing: 0.5px;
   font-weight: 600;
 }
+
+
+
+/* ===== Notas do aluno: cards de mês em largura total ===== */
+.notas-aluno-wrapper {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.notas-aluno-wrapper .lista-meses-aluno {
+  width: 100%;
+  max-width: 100%;
+}
+
+.notas-aluno-wrapper .card-mes-aluno {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.notas-aluno-wrapper .card-mes-aluno .card-mes-esquerda {
+  flex: 1;
+}
