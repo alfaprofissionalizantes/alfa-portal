@@ -955,3 +955,59 @@
   #menu-relatorios .card-rel-menu h3 { font-size: 1.25rem; }
   .wrapper-amplo { padding-left: 16px; padding-right: 16px; }
 }
+
+
+/* ===== Relatórios: padroniza a largura dos 4 painéis ===== */
+
+/* painéis que ficam dentro da .relatorios-wrapper */
+.wrapper-amplo .relatorio-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 30px 34px;
+}
+
+/* os cards de Dados Gerais têm max-width no próprio HTML */
+#painel-dados .relatorio-card {
+  max-width: 100% !important;
+}
+
+/* painéis que ficam fora da wrapper */
+#painel-turmas,
+#painel-faltasaluno {
+  max-width: 100%;
+  padding: 0 32px 32px;
+  box-sizing: border-box;
+}
+
+#painel-turmas .relatorio-card,
+#painel-faltasaluno .relatorio-card {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 30px 34px;
+}
+
+/* o card expansível tem o padding no summary, não nele */
+#painel-dados .card-expansivel {
+  padding: 0;
+}
+
+/* a barra de abas acompanha a largura */
+.wrapper-amplo .abas-relatorio {
+  width: 100%;
+  justify-content: center;
+}
+
+@media (max-width: 900px) {
+  .wrapper-amplo .relatorio-card,
+  #painel-turmas .relatorio-card,
+  #painel-faltasaluno .relatorio-card {
+    padding: 22px 18px;
+  }
+
+  #painel-turmas,
+  #painel-faltasaluno {
+    padding: 0 14px 20px;
+  }
+}
