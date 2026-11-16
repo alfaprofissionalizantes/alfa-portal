@@ -388,3 +388,22 @@ body.painel {
 .btn-trocar-foto:hover {
   transform: scale(1.1);
 }
+
+/* ===== Portal do aluno: botão Sair acessível no celular ===== */
+@media (max-width: 768px) {
+  .painel-aluno .sidebar {
+    min-height: 100dvh;
+    max-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  /* o menu deixa de esticar, então o Sair sobe logo abaixo dos links */
+  .painel-aluno .sidebar-nav {
+    flex: 0 0 auto;
+  }
+
+  .painel-aluno .sidebar-rodape {
+    margin-top: 8px;
+    padding-bottom: 20px;
+  }
+}
