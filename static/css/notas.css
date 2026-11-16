@@ -780,3 +780,20 @@
 .notas-aluno-wrapper .card-mes-aluno .card-mes-esquerda {
   flex: 1;
 }
+
+
+/* ===== Notas do aluno: abas Meses e Últimas Notas ===== */
+.notas-aluno-wrapper .abas,
+.notas-aluno-wrapper .painel-aba,
+.notas-aluno-wrapper .lista-meses-aluno,
+.notas-aluno-wrapper .lista-ultimas-aluno {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.notas-aluno-wrapper .card-mes-aluno,
+.notas-aluno-wrapper .card-nota-aluno {
+  width: 100%;
+  box-sizing: border-box;
+}
