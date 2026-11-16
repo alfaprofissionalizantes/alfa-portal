@@ -757,3 +757,39 @@ a.card-curso-ger:hover .curso-ger-icone { transform: scale(1.08); }
 #painel-turmas .card-ger {
   padding: 18px 26px;
 }
+
+
+/* ===== Cursos: 3 em cima, 2 embaixo dividindo a largura ===== */
+.grid-cursos {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 20px;
+}
+
+.grid-cursos .card-curso-ger {
+  grid-column: span 2;
+}
+
+/* com 5 cursos, os dois últimos ficam com metade da linha cada */
+.grid-cursos .card-curso-ger:nth-child(4):nth-last-child(2),
+.grid-cursos .card-curso-ger:nth-child(5):nth-last-child(1) {
+  grid-column: span 3;
+}
+
+@media (max-width: 1000px) {
+  .grid-cursos .card-curso-ger,
+  .grid-cursos .card-curso-ger:nth-child(4):nth-last-child(2),
+  .grid-cursos .card-curso-ger:nth-child(5):nth-last-child(1) {
+    grid-column: span 3;
+  }
+}
+
+@media (max-width: 620px) {
+  .grid-cursos { gap: 14px; }
+
+  .grid-cursos .card-curso-ger,
+  .grid-cursos .card-curso-ger:nth-child(4):nth-last-child(2),
+  .grid-cursos .card-curso-ger:nth-child(5):nth-last-child(1) {
+    grid-column: span 6;
+  }
+}
