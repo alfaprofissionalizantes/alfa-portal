@@ -797,3 +797,39 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+
+/* ===== Notas do mês (aluno): cor por desempenho ===== */
+.card-nota .valor.nota-boa,
+.card-media .valor.nota-boa {
+  color: #16a34a;
+}
+
+.card-nota .valor.nota-baixa,
+.card-media .valor.nota-baixa {
+  color: #dc2626;
+}
+
+.card-nota-valor:has(.nota-boa) small   { color: #16a34a; opacity: 0.75; }
+.card-nota-valor:has(.nota-baixa) small { color: #dc2626; opacity: 0.75; }
+
+/* a média ganha destaque no card inteiro */
+.card-media.media-boa {
+  background: #f0fdf4;
+  border: 1px solid #86efac;
+}
+
+.card-media.media-baixa {
+  background: #fef2f2;
+  border: 1px solid #fca5a5;
+}
+
+.card-media.media-baixa .media-label {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.card-media.media-boa .media-label {
+  color: #16a34a;
+  font-weight: 700;
+}
