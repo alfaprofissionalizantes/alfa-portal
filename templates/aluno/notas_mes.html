@@ -45,17 +45,17 @@
           </p>
         </div>
         <div class="card-nota-valor">
-          <span class="valor">{{ nota.valor }}</span>
+          <span class="valor {{ 'nota-baixa' if nota.valor|float < 6 else 'nota-boa' }}">{{ nota.valor }}</span>
           <small>NOTA</small>
         </div>
       </div>
       {% endfor %}
 
       <!-- Média final -->
-      <div class="card-media">
+      <div class="card-media {{ 'media-baixa' if media|float < 6 else 'media-boa' }}">
         <span class="media-label">MÉDIA FINAL DO MÊS</span>
         <div class="card-nota-valor">
-          <span class="valor media-valor">{{ media }}</span>
+          <span class="valor media-valor {{ 'nota-baixa' if media|float < 6 else 'nota-boa' }}">{{ media }}</span>
           <small>MÉDIA</small>
         </div>
       </div>
