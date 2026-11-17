@@ -801,7 +801,47 @@
 
 {% endblock %}
 
+
 {% block script %}
 <script src="{{ url_for('static', filename='js/gerenciamento.js') }}"></script>
 <script src="{{ url_for('static', filename='js/cadastro_aluno.js') }}"></script>
+
+<script>
+/* Mostra a tela de carregando enquanto houver requisição em andamento
+   (modais de editar turma, aluno, professor, adicionar em turmas, etc.) */
+(function () {
+  const tela = document.getElementById('tela-carregando');
+  if (!tela || !window.fetch) return;
+
+  const fetchOriginal = window.fetch;
+  let pendentes = 0;
+  let timer = null;
+
+  function mostrar() {
+    clearTimeout(timer);
+    // só aparece se demorar mais de 150ms, pra não piscar em resposta rápida
+    timer = setTimeout(() => {
+      if (pendentes > 0) tela.classList.remove('oculto');
+    }, 150);
+  }
+
+  function esconder() {
+    clearTimeout(timer);
+    tela.classList.add('oculto');
+  }
+
+  window.fetch = function (...args) {
+    pendentes++;
+    mostrar();
+
+    return fetchOriginal.apply(this, args).finally(() => {
+      pendentes--;
+      if (pendentes <= 0) {
+        pendentes = 0;
+        esconder();
+      }
+    });
+  };
+})();
+</script>
 {% endblock %}
