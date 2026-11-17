@@ -409,4 +409,11 @@ body.painel {
   }
 }
 
+/* Portal do aluno: botão Sair logo abaixo do menu, em qualquer tela */
+.painel-aluno .sidebar-nav {
+  flex: 0 0 auto;
+}
 
+.painel-aluno .sidebar-rodape {
+  margin-top: 8px;
+}
