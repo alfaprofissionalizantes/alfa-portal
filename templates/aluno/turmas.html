@@ -1,0 +1,78 @@
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+
+{% extends "aluno/base_aluno.html" %}
+
+{% block titulo %}Minhas Turmas{% endblock %}
+{% block pagina_titulo %}Minhas Turmas{% endblock %}
+
+{% block estilo %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/turmas.css') }}">
+{% endblock %}
+
+{% block conteudo %}
+
+<div class="turmas-aluno-wrapper">
+
+  <div class="turmas-cabecalho">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="22" height="22">
+      <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+    </svg>
+    <div>
+      <h2 class="turmas-titulo">Minhas turmas</h2>
+      <p class="turmas-subtitulo">Clique em uma turma para ver os colegas.</p>
+    </div>
+  </div>
+
+  {% if turmas %}
+  <div class="lista-turmas-aluno">
+    {% for t in turmas %}
+    <a href="{{ url_for('aluno.turma_colegas', turma_id=t.id) }}" class="card-turma-aluno">
+
+      <div class="turma-faixa"></div>
+
+      <div class="turma-corpo">
+        <div class="turma-cabecalho-card">
+          <h3 class="turma-curso">{{ t.curso }}</h3>
+          <span class="turma-badge">{{ t.total_alunos }} aluno{{ 's' if t.total_alunos != 1 else '' }}</span>
+        </div>
+
+        <p class="turma-nome-aluno">{{ t.turma }}</p>
+
+        <div class="turma-linhas">
+          <p class="turma-linha">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
+            </svg>
+            {{ t.dias_semana }} — {{ t.horario }}
+            {% if t.periodo %}<span class="turma-periodo">{{ t.periodo }}</span>{% endif %}
+          </p>
+
+          <p class="turma-linha">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"/>
+            </svg>
+            {{ t.professores or 'Professor não definido' }}
+          </p>
+
+          {% if t.data_entrada %}
+          <p class="turma-linha turma-entrada">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="14" height="14">
+              <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
+            </svg>
+            Nesta turma desde {{ t.data_entrada }}
+          </p>
+          {% endif %}
+        </div>
+      </div>
+
+      <span class="turma-seta">›</span>
+    </a>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="vazio-turmas">Você ainda não está em nenhuma turma. Procure a secretaria da escola.</p>
+  {% endif %}
+
+</div>
+
+{% endblock %}
