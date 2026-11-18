@@ -39,6 +39,7 @@ def home():
 @login_required
 def notas():
     aluno_id = session['id']
+    marcar_lido(aluno_id, 'notas')
 
     conn = create_connection()
     cur  = get_cursor(conn)
@@ -99,6 +100,7 @@ def notas_mes(mes):
 @login_required
 def faltas():
     aluno_id = session['id']
+    marcar_lido(aluno_id, 'faltas')
 
     conn = create_connection()
     cur  = get_cursor(conn)
@@ -148,6 +150,7 @@ def faltas():
 @login_required
 def comentarios():
     aluno_id = session['id']
+    marcar_lido(aluno_id, 'comunicados')
 
     conn = create_connection()
     cur  = get_cursor(conn)
@@ -356,3 +359,57 @@ def turma_colegas(turma_id):
 
     return render_template('aluno/turma_colegas.html',
         turma=turma, colegas=colegas, meu_id=aluno_id)
+
+
+
+def marcar_lido(aluno_id, secao):
+    """Registra que o aluno acabou de ver esta seção."""
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        INSERT INTO portal_aluno_leitura (aluno_id, secao, lido_em)
+        VALUES (%s, %s, NOW())
+        ON DUPLICATE KEY UPDATE lido_em = NOW()
+    """, (aluno_id, secao))
+    conn.commit()
+    cur.close()
+    conn.close()
+
+
+@aluno_bp.context_processor
+def injetar_badges():
+    """Conta o que é novo desde a última visita, para a bolinha da sidebar."""
+    aluno_id = session.get('id')
+    if not aluno_id:
+        return {}
+
+    try:
+        conn = create_connection()
+        cur  = get_cursor(conn)
+        cur.execute("""
+            SELECT
+              (SELECT COUNT(*) FROM portal_notas n
+                WHERE n.aluno_id = %s
+                  AND n.criado_em > COALESCE(
+                      (SELECT lido_em FROM portal_aluno_leitura
+                        WHERE aluno_id = %s AND secao = 'notas'), '2000-01-01')
+              ) AS notas,
+              (SELECT COUNT(*) FROM portal_chamadas c
+                WHERE c.aluno_id = %s AND c.status = 'F'
+                  AND c.criado_em > COALESCE(
+                      (SELECT lido_em FROM portal_aluno_leitura
+                        WHERE aluno_id = %s AND secao = 'faltas'), '2000-01-01')
+              ) AS faltas,
+              (SELECT COUNT(*) FROM portal_comunicados m
+                WHERE m.aluno_id = %s
+                  AND m.criado_em > COALESCE(
+                      (SELECT lido_em FROM portal_aluno_leitura
+                        WHERE aluno_id = %s AND secao = 'comunicados'), '2000-01-01')
+              ) AS comunicados
+        """, (aluno_id, aluno_id, aluno_id, aluno_id, aluno_id, aluno_id))
+        b = cur.fetchone()
+        cur.close()
+        conn.close()
+        return {'badges': b}
+    except Exception:
+        return {'badges': None}

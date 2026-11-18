@@ -163,6 +163,9 @@
           <path d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2zm-7 3a3 3 0 1 1 0 6 3 3 0 0 1 0-6zm6 12H6v-.5c0-2 4-3.1 6-3.1s6 1.1 6 3.1V18z"/>
         </svg>
         Notas
+        {% if badges and badges.notas %}
+        <span class="nav-badge">{{ badges.notas if badges.notas < 10 else '9+' }}</span>
+        {% endif %}
       </a>
 
       <a href="{{ url_for('aluno.faltas') }}"
@@ -171,6 +174,9 @@
           <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
         </svg>
         Faltas
+        {% if badges and badges.faltas %}
+        <span class="nav-badge">{{ badges.faltas if badges.faltas < 10 else '9+' }}</span>
+        {% endif %}
       </a>
 
       <a href="{{ url_for('aluno.turmas') }}"
@@ -187,6 +193,9 @@
           <path d="M20 2H4a2 2 0 0 0-2 2v18l4-4h14a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2z"/>
         </svg>
         Comunicados
+        {% if badges and badges.comunicados %}
+        <span class="nav-badge">{{ badges.comunicados if badges.comunicados < 10 else '9+' }}</span>
+        {% endif %}
       </a>
     </nav>
 
