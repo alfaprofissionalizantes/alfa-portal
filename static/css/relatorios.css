@@ -1017,3 +1017,49 @@
   width: 100%;
   box-sizing: border-box;
 }
+
+
+/* ===== Telas baixas (notebook 768px de altura) ===== */
+@media (max-height: 820px) and (min-width: 769px) {
+  #menu-notas,
+  #menu-relatorios {
+    min-height: 0;
+  }
+
+  #menu-notas .card-rel-menu,
+  #menu-relatorios .card-rel-menu {
+    min-height: 190px;
+    padding: 26px 24px;
+    gap: 12px;
+  }
+
+  #menu-notas .card-rel-icone,
+  #menu-relatorios .card-rel-icone {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    margin-bottom: 2px;
+  }
+
+  #menu-notas .card-rel-icone svg,
+  #menu-relatorios .card-rel-icone svg {
+    width: 30px;
+    height: 30px;
+  }
+
+  #menu-notas .card-rel-menu h3,
+  #menu-relatorios .card-rel-menu h3 { font-size: 1.2rem; }
+
+  #menu-notas .card-rel-menu p,
+  #menu-relatorios .card-rel-menu p { font-size: 0.88rem; line-height: 1.45; }
+
+  .wrapper-notas .relatorio-card,
+  .wrapper-amplo .relatorio-card,
+  #painel-turmas .relatorio-card,
+  #painel-faltasaluno .relatorio-card {
+    padding: 20px 24px;
+  }
+
+  .relatorio-card .notas-prof-header   { padding-bottom: 12px; }
+  .relatorio-card .btn-salvar-nota-prof { padding: 11px; }
+}

@@ -417,3 +417,33 @@ body.painel {
 .sidebar-rodape {
   margin-top: 8px;
 }
+
+
+/* ===== Telas baixas (notebook 768px de altura) ===== */
+@media (max-height: 820px) and (min-width: 769px) {
+  .sidebar-topo {
+    padding: 14px 14px 12px;
+    gap: 8px;
+  }
+
+  .sidebar-logo   { width: 48px; height: 48px; }
+  .sidebar-avatar { width: 48px; height: 48px; }
+  .avatar-placeholder { font-size: 1.2rem; }
+
+  .btn-trocar-foto {
+    width: 26px;
+    height: 26px;
+    margin: -12px auto 6px;
+    font-size: 0.75rem;
+  }
+
+  .sidebar-nome    { font-size: 0.82rem; }
+  .sidebar-detalhe { font-size: 0.7rem; line-height: 1.45; }
+
+  .sidebar-nav { padding: 10px; gap: 2px; }
+  .nav-item    { padding: 9px 12px; font-size: 0.85rem; }
+
+  .pagina-header { padding: 10px 20px; }
+  .pagina-titulo { font-size: 1rem; }
+  .pagina-corpo  { padding: 18px 20px; }
+}
