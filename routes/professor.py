@@ -2256,3 +2256,79 @@ def faltas_do_aluno(aluno_id):
         'total_repostas': total_repostas,
         'total_presencas': total_presencas
     })
+
+
+@professor_bp.route('/chamadas_faltando')
+@login_required
+def chamadas_faltando():
+    import datetime as _dt
+
+    DIAS_PT = {0: 'Segunda', 1: 'Terça', 2: 'Quarta',
+               3: 'Quinta', 4: 'Sexta', 5: 'Sábado', 6: 'Domingo'}
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    cur.execute("""
+        SELECT t.id, t.nome as turma, c.nome as curso,
+               t.dias_semana, t.horario
+        FROM portal_turmas t
+        JOIN portal_cursos c ON c.id = t.curso_id
+        ORDER BY c.nome, t.nome
+    """)
+    turmas = cur.fetchall()
+
+    cur.execute("""
+        SELECT turma_id, data_aula
+        FROM portal_chamadas
+        GROUP BY turma_id, data_aula
+    """)
+    linhas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    feitas = {}
+    for l in linhas:
+        feitas.setdefault(l['turma_id'], set()).add(l['data_aula'])
+
+    hoje = _dt.date.today()
+    cache_feriados = {}
+    resultado = []
+
+    for t in turmas:
+        datas = feitas.get(t['id'])
+        if not datas:
+            continue  # turma sem nenhuma chamada: já aparece no outro card
+
+        dias_turma = [d.strip() for d in (t['dias_semana'] or '').split(',') if d.strip()]
+        if not dias_turma:
+            continue
+
+        inicio = min(datas)
+        faltando = []
+        dia = inicio
+
+        while dia <= hoje:
+            if DIAS_PT[dia.weekday()] in dias_turma:
+                ano = dia.year
+                if ano not in cache_feriados:
+                    cache_feriados[ano] = feriados_nacionais(ano)
+                if dia.strftime('%Y-%m-%d') not in cache_feriados[ano] and dia not in datas:
+                    faltando.append(dia)
+            dia += _dt.timedelta(days=1)
+
+        if faltando:
+            faltando.sort(reverse=True)
+            resultado.append({
+                'curso': t['curso'],
+                'turma': t['turma'],
+                'dias_semana': t['dias_semana'],
+                'horario': t['horario'],
+                'total': len(faltando),
+                'primeira': inicio.strftime('%d/%m/%Y'),
+                'datas': [d.strftime('%d/%m/%Y') for d in faltando[:20]]
+            })
+
+    resultado.sort(key=lambda r: r['total'], reverse=True)
+    return jsonify({'turmas': resultado})
