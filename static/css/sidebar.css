@@ -447,3 +447,22 @@ body.painel {
   .pagina-titulo { font-size: 1rem; }
   .pagina-corpo  { padding: 18px 20px; }
 }
+
+
+/* ===== Bolinha de novidade na sidebar ===== */
+.nav-badge {
+  margin-left: auto;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 6px;
+  border-radius: 20px;
+  background: #dc2626;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.25);
+}
