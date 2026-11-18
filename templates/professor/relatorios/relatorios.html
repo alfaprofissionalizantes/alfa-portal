@@ -164,6 +164,32 @@
           </table>
         </div>
       </details>
+
+
+      <details class="relatorio-card card-expansivel" style="max-width:900px;">
+        <summary class="analise-summary">
+          <div>
+            <h4 class="analise-titulo">🕳️ Aulas sem chamada no histórico <span id="faltando-count" class="analise-count"></span></h4>
+            <p class="analise-desc">Dias letivos da turma que ficaram sem chamada, descontando feriados.</p>
+          </div>
+          <span class="seta-expandir">▾</span>
+        </summary>
+        <div class="relatorio-tabela-wrapper">
+          <table class="relatorio-tabela">
+            <thead>
+              <tr>
+                <th>Curso</th>
+                <th>Turma</th>
+                <th>Dias / Horário</th>
+                <th>Sem chamada</th>
+                <th>Datas</th>
+              </tr>
+            </thead>
+            <tbody id="faltando-tbody"></tbody>
+          </table>
+        </div>
+      </details>
+
   </div>
 
   <!-- ===== ABA FREQUÊNCIA ===== -->
@@ -564,7 +590,7 @@ function trocarAbaRel(aba, btn) {
   });
 
   // carrega os dados ao abrir a aba
-    if (aba === 'dados') { carregarDadosGerais(); carregarAnalises(); carregarGraficos(); }
+    if (aba === 'dados') { carregarDadosGerais(); carregarAnalises(); carregarGraficos(); carregarChamadasFaltando(); }
 }
 
 let buscaTurmasTimeout = null;
@@ -820,6 +846,38 @@ function voltarMenuRel() {
 
   document.querySelectorAll('.aba-rel').forEach(b => b.classList.remove('ativa'));
   window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function carregarChamadasFaltando() {
+  fetch('/professor/chamadas_faltando')
+    .then(r => r.json())
+    .then(d => {
+      const el = document.getElementById('faltando-count');
+      if (el) el.textContent = `(${d.turmas.length})`;
+
+      const tbody = document.getElementById('faltando-tbody');
+      if (!tbody) return;
+
+      if (d.turmas.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#94a3b8;">Nenhuma aula sem chamada. 🎉</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = d.turmas.map(t => {
+        const extras = t.total > t.datas.length
+          ? `<span class="badge-data mais">+${t.total - t.datas.length}</span>`
+          : '';
+        const datas = t.datas.map(x => `<span class="badge-data">${x}</span>`).join('') + extras;
+
+        return `<tr>
+          <td>${t.curso}</td>
+          <td>${t.turma}</td>
+          <td>${t.dias_semana} ${t.horario}</td>
+          <td><strong style="color:#dc2626;">${t.total}</strong></td>
+          <td><div class="lista-datas">${datas}</div></td>
+        </tr>`;
+      }).join('');
+    });
 }
 
 </script>
