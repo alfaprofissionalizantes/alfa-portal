@@ -277,3 +277,82 @@ def enviar_foto():
     return jsonify({'ok': True})
 
 
+@aluno_bp.route('/turmas')
+@login_required
+def turmas():
+    aluno_id = session['id']
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+    cur.execute("""
+        SELECT t.id, t.nome as turma, c.nome as curso,
+               t.dias_semana, t.horario, t.periodo,
+               DATE_FORMAT(at2.data_entrada, '%d/%m/%Y') as data_entrada,
+               GROUP_CONCAT(DISTINCT p.nome ORDER BY p.nome SEPARATOR ', ') as professores,
+               (SELECT COUNT(*)
+                  FROM portal_aluno_turma x
+                  JOIN portal_alunos a2 ON a2.id = x.aluno_id
+                 WHERE x.turma_id = t.id
+                   AND (a2.ativo = 1 OR a2.ativo IS NULL)) as total_alunos
+        FROM portal_aluno_turma at2
+        JOIN portal_turmas t ON t.id = at2.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        LEFT JOIN portal_turma_professores tp ON tp.turma_id = t.id
+        LEFT JOIN portal_professores p ON p.id = tp.professor_id
+        WHERE at2.aluno_id = %s
+        GROUP BY t.id, t.nome, c.nome, t.dias_semana, t.horario, t.periodo, at2.data_entrada
+        ORDER BY
+            FIELD(SUBSTRING_INDEX(t.dias_semana, ',', 1),
+                'Segunda','Terça','Quarta','Quinta','Sexta','Sábado'),
+            t.horario
+    """, (aluno_id,))
+    turmas = cur.fetchall()
+    cur.close()
+    conn.close()
+
+    return render_template('aluno/turmas.html', turmas=turmas)
+
+
+@aluno_bp.route('/turmas/<int:turma_id>')
+@login_required
+def turma_colegas(turma_id):
+    aluno_id = session['id']
+
+    conn = create_connection()
+    cur  = get_cursor(conn)
+
+    # só devolve a turma se o aluno logado realmente estiver nela
+    cur.execute("""
+        SELECT t.id, t.nome as turma, c.nome as curso,
+               t.dias_semana, t.horario, t.periodo,
+               GROUP_CONCAT(DISTINCT p.nome ORDER BY p.nome SEPARATOR ', ') as professores
+        FROM portal_aluno_turma at2
+        JOIN portal_turmas t ON t.id = at2.turma_id
+        JOIN portal_cursos c ON c.id = t.curso_id
+        LEFT JOIN portal_turma_professores tp ON tp.turma_id = t.id
+        LEFT JOIN portal_professores p ON p.id = tp.professor_id
+        WHERE at2.aluno_id = %s AND t.id = %s
+        GROUP BY t.id, t.nome, c.nome, t.dias_semana, t.horario, t.periodo
+    """, (aluno_id, turma_id))
+    turma = cur.fetchone()
+
+    if not turma:
+        cur.close()
+        conn.close()
+        return redirect(url_for('aluno.turmas'))
+
+    cur.execute("""
+        SELECT a.id, a.nome, a.foto
+        FROM portal_aluno_turma at2
+        JOIN portal_alunos a ON a.id = at2.aluno_id
+        WHERE at2.turma_id = %s
+          AND (a.ativo = 1 OR a.ativo IS NULL)
+        ORDER BY a.nome
+    """, (turma_id,))
+    colegas = cur.fetchall()
+
+    cur.close()
+    conn.close()
+
+    return render_template('aluno/turma_colegas.html',
+        turma=turma, colegas=colegas, meu_id=aluno_id)

@@ -1,0 +1,88 @@
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/logo.png') }}">
+
+{% extends "aluno/base_aluno.html" %}
+
+{% block titulo %}{{ turma.curso }} — Colegas{% endblock %}
+{% block pagina_titulo %}Minhas Turmas{% endblock %}
+
+{% block estilo %}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/turmas.css') }}">
+{% endblock %}
+
+{% block conteudo %}
+
+<div class="turmas-aluno-wrapper">
+
+  <a href="{{ url_for('aluno.turmas') }}" class="btn-voltar-turmas">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+      <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+    </svg>
+    Voltar para minhas turmas
+  </a>
+
+  <div class="turma-detalhe-card">
+    <div class="turma-detalhe-topo">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="26" height="26">
+        <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+      </svg>
+      <div>
+        <h2 class="turma-detalhe-curso">{{ turma.curso }}</h2>
+        <p class="turma-detalhe-nome">{{ turma.turma }}</p>
+      </div>
+    </div>
+
+    <div class="turma-detalhe-infos">
+      <div class="info-bloco">
+        <span class="info-rotulo">Dias e horário</span>
+        <span class="info-valor">{{ turma.dias_semana }} — {{ turma.horario }}</span>
+      </div>
+
+      {% if turma.periodo %}
+      <div class="info-bloco">
+        <span class="info-rotulo">Período</span>
+        <span class="info-valor">{{ turma.periodo }}</span>
+      </div>
+      {% endif %}
+
+      <div class="info-bloco">
+        <span class="info-rotulo">Professor(es)</span>
+        <span class="info-valor">{{ turma.professores or '—' }}</span>
+      </div>
+
+      <div class="info-bloco">
+        <span class="info-rotulo">Alunos</span>
+        <span class="info-valor">{{ colegas|length }}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="colegas-cabecalho">
+    <h3 class="colegas-titulo">Colegas de turma</h3>
+    <span class="colegas-contagem">{{ colegas|length }}</span>
+  </div>
+
+  {% if colegas %}
+  <div class="grade-colegas">
+    {% for c in colegas %}
+    <div class="card-colega {% if c.id == meu_id %}sou-eu{% endif %}">
+      {% if c.foto %}
+      <img src="{{ c.foto }}" alt="" class="colega-foto"/>
+      {% else %}
+      <div class="colega-inicial">{{ c.nome[0] | upper }}</div>
+      {% endif %}
+
+      <p class="colega-nome">{{ c.nome | title }}</p>
+
+      {% if c.id == meu_id %}
+      <span class="selo-voce">você</span>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <p class="vazio-turmas">Nenhum aluno nesta turma ainda.</p>
+  {% endif %}
+
+</div>
+
+{% endblock %}

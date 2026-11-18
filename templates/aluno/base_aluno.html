@@ -119,6 +119,7 @@
 
 
 <body class="painel painel-aluno">
+  
   <!-- ===== SIDEBAR ===== -->
   <aside class="sidebar" id="sidebar">
 
@@ -170,6 +171,14 @@
           <path d="M17 12h-5v5h5v-5zM16 1v2H8V1H6v2H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-1V1h-2zm3 18H5V8h14v11z"/>
         </svg>
         Faltas
+      </a>
+
+      <a href="{{ url_for('aluno.turmas') }}"
+         class="nav-item {% if 'turma' in request.endpoint %}ativo{% endif %}">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+          <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3zM5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+        </svg>
+        Minhas Turmas
       </a>
 
       <a href="{{ url_for('aluno.comentarios') }}"
