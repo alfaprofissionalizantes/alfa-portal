@@ -833,3 +833,18 @@
   color: #16a34a;
   font-weight: 700;
 }
+
+
+/* ===== Abas de Notas (aluno) com largura igual ===== */
+.notas-aluno-wrapper .abas {
+  display: flex;
+  width: 100%;
+}
+
+.notas-aluno-wrapper .aba {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
