@@ -14,6 +14,15 @@
 
 <div class="faltas-aluno-wrapper">
 
+  <div class="seletor-ano">
+    <label class="seletor-ano-label" for="select-ano">Ano letivo</label>
+    <select class="seletor-ano-select" id="select-ano" onchange="trocarAno(this.value)">
+      {% for a in anos %}
+      <option value="{{ a }}" {% if a == ano %}selected{% endif %}>{{ a }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
   <p class="instrucao">Selecione um mês para visualizar suas faltas.</p>
 
   <div class="lista-meses-faltas-aluno">
@@ -73,4 +82,11 @@
 
 {% block script %}
 <script src="{{ url_for('static', filename='js/faltas.js') }}"></script>
+<script>
+function trocarAno(ano) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('ano', ano);
+  window.location.href = url.toString();
+}
+</script>
 {% endblock %}

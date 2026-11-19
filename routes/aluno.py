@@ -21,6 +21,28 @@ NOMES_MESES = {
     9: 'Setembro', 10: 'Outubro', 11: 'Novembro', 12: 'Dezembro'
 }
 
+
+def anos_do_aluno(cur, aluno_id):
+    """Anos em que o aluno tem nota ou chamada, mais o ano atual."""
+    cur.execute("""
+        SELECT ano FROM portal_notas WHERE aluno_id = %s AND ano IS NOT NULL
+        UNION
+        SELECT YEAR(data_aula) FROM portal_chamadas WHERE aluno_id = %s
+        UNION
+        SELECT YEAR(NOW())
+    """, (aluno_id, aluno_id))
+    return sorted({r['ano'] for r in cur.fetchall() if r['ano']}, reverse=True)
+
+
+def ano_selecionado(anos):
+    """Lê ?ano= da URL; se vier vazio ou inválido, usa o mais recente."""
+    try:
+        ano = int(flask_request.args.get('ano', ''))
+    except (TypeError, ValueError):
+        ano = None
+    return ano if ano in anos else (anos[0] if anos else None)
+
+
 def login_required(f):
     from functools import wraps
     @wraps(f)
@@ -44,22 +66,25 @@ def notas():
     conn = create_connection()
     cur  = get_cursor(conn)
 
+    anos = anos_do_aluno(cur, aluno_id)
+    ano  = ano_selecionado(anos)
+
     cur.execute("""
         SELECT mes, COUNT(*) as qtd
         FROM portal_notas
-        WHERE aluno_id = %s AND ano = YEAR(NOW())
+        WHERE aluno_id = %s AND ano = %s
         GROUP BY mes
-    """, (aluno_id,))
+    """, (aluno_id, ano))
     notas_por_mes_raw = cur.fetchall()
 
     cur.execute("""
         SELECT nome_atividade, mes, ano, valor,
                DATE_FORMAT(criado_em, '%d/%m/%Y') as data
         FROM portal_notas
-        WHERE aluno_id = %s
+        WHERE aluno_id = %s AND ano = %s
         ORDER BY criado_em DESC
         LIMIT 10
-    """, (aluno_id,))
+    """, (aluno_id, ano))
     ultimas = cur.fetchall()
     cur.close()
     conn.close()
@@ -69,8 +94,11 @@ def notas():
     return render_template('aluno/notas.html',
         notas_por_mes=notas_por_mes,
         ultimas=ultimas,
-        nomes_meses=NOMES_MESES
+        nomes_meses=NOMES_MESES,
+        anos=anos,
+        ano=ano
     )
+
 
 @aluno_bp.route('/notas/<int:mes>')
 @login_required
@@ -80,13 +108,17 @@ def notas_mes(mes):
 
     conn = create_connection()
     cur  = get_cursor(conn)
+
+    anos = anos_do_aluno(cur, aluno_id)
+    ano  = ano_selecionado(anos)
+
     cur.execute("""
         SELECT nome_atividade as nome, valor,
                DATE_FORMAT(criado_em, '%d/%m/%Y') as data
         FROM portal_notas
-        WHERE aluno_id = %s AND mes = %s AND ano = YEAR(NOW())
+        WHERE aluno_id = %s AND mes = %s AND ano = %s
         ORDER BY criado_em DESC
-    """, (aluno_id, mes))
+    """, (aluno_id, mes, ano))
     notas = cur.fetchall()
     cur.close()
     conn.close()
@@ -94,7 +126,8 @@ def notas_mes(mes):
     media = round(sum(n['valor'] for n in notas) / len(notas), 2) if notas else 0
 
     return render_template('aluno/notas_mes.html',
-        nome_mes=nome_mes, notas=notas, media=media)
+        nome_mes=nome_mes, notas=notas, media=media, ano=ano)
+
 
 @aluno_bp.route('/faltas')
 @login_required
@@ -105,12 +138,15 @@ def faltas():
     conn = create_connection()
     cur  = get_cursor(conn)
 
+    anos = anos_do_aluno(cur, aluno_id)
+    ano  = ano_selecionado(anos)
+
     cur.execute("""
         SELECT MONTH(data_aula) as mes, COUNT(*) as qtd
         FROM portal_chamadas
-        WHERE aluno_id = %s AND status = 'F' AND YEAR(data_aula) = YEAR(NOW())
+        WHERE aluno_id = %s AND status = 'F' AND YEAR(data_aula) = %s
         GROUP BY MONTH(data_aula)
-    """, (aluno_id,))
+    """, (aluno_id, ano))
     faltas_por_mes_raw = cur.fetchall()
 
     cur.execute("""
@@ -120,9 +156,9 @@ def faltas():
                t.nome as turma
         FROM portal_chamadas c
         JOIN portal_turmas t ON t.id = c.turma_id
-        WHERE c.aluno_id = %s AND c.status = 'F' AND YEAR(data_aula) = YEAR(NOW())
+        WHERE c.aluno_id = %s AND c.status = 'F' AND YEAR(data_aula) = %s
         ORDER BY data_aula
-    """, (aluno_id,))
+    """, (aluno_id, ano))
     faltas_detalhe_raw = cur.fetchall()
     cur.close()
     conn.close()
@@ -143,7 +179,9 @@ def faltas():
     return render_template('aluno/faltas.html',
         faltas_por_mes=faltas_por_mes,
         faltas_detalhe=faltas_detalhe,
-        nomes_meses=NOMES_MESES
+        nomes_meses=NOMES_MESES,
+        anos=anos,
+        ano=ano
     )
 
 @aluno_bp.route('/comentarios')
