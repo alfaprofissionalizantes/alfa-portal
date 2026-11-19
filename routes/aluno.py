@@ -68,6 +68,7 @@ def notas():
 
     anos = anos_do_aluno(cur, aluno_id)
     ano  = ano_selecionado(anos)
+    meses = meses_visiveis(cur, aluno_id, ano)
 
     cur.execute("""
         SELECT mes, COUNT(*) as qtd
@@ -94,7 +95,7 @@ def notas():
     return render_template('aluno/notas.html',
         notas_por_mes=notas_por_mes,
         ultimas=ultimas,
-        nomes_meses=NOMES_MESES,
+        nomes_meses=meses,
         anos=anos,
         ano=ano
     )
@@ -140,6 +141,7 @@ def faltas():
 
     anos = anos_do_aluno(cur, aluno_id)
     ano  = ano_selecionado(anos)
+    meses = meses_visiveis(cur, aluno_id, ano)
 
     cur.execute("""
         SELECT MONTH(data_aula) as mes, COUNT(*) as qtd
@@ -179,7 +181,7 @@ def faltas():
     return render_template('aluno/faltas.html',
         faltas_por_mes=faltas_por_mes,
         faltas_detalhe=faltas_detalhe,
-        nomes_meses=NOMES_MESES,
+        nomes_meses=meses,
         anos=anos,
         ano=ano
     )
@@ -451,3 +453,25 @@ def injetar_badges():
         return {'badges': b}
     except Exception:
         return {'badges': None}
+
+
+def meses_visiveis(cur, aluno_id, ano):
+    """Meses que fazem sentido mostrar para este aluno neste ano."""
+    # o portal começou a ser usado em agosto de 2026
+    inicio = 8 if ano == 2026 else 1
+
+    cur.execute("""
+        SELECT MIN(data_entrada) AS entrada
+        FROM portal_aluno_turma
+        WHERE aluno_id = %s
+    """, (aluno_id,))
+    r = cur.fetchone()
+    entrada = r['entrada'] if r else None
+
+    if entrada:
+        if entrada.year > ano:
+            return {}                       # entrou depois desse ano
+        if entrada.year == ano:
+            inicio = max(inicio, entrada.month)
+
+    return {k: v for k, v in NOMES_MESES.items() if k >= inicio}
